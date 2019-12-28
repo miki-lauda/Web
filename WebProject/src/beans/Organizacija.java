@@ -2,11 +2,17 @@ package beans;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Organizacija {
 
 	private String ime;
 	private String opis;
 	private String logo;
+	@JsonManagedReference
 	private ArrayList<Korisnik> listaKorisnika;
 	private ArrayList<Resurs> listaResursa;
 	

@@ -3,8 +3,17 @@ package beans;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("VM")
 public class VM extends Resurs{
 	private KategorijaVM kategorija;
+	
+	@JsonBackReference
 	private ArrayList<Resurs> listaResursa;
 	private ArrayList<Date> listaUkljucenostiVM;
 	private ArrayList<Date> listaIskljucenostiVM;

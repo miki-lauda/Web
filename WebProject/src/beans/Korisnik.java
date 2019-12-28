@@ -1,17 +1,27 @@
 package beans;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Korisnik {
 
 	private String email;
 	private String ime;
 	private String prezime;
+	private String username; // Po ovom je jedinstveno
+	private String password;
+	@JsonBackReference
 	private Organizacija organizacija;
 	private KorisnickaUloga uloga;
-	public Korisnik(String email, String ime, String prezime, Organizacija organizacija, KorisnickaUloga uloga) {
+	public Korisnik(String email, String ime, String prezime, String username, String password,Organizacija organizacija, KorisnickaUloga uloga) {
 		super();
 		this.email = email;
 		this.ime = ime;
 		this.prezime = prezime;
+		this.username = username;
+		this.password = password;
 		this.organizacija = organizacija;
 		this.uloga = uloga;
 	}
@@ -49,6 +59,25 @@ public class Korisnik {
 		this.uloga = uloga;
 	}
 	
+	
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	@Override
+	public String toString() {
+		return "Korisnik [" + super.toString() + ",email=" + email + ", ime=" + ime + ", prezime=" + prezime
+				+ ", username=" + username + ", password=" + password + ", organizacija=" + organizacija + ", uloga="
+				+ uloga + "]";
+	}
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

@@ -1,47 +1,47 @@
 package beans;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class CloudService {
-
-	private static CloudService instance = null;
+	private HashMap<String, Korisnik > korisnici = new HashMap<String, Korisnik>();
+	private HashMap<String, Organizacija> organizacija = new HashMap<String, Organizacija>();
+	private HashMap<String, VM> virtualneMasine = new HashMap<String, VM>();
+	private HashMap<String, Disk> diskovi = new HashMap<String, Disk>();
+	private HashMap<String, KategorijaVM> kategorije = new HashMap<String, KategorijaVM>();
 	
-	private HashMap<String, Korisnik > korisnici;
-	private HashMap<String, Organizacija> organizacija;
-	private HashMap<String, VM> virtualneMasine;
-	private HashMap<String, Disk> diskovi;
-	private HashMap<String, KategorijaVM> kategorije;
+	
+	
+	
+	public CloudService() {
+		super();
+	}
+
+	public static CloudService ucitajIzBaze() {
+		ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(new File("static/baza.json"), CloudService.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }	
+        return null;
+	}
+
+
+
 	public HashMap<String, Korisnik> getKorisnici() {
 		return korisnici;
 	}
 	
 	
-	
-	
-	
-	private CloudService() {
-		super();
-		ucitajIzBaze();
-		
+
+	public void setKorisnici(HashMap<String, Korisnik> korisnici) {
+		this.korisnici = korisnici;
 	}
-
-	public static CloudService getInstance() {
-		if (instance != null)
-			return instance;
-		instance = new CloudService();
-		return instance;
-	}
-	
-
-
-	private void ucitajIzBaze() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-
 
 	public HashMap<String, Organizacija> getOrganizacija() {
 		return organizacija;
