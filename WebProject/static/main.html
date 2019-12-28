@@ -1,10 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Početna strana</title>
+	<script src="js/jquery.min.js"></script>
+	<script src="main.js"></script>
+	<meta charset="UTF-8">
+	<title>Početna strana</title>
+	<style>
+
+		#dugme{
+			background: #007EC9;
+			border-radius: 10px;
+		}
+		body{
+            background: #394B58;
+        }
+		.polja{
+			float: left;
+			margin-left: 15px;
+		}
+		td{
+            color: aliceblue;
+            
+        }
+		#kontejner{
+			width: 100%;
+			float: left;
+			margin-bottom: 25px;
+		}
+		#dugmeDodaj{
+			margin-left: 15px;
+			background: #007EC9;
+			border-radius: 10px;
+		}
+	
+	</style>
 </head>
 <body>
-	BRAVO!!!
+	<div id="kontejner">
+		<div class="polja">
+			<form id="filter" onsubmit="">
+				<table>
+					<tr>
+						<td><b>Filtriranje</b></td>
+						<td>
+							<input type="text" name="filtriranje">
+						</td>
+						<td>
+							<input id="dugme" type="submit" value="Filtriraj">
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+
+		<div class="polja">
+			<form id="pretraga" onsubmit="">
+				<table>
+					<tr>
+						<td><b>Pretraga</b></td>
+						<td>
+							<input type="text" name="pretraga">
+						</td>
+						<td>
+							<input id="dugme" type="submit" value="Pretrazi">
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	
+	<div id="kontejner">
+		<div class="polja"><table border="1">
+			<th>Ime</th>
+			<th>Broj jezgara</th>
+			<th>RAM</th>
+			<th>GPU</th>
+			<th>Organizacija</th>
+		</table>
+		</div class="polja">
+		<div class="polja">
+			<button id="dugme" name="ucitajVM" onclick="">Prikazi VM</button>
+		</div>
+	</div>
+
+	<div>
+		<button id="dugmeDodaj" name="dodaj" onclick="">Dodaj VM</button>
+	</div>
 </body>
 </html>
