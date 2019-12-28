@@ -23,9 +23,9 @@ public class VM extends Resurs{
 		super();
 	}
 	
-	public VM(KategorijaVM kategorija, ArrayList<Resurs> listaResursa, ArrayList<Date> listaUkljucenostiVM,
+	public VM(String ime, KategorijaVM kategorija, ArrayList<Resurs> listaResursa, ArrayList<Date> listaUkljucenostiVM,
 			ArrayList<Date> listaIskljucenostiVM, boolean status) {
-		super();
+		super(ime);
 		this.kategorija = kategorija;
 		this.listaResursa = listaResursa;
 		this.listaUkljucenostiVM = listaUkljucenostiVM;

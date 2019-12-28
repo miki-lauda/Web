@@ -33,6 +33,22 @@ public class CloudService {
 
 
 
+	public void setOrganizacija(HashMap<String, Organizacija> organizacija) {
+		this.organizacija = organizacija;
+	}
+
+	public void setVirtualneMasine(HashMap<String, VM> virtualneMasine) {
+		this.virtualneMasine = virtualneMasine;
+	}
+
+	public void setDiskovi(HashMap<String, Disk> diskovi) {
+		this.diskovi = diskovi;
+	}
+
+	public void setKategorije(HashMap<String, KategorijaVM> kategorije) {
+		this.kategorije = kategorije;
+	}
+
 	public HashMap<String, Korisnik> getKorisnici() {
 		return korisnici;
 	}

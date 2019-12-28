@@ -2,12 +2,11 @@
 <html>
 <head>
 	<script src="js/jquery.min.js"></script>
-	<script src="main.js"></script>
 	<meta charset="UTF-8">
 	<title>Početna strana</title>
 	<style>
 
-		#dugme{
+		.dugme{
 			background: #007EC9;
 			border-radius: 10px;
 		}
@@ -18,11 +17,11 @@
 			float: left;
 			margin-left: 15px;
 		}
-		td{
+		td, th{
             color: aliceblue;
             
         }
-		#kontejner{
+		.kontejner{
 			width: 100%;
 			float: left;
 			margin-bottom: 25px;
@@ -32,11 +31,12 @@
 			background: #007EC9;
 			border-radius: 10px;
 		}
+		
 	
 	</style>
 </head>
 <body>
-	<div id="kontejner">
+	<div class="kontejner">
 		<div class="polja">
 			<form id="filter" onsubmit="">
 				<table>
@@ -46,7 +46,7 @@
 							<input type="text" name="filtriranje">
 						</td>
 						<td>
-							<input id="dugme" type="submit" value="Filtriraj">
+							<input class="dugme" type="submit" value="Filtriraj">
 						</td>
 					</tr>
 				</table>
@@ -62,7 +62,7 @@
 							<input type="text" name="pretraga">
 						</td>
 						<td>
-							<input id="dugme" type="submit" value="Pretrazi">
+							<input class="dugme" type="submit" value="Pretrazi">
 						</td>
 					</tr>
 				</table>
@@ -70,22 +70,38 @@
 		</div>
 	</div>
 	
-	<div id="kontejner">
-		<div class="polja"><table border="1">
-			<th>Ime</th>
-			<th>Broj jezgara</th>
-			<th>RAM</th>
-			<th>GPU</th>
-			<th>Organizacija</th>
-		</table>
-		</div class="polja">
+	<div class="kontejner" id="tabelaVM">
 		<div class="polja">
-			<button id="dugme" name="ucitajVM" onclick="">Prikazi VM</button>
+			<table border="1">
+				<tr>
+					<th>Ime</th>
+					<th>Broj jezgara</th>
+					<th>RAM</th>
+					<th>GPU</th>
+					<th>Organizacija</th>
+				</tr>
+				<tr v-for="virtM in VM">
+					<td>{{virtM.ime}}</td>
+					<td>{{virtM.kategorija && virtM.kategorija.brojJezgara}}</td>
+					<td>{{virtM.kategorija && virtM.kategorija.ram}}</td>
+					<td>{{virtM.kategorija && virtM.kategorija.gpuJezgra}}</td>
+					<td id="org">{{dobaviOrganizacijubyVM(virtM)}}</td>
+				</tr>
+			</table>
+		</div class="polja">
+		
+		<div class="polja">
+			<button class="dugme" name="ucitajVM" v-on:click="dobaviVM">Prikazi VM</button>
 		</div>
 	</div>
 
 	<div>
-		<button id="dugmeDodaj" name="dodaj" onclick="">Dodaj VM</button>
+		<button id="dugmeDodaj" name="dodaj" onclick="" :disabled="mode === 2">Dodaj VM</button>
 	</div>
+
+	<script src="js/vue.js"></script>
+	<script src="js/axios.js"></script>
+	<script src="app/app.js"></script>
+	<script src="app/main.js"></script>
 </body>
 </html>

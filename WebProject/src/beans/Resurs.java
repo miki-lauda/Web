@@ -15,13 +15,18 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = Disk.class, name = "Disk") }
 )
 public abstract class Resurs {
+	
+
 	private String ime;
 	
 	
 	public abstract double naplatiResurs();
 	
 	
-
+	public Resurs(String ime) {
+		super();
+		this.ime = ime;
+	}
 	
 	public Resurs() {
 		super();

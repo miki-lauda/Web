@@ -8,14 +8,19 @@ import static spark.Spark.webSocket;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import beans.CloudService;
+import beans.KategorijaVM;
 import beans.KorisnickaUloga;
 import beans.Korisnik;
+import beans.Organizacija;
+import beans.Resurs;
+import beans.VM;
 import spark.Session;
 
 public class SparkAppMain {
@@ -44,21 +49,50 @@ public class SparkAppMain {
 		post("/checkLogin",(req, res) -> {
 			return KorisniciServis.checkLogin(req, res, g, cloud);
 		});	
+		
+		
+		get("/VM/getalljsonVM", (req, res) -> {
+			return g.toJson(cloud.getVirtualneMasine().values());
+		});
+		post("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
+			res.type("application/json");
+			String payload = req.body();
+			VM vm = g.fromJson(payload, VM.class);
+			for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+				for(Resurs resurs:organizacija.getListaResursa()) {
+					if(resurs.getIme().equals(vm.getIme())) {
+						return g.toJson(organizacija);
+					}
+				}
+			}
+			return "";
+		});
 	}
 	
 	
 	private static void praviBazu() {
-		CloudService cs = new CloudService();
+		cloud = new CloudService();
 		HashMap<String,Korisnik> korisnici = new HashMap<String, Korisnik>();
+		HashMap<String,KategorijaVM> kategorije = new HashMap<String, KategorijaVM>();
+		HashMap<String,VM> VMasine = new HashMap<String, VM>();
+		
 		korisnici.put("dusan",new Korisnik("debelidusan@gmail.com", "Dusan", "Stojancevic", "dusan", "dusan", null, KorisnickaUloga.ADMIN));
 		korisnici.put("miki",new Korisnik("mikilauda@gmail.com", "Milan", "Marinkovic", "miki", "lauda", null, KorisnickaUloga.ADMIN));
-		cs.setKorisnici(korisnici);
+		cloud.setKorisnici(korisnici);
 		
+		KategorijaVM kategorijaVM=new KategorijaVM("MojaKategoija", 3, 8, 6); 
+		kategorije.put(kategorijaVM.getIme(), kategorijaVM);
 		
+		VM vm=new VM("MojaMasina",kategorijaVM,null,null,null,false);
+		cloud.getVirtualneMasine().put(vm.getIme(), vm);
+		
+		Organizacija org=new Organizacija("Org1","fgdfg","slika.img",null,new ArrayList<Resurs>());
+		org.getListaResursa().add(vm);
+		cloud.getOrganizacija().put(org.getIme(), org);
 		
 		ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.writeValue(new File("static/baza.json"), cs);
+            mapper.writeValue(new File("static/baza.json"), cloud);
         } catch (IOException e) {
             e.printStackTrace();
         }
