@@ -3,13 +3,16 @@ package rest;
 import static spark.Spark.get;
 import static spark.Spark.port;
 import static spark.Spark.post;
+import static spark.Spark.before;
 import static spark.Spark.staticFiles;
-import static spark.Spark.webSocket;
+import static spark.Spark.path;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -18,10 +21,13 @@ import beans.CloudService;
 import beans.KategorijaVM;
 import beans.KorisnickaUloga;
 import beans.Korisnik;
+import spark.Request;
+import spark.Response;
 import beans.Organizacija;
 import beans.Resurs;
 import beans.VM;
 import spark.Session;
+import spark.Spark;
 
 public class SparkAppMain {
 
@@ -36,20 +42,29 @@ public class SparkAppMain {
 		cloud = CloudService.ucitajIzBaze();
 		staticFiles.externalLocation(new File("./static").getCanonicalPath());
 		
+		before("/*",(req,res) -> {
+			logedIn(req, res);
+		});
+		
 		get("/", (req, res) -> {
-			if (req.cookie("userID") == null) {
-				res.redirect("/login.html");
-				return "";
-			
+			try {				
+				res.redirect("/main.html");
 			}
-			else
-				return "CAO";
+			catch(Exception e) {
+			}
+			return "";
 		});
 		
 		post("/checkLogin",(req, res) -> {
 			return KorisniciServis.checkLogin(req, res, g, cloud);
 		});	
 		
+		
+		get("/logoff",(req, res) -> {
+			req.session(true).invalidate();
+			res.removeCookie("userID");
+			return "OK";
+		});	
 		
 		get("/VM/getalljsonVM", (req, res) -> {
 			return g.toJson(cloud.getVirtualneMasine().values());
@@ -67,8 +82,40 @@ public class SparkAppMain {
 			}
 			return "";
 		});
+	
+		get("/*", (req, res) -> {
+			res.status(400);
+			
+			return "BAD REQUEST 400";
+		});
+		
 	}
 	
+	
+	// provera da li je korisnik ulogovan
+	private static void logedIn(Request req, Response res) {
+		if (req.cookie("userID") == null) {
+			String[] params = req.splat();
+			String path;// = req.session(true).attribute("path");
+			if(params.length == 0)
+				path = "main.html";
+			else
+				path = params[0];
+			if(path.equals("checkLogin") || path.equals("favicon.ico"))
+				return;
+			req.session(true).attribute("path", path);
+			
+			res.redirect("/login.html");
+		}
+		else {
+			if(req.session(true).attribute("user") == null) {
+				
+				Korisnik k = cloud.getKorisnici().get(req.cookie("userID"));
+				req.session(true).attribute("user", k); // postavi mu korisnika za sesiju
+			}
+		}
+		
+	}
 	
 	private static void praviBazu() {
 		cloud = new CloudService();

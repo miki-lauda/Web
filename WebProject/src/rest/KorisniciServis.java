@@ -15,15 +15,21 @@ public class KorisniciServis {
 		HashMap<String, String> mapa = new HashMap<String, String>();
 		mapa = g.fromJson(req.body(), mapa.getClass());
 		System.out.println(mapa);
-		res.type("text");
 		Korisnik k = cloud.getKorisnici().get(mapa.get("korIme"));
-				 
+		req.session(true).attribute("user", k);
+		res.type("application/json");
 		if(k != null) {
-			if(k.getPassword().equals(mapa.get("sifra")))
-				return "TRUE";
+			if(k.getPassword().equals(mapa.get("sifra"))) {
+				res.cookie("userID", k.getUsername());
+				mapa.clear();
+				mapa.put("uslov", "TRUE");
+				mapa.put("path", req.session(true).attribute("path"));
+				return g.toJson(mapa);
+			}
 		}
 		
-		
-		return "FALSE";
+		mapa.clear();
+		mapa.put("uslov", "FALSE");
+		return g.toJson(mapa);
 	}
 }

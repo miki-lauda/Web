@@ -14,10 +14,11 @@ function sendUserPassword(){
 		type:"POST",
 		data: s,
 		contentType:"application/json",
-		datatype: "text",
-		complete: function(uslov) {
-			if(uslov.responseText == "TRUE"){
-				window.location.href = "/main.html";
+		datatype: "json",
+		complete: function(response) {
+			var data = JSON.parse(response.responseText); 
+			if(data.uslov == "TRUE"){
+				window.location.href = data.path;
 			}
 			else
 				{
