@@ -2,6 +2,16 @@
 <html>
 <head>
 	<script src="js/jquery.min.js"></script>
+	<script type="text/javascript">
+		function showmenu(elmnt)
+		{
+		document.getElementById(elmnt).style.visibility="visible";
+		}
+		function hidemenu(elmnt)
+		{
+		document.getElementById(elmnt).style.visibility="hidden";
+		}
+	</script>
 	<meta charset="UTF-8">
 	<title>Početna strana</title>
 	<style>
@@ -31,46 +41,115 @@
 			background: #007EC9;
 			border-radius: 10px;
 		}
-		
-	
+		#pretragadiv{
+			width: 100%;
+		}
+		#tablemenu{
+			font-size:80%;
+			background:black}
+
+		p{
+			color:black;
+			text-decoration:none;
+			font:bold}
+
+		a:hover{
+			color:#606060}
+
+		td.menu{
+			background:black}
+
+		table.menu
+		{
+			font-size:100%;
+			position:absolute;
+			visibility:hidden;
+		}
 	</style>
 </head>
 <body>
-	<div class="kontejner">
-		<div class="polja">
-			<form id="filter" onsubmit="">
-				<table>
-					<tr>
-						<td><b>Filtriranje</b></td>
-						<td>
-							<input type="text" name="filtriranje">
-						</td>
-						<td>
-							<input class="dugme" type="submit" value="Filtriraj">
-						</td>
-					</tr>
-				</table>
-			</form>
-		</div>
-
-		<div class="polja">
-			<form id="pretraga" onsubmit="">
+	
+	<div class="kontejner" id="tabelaVM">
+		<div class="polja" id="pretragadiv">
 				<table>
 					<tr>
 						<td><b>Pretraga</b></td>
 						<td>
-							<input type="text" name="pretraga">
+							<input id="inputPretrage" type="text" name="pretraga">
 						</td>
 						<td>
-							<input class="dugme" type="submit" value="Pretrazi">
+							<button class="dugme" v-on:click="pretraziVM">Pretrazi</button>
 						</td>
 					</tr>
 				</table>
-			</form>
 		</div>
-	</div>
-	
-	<div class="kontejner" id="tabelaVM">
+		
+			<table width="8%" id="tablemenu">
+				<tr bgcolor="#FF8080">
+				 <td onMouseOver="showmenu('tutorials')" onMouseOut="hidemenu('tutorials')">
+					 <p>Filter</p>
+				  <table class="menu" id="tutorials" width="120">
+					<tr>
+						<td class="menu">
+							RAM
+						</td>
+						<td>
+							<table>
+								<tr>
+									<td class="menu">OD</td>
+									<td class="menu"><input id="odRam" type="number" name="odRam"></td>
+									<td class="menu">DO</td>
+									<td class="menu"><input id="doRam" type="number" name="doRam"></td>
+								</tr>
+								<tr>
+								</tr>
+							</table>
+
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">
+							GPU jezgra
+						</td>
+						<td>
+							<table>
+								<tr>
+									<td class="menu">OD</td>
+									<td class="menu"><input id="odGPU" type="number" name="odGPU"></td>
+									<td class="menu">DO</td>
+									<td class="menu"><input id="doGPU" type="number" name="doGPU"></td>
+								</tr>
+								<tr>
+								</tr>
+							</table>
+
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">
+							Broj jezgara
+						</td>
+						<td>
+							<table>
+								<tr>
+									<td class="menu">OD</td>
+									<td class="menu"><input id="odJezgra" type="number" name="odJezgra"></td>
+									<td class="menu">DO</td>
+									<td class="menu"><input id="doJezgra" type="number" name="doJezgra"></td>
+								</tr>
+								<tr>
+								</tr>
+							</table>
+
+						</td>
+					</tr>
+					<tr>
+						<td class="menu"><button class="dugme" name="buttonFiltriranja" v-on:click="filtriraj">Filtriraj</button></td>
+					</tr>
+				  </table>
+				 </td>
+				</tr>
+			</table>
 		<div class="polja">
 			<table border="1">
 				<tr>
@@ -91,12 +170,12 @@
 		</div class="polja">
 		
 		<div class="polja">
-			<button class="dugme" name="ucitajVM" v-on:click="dobaviVM">Prikazi VM</button>
+			<button class="dugme" name="ucitajVM" v-on:click="dobaviVM">Prikazi sve VM</button>
 		</div>
 	</div>
 
 	<div>
-		<button id="dugmeDodaj" name="dodaj" onclick="" :disabled="mode === 2">Dodaj VM</button>
+		<button id="dugmeDodaj" name="dodaj">Dodaj VM</button>
 	</div>
 
 	<script src="js/vue.js"></script>
