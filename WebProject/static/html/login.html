@@ -1,0 +1,85 @@
+<html>
+    <head>
+
+        <style>
+        #login {
+            border: 1px solid red;
+            border-radius: 10px;
+            width: 350px;
+            height: 300px;
+            position: absolute;
+            left: 50%;
+            top: 25%;
+            margin-top: -12px;
+            margin-left: -150px;
+        }
+        body{
+            background: #394B58;
+        }
+        td{
+            color: aliceblue;
+            
+        }
+        #greska{
+        	color: red;
+        }
+        table{
+            margin: 0;
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        input{
+            width:250;
+            height: 30;
+            border-radius: 10px;
+        }
+        #dugme{
+            background: #007EC9;
+        }
+        
+        </style>
+        
+		<meta charset="UTF-8">
+		<script src="js/jquery.min.js"></script>
+		<script src="app/app.js"></script>
+    </head>
+    <body>
+        <form id="login" onsubmit="return sendUserPassword();">
+            
+                <table>
+                    <tr>
+                        <td>
+                            <b>Korisničko ime</b>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="text" name="korIme">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <b>Šifra</b>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="password" name="sifra">
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <td>
+                            <input id="dugme" type="submit" value="Log In">
+                        </td>
+                    </tr>
+                </table>
+            
+        </form>
+    </body>
+</html>

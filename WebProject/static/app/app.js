@@ -1,3 +1,23 @@
+const Orgs = { template: '<organizacije></organizacije>' }
+//const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
+
+const router = new VueRouter({
+	  mode: 'hash',
+	  routes: [
+	    { path: '/orgs', component: Orgs}
+	  ]
+});
+
+var app = new Vue({
+	router,
+	el: '#main'
+});
+
+
+
+
+
+
 function sendUserPassword(){
     var unindexed_array = $("#login").serializeArray();
     var data = {};
