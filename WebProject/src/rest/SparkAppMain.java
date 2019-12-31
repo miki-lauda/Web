@@ -46,29 +46,11 @@ public class SparkAppMain {
 		cloud = CloudService.ucitajIzBaze();
 		staticFiles.externalLocation(new File("./static").getCanonicalPath());
 		
-		before("/*",(req,res) -> {
-			logedIn(req, res);
-		});
 		
-		get("/", (req, res) -> {
-			try {				
-				res.redirect("/main.html");
-			}
-			catch(Exception e) {
-			}
-			return "";
-		});
+		// Ucitavanje servisa
+		KorisniciServis.loadService(cloud, g);
+		OrganizacijeServis.loadService(cloud, g);
 		
-		post("/checkLogin",(req, res) -> {
-			return KorisniciServis.checkLogin(req, res, g, cloud);
-		});	
-		
-		
-		get("/logoff",(req, res) -> {
-			req.session(true).invalidate();
-			res.removeCookie("userID");
-			return "OK";
-		});	
 		
 		get("/VM/getalljsonVM", (req, res) -> {
 			return g.toJson(cloud.getVirtualneMasine().values());
@@ -111,30 +93,7 @@ public class SparkAppMain {
 	}
 	
 	
-	// provera da li je korisnik ulogovan
-	private static void logedIn(Request req, Response res) {
-		if (req.cookie("userID") == null) {
-			String[] params = req.splat();
-			String path;// = req.session(true).attribute("path");
-			if(params.length == 0)
-				path = "main.html";
-			else
-				path = params[0];
-			if(path.equals("checkLogin") || path.equals("favicon.ico"))
-				return;
-			req.session(true).attribute("path", path);
-			
-			res.redirect("/login.html");
-		}
-		else {
-			if(req.session(true).attribute("user") == null) {
-				
-				Korisnik k = cloud.getKorisnici().get(req.cookie("userID"));
-				req.session(true).attribute("user", k); // postavi mu korisnika za sesiju
-			}
-		}
-		
-	}
+	
 	
 	private static void praviBazu() {
 		cloud = new CloudService();
