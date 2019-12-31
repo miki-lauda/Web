@@ -14,14 +14,14 @@ public class Organizacija {
 	private String logo;
 	@JsonManagedReference
 	private ArrayList<Korisnik> listaKorisnika;
-	private ArrayList<Resurs> listaResursa;
+	private ArrayList<VM> listaResursa;
 	
 	
 	public Organizacija() {
 		super();
 	}
 	public Organizacija(String ime, String opis, String logo, ArrayList<Korisnik> listaKorisnika,
-			ArrayList<Resurs> listaResursa) {
+			ArrayList<VM> listaResursa) {
 		super();
 		this.ime = ime;
 		this.opis = opis;
@@ -53,10 +53,10 @@ public class Organizacija {
 	public void setListaKorisnika(ArrayList<Korisnik> listaKorisnika) {
 		this.listaKorisnika = listaKorisnika;
 	}
-	public ArrayList<Resurs> getListaResursa() {
+	public ArrayList<VM> getListaResursa() {
 		return listaResursa;
 	}
-	public void setListaResursa(ArrayList<Resurs> listaResursa) {
+	public void setListaResursa(ArrayList<VM> listaResursa) {
 		this.listaResursa = listaResursa;
 	}
 	

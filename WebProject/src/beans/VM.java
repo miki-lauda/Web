@@ -9,11 +9,10 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonTypeName("VM")
-public class VM extends Resurs{
+public class VM{
+	private String ime;
 	private KategorijaVM kategorija;
 	
-	@JsonBackReference
 	private ArrayList<Disk> listaResursa;
 	private ArrayList<Date> listaUkljucenostiVM;
 	private ArrayList<Date> listaIskljucenostiVM;
@@ -25,7 +24,7 @@ public class VM extends Resurs{
 	
 	public VM(String ime, KategorijaVM kategorija, ArrayList<Disk> listaResursa, ArrayList<Date> listaUkljucenostiVM,
 			ArrayList<Date> listaIskljucenostiVM, boolean status) {
-		super(ime);
+		this.ime=ime;
 		this.kategorija = kategorija;
 		this.listaResursa = listaResursa;
 		this.listaUkljucenostiVM = listaUkljucenostiVM;
@@ -34,7 +33,6 @@ public class VM extends Resurs{
 	}
 	
 	
-	@Override
 	public double naplatiResurs() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -46,6 +44,15 @@ public class VM extends Resurs{
 		return "VM [" + super.toString() + ",kategorija=" + kategorija + ", listaResursa=" + listaResursa
 				+ ", listaUkljucenostiVM=" + listaUkljucenostiVM + ", listaIskljucenostiVM=" + listaIskljucenostiVM
 				+ ", status=" + status + "]";
+	}
+
+	
+	public String getIme() {
+		return ime;
+	}
+
+	public void setIme(String ime) {
+		this.ime = ime;
 	}
 
 	public KategorijaVM getKategorija() {

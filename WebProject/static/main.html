@@ -49,7 +49,9 @@
 			font-size:80%;background:black
 			
 			}
-
+		#tableDiskmenu{
+			font-size:80%;background:black;
+		}
 		p{
 			color:white;
 			text-decoration:none;
@@ -198,6 +200,10 @@
 				<tr><td class="menu">Ime:</td>
 				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="mode=='BROWSE'" /></td></tr>
 				<tr>
+					<td class="menu">Organizacija:</td>
+					<td><input id="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM(selectedVM)"></td>
+				</tr>
+				<tr>
 					<td class="menu">Kategorija:</td>
 					<td>
 						<select id="katSelect" v-bind:disabled="mode=='BROWSE'" v-on:change="izabranaKategorija">
@@ -219,14 +225,14 @@
 						<table border="1" v-for="res in selectedVM.listaResursa">
 							<tr>
 								<td class="menu">Ime</td>
-								<td class="menu"><input type="text" v-model="res.ime" v-bind:disabled="mode=='BROWSE'" /></td>
+								<td class="menu"><input type="text" v-model="res.ime" v-bind:disabled="true" /></td>
 							</tr>
 							<tr>
 								<td class="menu">Tip diska</td>
 								<td class="menu">
-									<select name="tipDiska" value="res.tip" v-model="res.tip">
-										<option value="1" v-bind:selected="res.tip==2">HDD</option>
-										<option value="2" v-bind:selected="res.tip==2">SDD</option>
+									<select name="tipDiska" value="res.tip" v-model="res.tip" v-bind:disabled="true">
+										<option value="HDD" v-bind:selected="provjera(res.tip,'HDD')">HDD</option>
+										<option value="SSD" v-bind:selected="provjera(res.tip,'SSD')">SSD</option>
 									</select>
 								</td>
 							</tr>	
@@ -235,7 +241,32 @@
 									Kapacitet
 								</td>
 								<td class="menu">
-									<input type="number" v-model="res.kapacitet" v-bind:disabled="mode=='BROWSE'" />
+									<input type="number" v-model="res.kapacitet" v-bind:disabled="true" />
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td>
+						<table id="tableDiskmenu">
+							<tr bgcolor="#007EC9">
+								<td onMouseOver="showmenu('diskFilter')" onMouseOut="hidemenu('diskFilter')">
+									<p><b>Izmijeni listu diskova</b></p>
+									<table class="menu" id="diskFilter" border="1">
+										<tr>
+											<td class="menu">
+												Izaberite disk
+											</td>
+										</tr>
+										<tr v-for="(disk,index) in diskovi">
+											<td>
+												<table>
+													<tr><td class="menu">{{disk.ime}}</td><td rowspan="3" class="menu"><input type="checkbox" v-bind:id="index"  v-on:change="izmijeniListuDiskova(index)" v-bind:checked="provjeraDiskauListi(index)"></td></tr>
+													<tr><td class="menu">{{disk.tip}}</td></tr>
+													<tr><td class="menu">{{disk.kapacitet}}</td></tr>
+												</table>
+										</td>
+										</tr>
+									</table>
 								</td>
 							</tr>
 						</table>
@@ -252,19 +283,19 @@
 				</tr>
 				<tr>
 					<td>
-						<table border="1" v-for="akt in selectedVM.listaUkljucenostiVM">
+						<table border="1" v-for="(akt,index) in selectedVM.listaUkljucenostiVM">
 							<tr>
 								<td class="menu">
-									<input type="date" v-bind:disabled="mode=='BROWSE'" value="akt" v-model="akt"/>
+									<input type="datetime-local" v-bind:id="'ukljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('U',index,akt)"/>
 								</td>
 							</tr>
 						</table>
 					</td>
 					<td>
-						<table border="1" v-for="akt in selectedVM.listaIskljucenostiVM">
+						<table border="1" v-for="(akt, index) in selectedVM.listaIskljucenostiVM">
 							<tr>
 								<td class="menu">
-									<input type="date" v-bind:disabled="mode=='BROWSE'" value="akt" v-model="akt"/>
+									<input type="datetime-local" v-bind:id="'iskljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('I',index,akt)"/>
 								</td>
 							</tr>
 						</table>
@@ -281,12 +312,13 @@
 				</tr>
 				
 			</table>
-		</div>	
+		</div>	+
 	</div>
 
 	<script src="js/vue.js"></script>
 	<script src="js/axios.js"></script>
 	<script src="app/app.js"></script>
 	<script src="app/main.js"></script>
+	<script src="js/vue-router.js"></script>
 </body>
 </html>

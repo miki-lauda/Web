@@ -11,6 +11,9 @@ import static spark.Spark.path;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream.PutField;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,7 +30,6 @@ import beans.Korisnik;
 import spark.Request;
 import spark.Response;
 import beans.Organizacija;
-import beans.Resurs;
 import beans.TipDiska;
 import beans.VM;
 import spark.Session;
@@ -50,43 +52,16 @@ public class SparkAppMain {
 		// Ucitavanje servisa
 		KorisniciServis.loadService(cloud, g);
 		OrganizacijeServis.loadService(cloud, g);
-		
-		
-		get("/VM/getalljsonVM", (req, res) -> {
-			return g.toJson(cloud.getVirtualneMasine().values());
-		});
-		
-		get("/Kategorije/getalljsonKategorije", (req, res) -> {
-			return g.toJson(cloud.getKategorije().values());
-		});
-		
-		post("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
-			res.type("application/json");
-			String payload = req.body();
-			VM vm = g.fromJson(payload, VM.class);
-			for(Organizacija organizacija: cloud.getOrganizacija().values()) {
-				for(Resurs resurs:organizacija.getListaResursa()) {
-					if(resurs.getIme().equals(vm.getIme())) {
-						return g.toJson(organizacija);
-					}
-				}
-			}
-			return "";
-		});
-	
+		VMServis.loadService(cloud,g);
+		OrganizacijeServis.loadService(cloud, g);
+		KategorijeServis.loadService(cloud, g);
+		DiskoviServis.loadService(cloud, g);
 		get("/*", (req, res) -> {
 			res.status(400);
 			
 			return "BAD REQUEST 400";
 		});
 		
-		post("/VM/updateVM", (req,res)->{
-			
-			VM[] vm=g.fromJson(req.body(), VM[].class);
-			HashMap<String, VM> vms= cloud.getVirtualneMasine();
-			vms.put(vm[1].getIme(), vm[0]);
-			return "";
-		});
 		
 		
 		
@@ -95,11 +70,12 @@ public class SparkAppMain {
 	
 	
 	
-	private static void praviBazu() {
+	private static void praviBazu() throws ParseException {
 		cloud = new CloudService();
 		HashMap<String,Korisnik> korisnici = new HashMap<String, Korisnik>();
 		HashMap<String,KategorijaVM> kategorije = new HashMap<String, KategorijaVM>();
 		HashMap<String,VM> VMasine = new HashMap<String, VM>();
+		HashMap<String, Disk> diskovi=new HashMap<String, Disk>();
 		
 		korisnici.put("dusan",new Korisnik("debelidusan@gmail.com", "Dusan", "Stojancevic", "dusan", "dusan", null, KorisnickaUloga.ADMIN));
 		korisnici.put("miki",new Korisnik("mikilauda@gmail.com", "Milan", "Marinkovic", "miki", "lauda", null, KorisnickaUloga.ADMIN));
@@ -110,20 +86,37 @@ public class SparkAppMain {
 		kategorije.put(kategorijaVM.getIme(), kategorijaVM);
 		kategorije.put(kategorijaVM2.getIme(), kategorijaVM2);
 		cloud.setKategorije(kategorije);
+		
 		ArrayList<Date> ukljuc=new ArrayList<Date>();
+		//SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		//String dateString = formatDate.format(new Date());
+		//Date date= formatDate.parse( dateString);  
+		
 		ukljuc.add(new Date());
 		ukljuc.add(new Date());
 		ArrayList<Date> iskljuc=new ArrayList<Date>();
 		iskljuc.add(new Date());
 		iskljuc.add(new Date());
-		Disk disk=new Disk(TipDiska.SSD, 150,null);
-		ArrayList<Disk> diskovi=new ArrayList<Disk>();
-		diskovi.add(disk);
-		VM vm=new VM("MojaMasina",kategorijaVM,diskovi,ukljuc,iskljuc,false);
-		disk.setVm(vm);
+		
+		Disk disk=new Disk("MojDisk1",TipDiska.SSD, 150,null);
+		Disk disk2=new Disk("MojDisk2",TipDiska.SSD, 80,null);
+		Disk disk3=new Disk("MojDisk3",TipDiska.HDD, 1000,null);
+		Disk disk4=new Disk("MojDisk4",TipDiska.HDD, 870,null);
+		ArrayList<Disk> listaDiskova=new ArrayList<Disk>();
+		listaDiskova.add(disk);
+		listaDiskova.add(disk4);
+		diskovi.put(disk.getIme(),disk);
+		diskovi.put(disk2.getIme(),disk2);
+		diskovi.put(disk3.getIme(),disk3);
+		diskovi.put(disk4.getIme(),disk4);
+		cloud.setDiskovi(diskovi);
+		
+		VM vm=new VM("MojaMasina",kategorijaVM,listaDiskova,ukljuc,iskljuc,false);
+		disk.setVm(vm.getIme());
+		disk4.setVm(vm.getIme());
 		cloud.getVirtualneMasine().put(vm.getIme(), vm);
 		
-		Organizacija org=new Organizacija("Org1","fgdfg","slika.img",null,new ArrayList<Resurs>());
+		Organizacija org=new Organizacija("Org1","fgdfg","slika.img",null,new ArrayList<VM>());
 		org.getListaResursa().add(vm);
 		cloud.getOrganizacija().put(org.getIme(), org);
 		

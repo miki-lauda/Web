@@ -5,14 +5,13 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@JsonTypeName("Disk")
-public class Disk extends Resurs {
-	
+public class Disk{
+	private String ime;
 	private TipDiska tip;
 	private float kapacitet;
 	
-	@JsonBackReference
-	private VM vm;
+
+	private String vm;
 	
 	
 	
@@ -21,13 +20,20 @@ public class Disk extends Resurs {
 		super();
 	}
 
-	public Disk(TipDiska tip, float kapacitet, VM vm) {
+	public Disk(TipDiska tip, float kapacitet, String vm) {
 		super();
 		this.tip = tip;
 		this.kapacitet = kapacitet;
 		this.vm = vm;
 	}
 
+
+	public Disk(String ime, TipDiska tip, float kapacitet, String vm) {
+		this.ime=ime;
+		this.tip = tip;
+		this.kapacitet = kapacitet;
+		this.vm = vm;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -50,6 +56,14 @@ public class Disk extends Resurs {
 		return true;
 	}
 
+	public String getIme() {
+		return ime;
+	}
+
+	public void setIme(String ime) {
+		this.ime = ime;
+	}
+
 	public TipDiska getTip() {
 		return tip;
 	}
@@ -66,11 +80,11 @@ public class Disk extends Resurs {
 		this.kapacitet = kapacitet;
 	}
 
-	public VM getVm() {
+	public String getVm() {
 		return vm;
 	}
 
-	public void setVm(VM vm) {
+	public void setVm(String vm) {
 		this.vm = vm;
 	}
 	
@@ -81,7 +95,6 @@ public class Disk extends Resurs {
 		return "Disk [tip=" + tip + ", kapacitet=" + kapacitet + ", vm=" + vm + "]";
 	}
 
-	@Override
 	public double naplatiResurs() {
 		// TODO Auto-generated method stub
 		return 0;
