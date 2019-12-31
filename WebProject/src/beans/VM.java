@@ -14,7 +14,7 @@ public class VM extends Resurs{
 	private KategorijaVM kategorija;
 	
 	@JsonBackReference
-	private ArrayList<Resurs> listaResursa;
+	private ArrayList<Disk> listaResursa;
 	private ArrayList<Date> listaUkljucenostiVM;
 	private ArrayList<Date> listaIskljucenostiVM;
 	private boolean status;
@@ -23,7 +23,7 @@ public class VM extends Resurs{
 		super();
 	}
 	
-	public VM(String ime, KategorijaVM kategorija, ArrayList<Resurs> listaResursa, ArrayList<Date> listaUkljucenostiVM,
+	public VM(String ime, KategorijaVM kategorija, ArrayList<Disk> listaResursa, ArrayList<Date> listaUkljucenostiVM,
 			ArrayList<Date> listaIskljucenostiVM, boolean status) {
 		super(ime);
 		this.kategorija = kategorija;
@@ -56,11 +56,11 @@ public class VM extends Resurs{
 		this.kategorija = kategorija;
 	}
 
-	public ArrayList<Resurs> getListaResursa() {
+	public ArrayList<Disk> getListaResursa() {
 		return listaResursa;
 	}
 
-	public void setListaResursa(ArrayList<Resurs> listaResursa) {
+	public void setListaResursa(ArrayList<Disk> listaResursa) {
 		this.listaResursa = listaResursa;
 	}
 

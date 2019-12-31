@@ -10,7 +10,9 @@ import static spark.Spark.path;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream.PutField;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import beans.CloudService;
+import beans.Disk;
 import beans.KategorijaVM;
 import beans.KorisnickaUloga;
 import beans.Korisnik;
@@ -25,6 +28,7 @@ import spark.Request;
 import spark.Response;
 import beans.Organizacija;
 import beans.Resurs;
+import beans.TipDiska;
 import beans.VM;
 import spark.Session;
 import spark.Spark;
@@ -69,6 +73,11 @@ public class SparkAppMain {
 		get("/VM/getalljsonVM", (req, res) -> {
 			return g.toJson(cloud.getVirtualneMasine().values());
 		});
+		
+		get("/Kategorije/getalljsonKategorije", (req, res) -> {
+			return g.toJson(cloud.getKategorije().values());
+		});
+		
 		post("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
 			res.type("application/json");
 			String payload = req.body();
@@ -88,6 +97,16 @@ public class SparkAppMain {
 			
 			return "BAD REQUEST 400";
 		});
+		
+		post("/VM/updateVM", (req,res)->{
+			
+			VM[] vm=g.fromJson(req.body(), VM[].class);
+			HashMap<String, VM> vms= cloud.getVirtualneMasine();
+			vms.put(vm[1].getIme(), vm[0]);
+			return "";
+		});
+		
+		
 		
 	}
 	
@@ -128,9 +147,21 @@ public class SparkAppMain {
 		cloud.setKorisnici(korisnici);
 		
 		KategorijaVM kategorijaVM=new KategorijaVM("MojaKategoija", 3, 8, 6); 
+		KategorijaVM kategorijaVM2=new KategorijaVM("MojaKategoija2", 1, 15, 3); 
 		kategorije.put(kategorijaVM.getIme(), kategorijaVM);
-		
-		VM vm=new VM("MojaMasina",kategorijaVM,null,null,null,false);
+		kategorije.put(kategorijaVM2.getIme(), kategorijaVM2);
+		cloud.setKategorije(kategorije);
+		ArrayList<Date> ukljuc=new ArrayList<Date>();
+		ukljuc.add(new Date());
+		ukljuc.add(new Date());
+		ArrayList<Date> iskljuc=new ArrayList<Date>();
+		iskljuc.add(new Date());
+		iskljuc.add(new Date());
+		Disk disk=new Disk(TipDiska.SSD, 150,null);
+		ArrayList<Disk> diskovi=new ArrayList<Disk>();
+		diskovi.add(disk);
+		VM vm=new VM("MojaMasina",kategorijaVM,diskovi,ukljuc,iskljuc,false);
+		disk.setVm(vm);
 		cloud.getVirtualneMasine().put(vm.getIme(), vm);
 		
 		Organizacija org=new Organizacija("Org1","fgdfg","slika.img",null,new ArrayList<Resurs>());

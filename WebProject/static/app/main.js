@@ -3,7 +3,15 @@ var prikazVM = new Vue({
     el: '#tabelaVM',
     data: {
         VM: null,
-        organizacija: null
+		organizacija: null,
+		kategorije:null,
+		selectedVM:{ime:"",kategorija:{brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
+		mode:"BROWSE"
+	},
+	mounted(){
+		axios
+		.get('Kategorije/getalljsonKategorije')
+	  .then(response => (this.kategorije = response.data));
 	},
     methods: {
         dobaviVM: function(){
@@ -74,8 +82,37 @@ var prikazVM = new Vue({
 				}
 			}
 			this.VM=zadovoljavajuceVM;
+			
+		},
+		selectVM : function(virtualna) {
+			if (this.mode == 'BROWSE') {
+				this.selectedVM = virtualna;
+				this.mode="EDIT";
+			}    
+			document.getElementById("tabelaIzmjene").style.display="block";
+			this.backup =Object.assign({}, this.selectedVM);
+		},
+		cancelEditing : function() {
+    		this.selectedVM.ime = this.backup[0];
+    		this.selectedVM.kategorija = this.backup[1];
+			this.selectedVM.status = this.backup[2];
+			this.selectedVM.listaResursa=this.backup[3];
+			this.selectedVM.listaUkljucenostiVM=this.backup[4];
+			this.selectedVM.listaIskljucenostiVM=this.backup[5];
+			this.mode = 'BROWSE';
+			document.getElementById("tabelaIzmjene").style.display="none";
+		},
+		cuvajPromjene: function(){
+			var slanje=[this.selectedVM,this.backup];
+			axios
+    		.post("VM/updateVM", JSON.stringify(slanje))
+    		.then(response => toast('VM ' + this.selectedVM.ime + " uspešno snimljen."));
+			this.mode = 'BROWSE';
+			document.getElementById("tabelaIzmjene").style.display="none";
+		},
+		izabranaKategorija: function(){
+			this.selectedVM.kategorija=this.kategorije[document.getElementById("katSelect").selectedIndex];
 		}
-		
 		
 		
     	/*selectStudent : function(student) {
@@ -107,7 +144,13 @@ var prikazVM = new Vue({
     		var parsed = moment(value);
     		return parsed.format(format);
     	}*/
-   	}
+	   },
+	filters: {
+		dateFormat: function (value, format) {
+		var parsed = moment(value);
+		return parsed.format(format);
+		}
+	},
 });
 
 var tipKorisnika=2;
