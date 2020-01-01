@@ -13,8 +13,8 @@ public class Organizacija {
 	private String opis;
 	private String logo;
 	@JsonManagedReference
-	private ArrayList<Korisnik> listaKorisnika;
-	private ArrayList<VM> listaResursa;
+	private ArrayList<Korisnik> listaKorisnika = new ArrayList<Korisnik>();
+	private ArrayList<VM> listaResursa = new ArrayList<VM>();
 	
 	
 	public Organizacija() {

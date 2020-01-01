@@ -1,13 +1,14 @@
-const Orgs = { template: '<organizacije></organizacije>' }
+const Orgs = { template: '<organizacije></organizacije>' };
+const addOrg = {template : '<dodaj-org></dodaj-org>'};
 //const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
 
 const router = new VueRouter({
 	  mode: 'hash',
 	  routes: [
-	    { path: '/orgs', component: Orgs}
+	    { path: '/orgs', component: Orgs},
+	    { path: '/orgs/dodaj', name: 'dodaj',component: addOrg}
 	  ]
 });
-
 var app = new Vue({
 	router,
 	el: '#main'
@@ -16,7 +17,9 @@ var app = new Vue({
 
 
 
-
+function promeniRutu(ruta){
+	router.replace("/"+ ruta);
+}
 
 function sendUserPassword(){
     var unindexed_array = $("#login").serializeArray();
@@ -51,17 +54,4 @@ function sendUserPassword(){
 	});
     
     return false;
-}
-
-
-
-function asd(uslov) {
-	if(uslov === "true")
-		window.location.href = "/main.html";
-	else
-		{
-		if($("table").children().length === 3){
-			$("#dugme").before("<td>Uneto korisnicko ime ili lozinka nije uneta tacno<td>");
-		}
-		}
 }
