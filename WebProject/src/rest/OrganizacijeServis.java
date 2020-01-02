@@ -103,7 +103,7 @@ public class OrganizacijeServis {
 		
 		
 		//dobavlja organizaciju na osnovu VM
-		get("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
+		post("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
 			res.type("application/json");
 			String payload = req.body();
 			if(payload.equals("")) {
