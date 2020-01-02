@@ -38,6 +38,10 @@ public class KorisniciServis {
 			res.removeCookie("userID");
 			return "OK";
 		});	
+
+		post("/korisnici/getAllUsers", (res,req) ->{
+			return g.toJson(cloud.getKorisnici());
+		});
 	}
 	
 	public static String checkLogin(Request req, Response res, Gson g, CloudService cloud) {
@@ -87,6 +91,5 @@ public class KorisniciServis {
 			}
 			
 		}
-	
 	
 }
