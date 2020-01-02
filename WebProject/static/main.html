@@ -188,7 +188,7 @@
 					<td>{{virtM.kategorija && virtM.kategorija.brojJezgara}}</td>
 					<td>{{virtM.kategorija && virtM.kategorija.ram}}</td>
 					<td>{{virtM.kategorija && virtM.kategorija.gpuJezgra}}</td>
-					<td id="org">{{dobaviOrganizacijubyVM(virtM)}}</td>
+					<td class="org">{{dobaviOrganizacijubyVM(virtM)}}</td>
 				</tr>
 			</table>
 		</div class="polja">
@@ -203,7 +203,7 @@
 				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="mode=='BROWSE'" /></td></tr>
 				<tr>
 					<td class="menu">Organizacija:</td>
-					<td><input id="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM(selectedVM)"></td>
+					<td><input class="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM(selectedVM)"></td>
 				</tr>
 				<tr>
 					<td class="menu">Kategorija:</td>
