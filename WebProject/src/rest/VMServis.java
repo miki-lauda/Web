@@ -2,13 +2,16 @@ package rest;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.Spark.delete;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.Disk;
+import beans.Organizacija;
 import beans.VM;
 
 public class VMServis {
@@ -49,7 +52,51 @@ public class VMServis {
 			}
 			return "";
 		});
+		post("/VM/dodajNovuVM",(req,res)->{
+			VM novaVM=g.fromJson(req.body(), VM.class);
+			cloud.getVirtualneMasine().put(novaVM.getIme(), novaVM);
+			return "";
+		});	
 		
+		post("/VM/pretraga",(req,res)->{
+			String ime=g.fromJson(req.body(), String.class);
+			ArrayList<VM> vms=new ArrayList<VM>();
+			
+			for(VM vm:cloud.getVirtualneMasine().values()) {
+				if(vm.getIme().equals(ime)) {
+					vms.add(vm);
+				}
+			}
+			return g.toJson(vms);
+		});
 		
+		post("/VM/deleteVM", (req,res)->{
+			VM deleteVM= g.fromJson(req.body(), VM.class);
+			
+			for(VM virt : cloud.getVirtualneMasine().values()) {
+				if(virt.getIme().equals(deleteVM.getIme())) {
+					cloud.getVirtualneMasine().remove(deleteVM.getIme());
+					break;
+				}
+			}
+			
+			for(Disk dsk:cloud.getDiskovi().values()) {
+				if(dsk.getVm()==null) {
+					continue;
+				}
+				if(dsk.getVm().equals(deleteVM.getIme())) {
+					dsk.setVm(null);
+				}
+			}
+			for(Organizacija org:cloud.getOrganizacija().values()) {
+				for(VM virt:org.getListaResursa()) {
+					if(virt.getIme().equals(deleteVM.getIme())) {
+						org.getListaResursa().remove(deleteVM);
+						break;
+					}
+				}
+			}
+			return "";
+		});
 	}
 }

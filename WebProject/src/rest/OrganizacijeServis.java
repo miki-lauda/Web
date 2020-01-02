@@ -103,9 +103,12 @@ public class OrganizacijeServis {
 		
 		
 		//dobavlja organizaciju na osnovu VM
-		post("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
+		get("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
 			res.type("application/json");
 			String payload = req.body();
+			if(payload.equals("")) {
+				return "";
+			}
 			VM vm = g.fromJson(payload, VM.class);
 			for(Organizacija organizacija: cloud.getOrganizacija().values()) {
 				for(VM resurs:organizacija.getListaResursa()) {
@@ -114,6 +117,19 @@ public class OrganizacijeServis {
 					}
 				}
 			}
+			return "";
+		});
+		
+		get("/Organizacija/getAll",(req,res)-> {
+			return g.toJson(cloud.getOrganizacija().values());
+		});
+		
+		post("/Organizacija/dodajVMuOrg", (req,res) -> {
+			String[] orgVM=g.fromJson(req.body(), String[].class);
+			Organizacija org=cloud.getOrganizacija().get(orgVM[1]);
+			VM vm=cloud.getVirtualneMasine().get(orgVM[0]);
+			org.getListaResursa().add(vm);
+			cloud.getOrganizacija().put(org.getIme(), org);
 			return "";
 		});
 	

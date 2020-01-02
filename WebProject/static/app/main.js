@@ -5,29 +5,38 @@ var prikazVM = new Vue({
         VM: null,
 		organizacija: null,
 		kategorije:null,
-		selectedVM:{ime:"",kategorija:{brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
+		selectedVM:{ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
 		mode:"BROWSE",
-		diskovi:null
+		diskovi:null,
+		novaVM:{ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
+		organizacije:null,
+		izabranaOrganizacija:null,
 	},
 	mounted(){
+		this.uzmiVMizBaze();
 		axios
 		.get('Kategorije/getalljsonKategorije')
 	  .then(response => (this.kategorije = response.data));
 	  axios
 		.get('Diskovi/getalljsonDiskovi')
 	  .then(response => (this.diskovi = response.data));
+	  axios
+		.get('Organizacija/getAll')
+	  .then(response => (this.organizacije = response.data));
 	},
     methods: {
         dobaviVM: function(){
-            axios
-            .get('VM/getalljsonVM')
-		  .then(response => (this.VM = response.data));
+			this.uzmiVMizBaze();
+			document.getElementById("tabelaSaVM").style.display="block";
         },
         dobaviOrganizacijubyVM : function(vm){
+			if(vm.ime==""){
+				return "";
+			}
             var podatak=JSON.stringify(vm);
             $.ajax({
                 url: "Organizacija/getOrganizacijebyVM/",
-                type:"POST",
+                type:"GET",
                 data: podatak,
                 contentType:"application/json",
                 dataType:"json",
@@ -42,18 +51,18 @@ var prikazVM = new Vue({
                 }
             });
 		},
-		
+		uzmiVMizBaze : function(){
+			axios
+			.get('VM/getalljsonVM')
+			.then(response => (this.VM = response.data));
+		},
 		pretraziVM: function(){
-			var zadovoljavajuceVM=[];
-			var trazenaVm=document.getElementById("inputPretrage").value;
-			for(var masina of this.VM){
-				if(masina.ime===trazenaVm){
-					zadovoljavajuceVM.push(masina);
-					break;
-				}
+			if(document.getElementById("inputPretrage").value==""){
+				this.uzmiVMizBaze();
 			}
-			this.VM=null;
-			this.VM=zadovoljavajuceVM;
+			axios
+			.post('VM/pretraga',document.getElementById("inputPretrage").value)
+			.then(response => (this.VM = response.data));
 
 		},
 		filtriraj:function(){
@@ -93,21 +102,89 @@ var prikazVM = new Vue({
 			this.VM=zadovoljavajuceVM;
 			
 		},
-		selectVM : function(virtualna) {
-			if (this.mode == 'BROWSE') {
-				this.selectedVM = virtualna;
-				this.mode="EDIT";
-			}    
+		selectVM : function(virtualna) {	
+			this.selectedVM = virtualna;
+			this.mode="EDIT";    
 			document.getElementById("tabelaIzmjene").style.display="block";
 			this.backup =Object.assign({}, this.selectedVM);
 		},
+		dodajVM: function(){
+			document.getElementById("tabelaDodavanja").style.display="block";
+		},
+		
+		dodajNovuVM: function(){
+			var provjera=true;
+			if(this.novaVM.ime=="" || this.provjeraZauzetostiImena(this.novaVM.ime)){
+				$("#novoIme").addClass("error");
+				provjera= false;
+			}
+			else{
+				$("#novoIme").removeClass("error");
+			}
+
+			if(this.novaVM.kategorija.ime==""){
+				$("#kategorijeNoveVM").addClass("error");
+				provjera= false;
+			}
+			else{
+				$("#kategorijeNoveVM").removeClass("error");
+			}
+
+			if(this.izabranaOrganizacija==null){
+				$("#izborNoveOrg").addClass("error");
+				provjera= false;
+			}
+			else{
+				$("#izborNoveOrg").removeClass("error");
+			}
+
+			if(!provjera){
+				return false;
+			}
+			var OrgVM=[];
+			OrgVM.push(this.novaVM.ime);
+			OrgVM.push(this.izabranaOrganizacija.ime);
+			axios
+			.post('VM/dodajNovuVM',JSON.stringify(this.novaVM))
+			.then(document.getElementById("tabelaDodavanja").style.display="none");
+			axios
+			.post('Organizacija/dodajVMuOrg',JSON.stringify(OrgVM));
+			if(this.VM!=null){
+				this.VM.push(this.novaVM);
+			}
+			this.novaVM={ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]};
+		},
+		izbrisiVM: function(){
+			var indeks=null;
+			for(var virt of this.VM){
+				if(virt.ime==this.selectedVM.ime){
+					indeks=this.VM.indexOf(virt);
+					axios.post("VM/deleteVM", virt).then(this.VM.splice(indeks,1));
+				}
+			}
+			document.getElementById("tabelaIzmjene").style.display="none";
+			this.selectedVM={ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]};
+		},
+		otkaziDodavanje: function(){
+			this.novaVM={ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]};
+			document.getElementById("tabelaDodavanja").style.display="none";
+		},
+		provjeraZauzetostiImena: function(ime){
+			for(var virt of this.VM){
+				if(virt.ime==ime){
+					return true;
+				}
+			}
+			return false;
+		},
+
 		cancelEditing : function() {
-    		this.selectedVM.ime = this.backup[0];
-    		this.selectedVM.kategorija = this.backup[1];
-			this.selectedVM.status = this.backup[2];
-			this.selectedVM.listaResursa=this.backup[3];
-			this.selectedVM.listaUkljucenostiVM=this.backup[4];
-			this.selectedVM.listaIskljucenostiVM=this.backup[5];
+    		this.selectedVM.ime = this.backup.ime;
+    		this.selectedVM.kategorija = this.backup.kategorija;
+			this.selectedVM.status = this.backup.status;
+			this.selectedVM.listaResursa=this.backup.listaResursa;
+			this.selectedVM.listaUkljucenostiVM=this.backup.listaUkljucenostiVM;
+			this.selectedVM.listaIskljucenostiVM=this.backup.listaIskljucenostiVM;
 			this.mode = 'BROWSE';
 			document.getElementById("tabelaIzmjene").style.display="none";
 		},
@@ -119,11 +196,18 @@ var prikazVM = new Vue({
     		.post("VM/updateVM", jsonPodatak)
     		.then(response => this.mode = 'BROWSE');
 			document.getElementById("tabelaIzmjene").style.display="none";
-			this.selectedVM={ime:"",kategorija:{brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]};
+			this.selectedVM={ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]};
 		},
 		izabranaKategorija: function(){
 			this.selectedVM.kategorija=this.kategorije[document.getElementById("katSelect").selectedIndex];
 		},
+		izabranaNovaKategorija:function(){
+			this.novaVM.kategorija=this.kategorije[document.getElementById("kategorijeNoveVM").selectedIndex-1];
+		},
+		izaberiOrganizaciju :function(){
+			this.izabranaOrganizacija=this.organizacije[document.getElementById("izborNoveOrg").selectedIndex-1];
+		},
+
 		provjera: function(tip,data){
 			if(tip==data){
 				return true;
@@ -132,27 +216,27 @@ var prikazVM = new Vue({
 				return false;
 			}
 		},
-		izmijeniListuDiskova: function(indeks){
+		izmijeniListuDiskova: function(indeks,data){
 			var disk=this.diskovi[indeks];
 			var brisanje=false;
 			var indeksDiska=null;
-			for(var diskVM of this.selectedVM.listaResursa){
+			for(var diskVM of data.listaResursa){
 				if(diskVM.ime==disk.ime){
 					brisanje=true;
-					indeksDiska=this.selectedVM.listaResursa.indexOf(diskVM);
+					indeksDiska=data.listaResursa.indexOf(diskVM);
 					break;
 				}
 			}
 			if(brisanje){
-				this.selectedVM.listaResursa.splice(indeksDiska,1);
+				data.listaResursa.splice(indeksDiska,1);
 			}
 			else{
-				this.selectedVM.listaResursa.push(disk);
+				data.listaResursa.push(disk);
 			}
 		},
-		provjeraDiskauListi: function(indeks){
+		provjeraDiskauListi: function(indeks,data){
 			var disk=this.diskovi[indeks];
-			for(var diskVM of this.selectedVM.listaResursa){
+			for(var diskVM of data.listaResursa){
 				if(diskVM.ime==disk.ime){
 					return true;
 
@@ -322,23 +406,4 @@ var prikazVM = new Vue({
     		return parsed.format(format);
     	}*/
 	   },
-});
-
-var tipKorisnika=2;
-var prikazDugmeta=new Vue({
-	el:"#dugmeDodaj",
-	data:{
-		uloga:null
-	},
-	mounted(){
-		this.uloga=tipKorisnika;
-		if(this.uloga===3)
-		{
-			document.getElementById("dugmeDodaj").style.visibility="hidden";
-		}
-		else{
-			document.getElementById("dugmeDodaj").style.visibility="visible";
-		}
-	}
-
 });
