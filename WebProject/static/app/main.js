@@ -36,7 +36,7 @@ var prikazVM = new Vue({
             var podatak=JSON.stringify(vm);
             $.ajax({
                 url: "Organizacija/getOrganizacijebyVM/",
-                type:"GET",
+                type:"POST",
                 data: podatak,
                 contentType:"application/json",
                 dataType:"json",
@@ -46,8 +46,11 @@ var prikazVM = new Vue({
 						return;
 					}
 					var a=JSON.parse(jqXHR.responseText);
-					$("#org").html((JSON.parse(jqXHR.responseText)).ime);
-					document.getElementById("orgValue").value=JSON.parse(jqXHR.responseText).ime;
+					var redovi=document.getElementsByClassName("org");
+					for(var red of redovi){
+						red.innerText=(JSON.parse(jqXHR.responseText)).ime;
+					}
+					document.getElementsByClassName("orgValue")[0].value=JSON.parse(jqXHR.responseText).ime;
                 }
             });
 		},
