@@ -11,7 +11,7 @@ Vue.component("organizacije", {
 			<tr>
 				<th>Ime</th><th>Opis</th><th>Logo</th></tr>
 			</tr>
-			<tr v-for="org in orgs" @click="izmenaOrg(org)">
+			<tr v-for="org in orgs" @click="izmenaOrg(org.ime)">
 				<td> {{org.ime}}</td>
 				<td> {{org.opis}}</td>
 				<td> <img :src = "org.logo" height = "40" width = "40"></td>
@@ -27,12 +27,9 @@ Vue.component("organizacije", {
 		init : function() {
 			this.orgs = {};
 		}, 
-		// Implementirati funkcije
-		dodajOrg : function () {
-			
-		} , 
+		// Implementirati funkcije 
 		izmenaOrg : function (org) {
-			
+			promeniRutu('orgs/izmena/'+org);
 		} 
 	},
 	mounted () {
@@ -59,19 +56,20 @@ Vue.component("dodaj-org", {
 	template: ` 
 <div>
 		<h2>Dodaj organizaciju</h2>
-		<form id="forma">
-			<table border="1" align>
+		<table border="1">
 			    <tr>
 			        <td>Ime</td>
-			        <td><input id='imeOrg'type ="text" name='ime' required/></td>
+			        <td><input id='imeOrg' type ="text" name='ime' required/></td>
 			    </tr>
 			    <tr>
 			        <td>Opis</td>
-			        <td><textarea name="opis" cols="30" rows="10" placeholder = 'Kratak opis'></textarea></td>
+			        <td><textarea id='opis' name="opis" cols="30" rows="3" placeholder = 'Kratak opis'></textarea></td>
 			    </tr>
-			    <tr id = 'logo'>
-			        <td>Logo</td>
-					<td style="display: none;"><img v-bind:src="putanja" width = '75' height = '75'></td>
+			    <tr>
+			    	<td>Logo</td>
+			    	<td><img :src = "filePath" width="75" height="75" id="slika"/></td>
+			    </tr>
+			    <tr>
 			        <td><input type ="file" ref='file' v-on:change='promeniPutanju()' name='slika' accept="image/*"/></td>
 			        <td><button v-on:click="submitFile()">Posalji sliku</button></td>
 			    </tr>
@@ -122,39 +120,32 @@ Vue.component("dodaj-org", {
 			    	</td>
 			    </tr>
 			</table>
-		<br /> 
-		</form>
+		<br />
 		<button v-on:click="dodajOrg">Dodaj</button>
 </div>		  
 `
 	, 
 	methods : {
 		// Implementirati funkcije
-		dodajOrg : function () {
-			var unindexed_array = $("#forma").serializeArray();
-		    var data = {};
-
-		    $.map(unindexed_array, function(n, i){
-		        data[n['name']] = n['value'];
-		    });
-		    
-		    if(!(data['ime'] === '')){
+		dodajOrg : function () { 
+			
+		    if(!($("#imeOrg").val() === '')){
 		    	axios
 		          .post('/orgs/addOrg', 
-		        		  {'ime': ''+data['ime'],
+		        		  {'ime': ''+$("#imeOrg").val(),
 		  		    	'logo' : ''+ this.filePath,
-				    	'opis' : ''+data['opis'],
+				    	'opis' : ''+$("#opis").val(),
 				    	'listaKorisnika' : this.korisniciOrg,
 				    	'listaResursa' : this.resursiOrg
 				    	})
 		          .then(response => {
 		        	  let uslov = response.data;
 		        	  if(!uslov){
-		        		 toast("Organizacija već postoji");
+		        		 alert("Organizacija već postoji");
 		        	  }
 		        	  else{
+		        		  alert("Uspesno ste dodali organizaciju: " + $("#imeOrg").val());
 		        		  promeniRutu("orgs");
-		        		  toast("Uspesno ste dodali organizaciju: " + data['ime']);
 		        	  }
 		          }).catch(response => {
 			          alert(response.data);
@@ -193,7 +184,7 @@ Vue.component("dodaj-org", {
 	          	this.putanja = this.filePath;
 	        })
 	        .catch(response => function(response){
-	          toast("Fajl nije odgovarajuć");
+	          alert("Fajl nije odgovarajuć");
 	        });
 	      }
 	},
@@ -223,15 +214,14 @@ Vue.component("izmena-org", {
 	template: ` 
 <div>
 		<h2>Detaljan prikaz organizacije</h2>
-		<form id="forma">
-			<table>
+		<table border = "1">
 			    <tr>
 			        <td>Ime</td>
 			        <td><input id='imeOrg'type ="text" name='ime' :value = "org.ime" required/></td>
 			    </tr>
 			    <tr>
 			        <td>Opis</td>
-			        <td><textarea name="opis" cols="30" rows="10" placeholder = 'Kratak opis'>{{org.opis}}</textarea></td>
+			        <td><textarea id='opis' name="opis" cols="30" rows="3" placeholder = 'Kratak opis'>{{org.opis}}</textarea></td>
 			    </tr>
 			    <tr>
 			    	<td>Logo</td>
@@ -242,14 +232,13 @@ Vue.component("izmena-org", {
 			        <td><button v-on:click="submitFile()">Posalji sliku</button></td>
 			    </tr>
 			    <tr>
-			    	<td><button v-on:click="izmeniOrg">Izmeni</button></td>
-			    	<td><button v-on:click="ponisti">Poništi izmene</button></td>
+			    	<td><button v-on:click="izmeniOrg()">Izmeni</button></td>
+			    	<td><button v-on:click="ponisti()">Pregled organizacija</button></td>
 			    </tr>
 			</table>
 			
 			
 			<br /> 
-		</form>
 		<h3>Lista korisnika</h3>
 		<table>
 			<tr>
@@ -269,17 +258,16 @@ Vue.component("izmena-org", {
 	methods : {
 		// Implementirati funkcije
 		izmeniOrg : function () {
-			var unindexed_array = $("#forma").serializeArray();
-		    var data = {};
-
-		    $.map(unindexed_array, function(n, i){
-		        data[n['name']] = n['value'];
-		    });
-		    
-		    if(!(data['ime'] === '')){
+			
+		    if(!($("#imeOrg").val() === '')){
+		    	var a = this.org['listaResursa'];
 		    	axios
-		          .post('/orgs/izmeniOrg', {"staroIme":''+staroIme,"novoIme":''+data.ime, "opis":''+data.opis, 
-		        	  "logo": ''+this.filePath})
+		          .post('/orgs/izmeniOrg/'+this.staroIme, {'ime': ''+$("#imeOrg").val(),
+		  		    	'logo' : ''+ this.filePath,
+				    	'opis' : ''+ $("#opis").val(),
+				    	'listaKorisnika' : this.org['listaKorisnika'],
+				    	'listaResursa' : this.org['listaResursa']
+				    	})
 		          .then(response => {
 		        	  let uslov = response.data;
 		        	  if(!uslov){
@@ -287,11 +275,16 @@ Vue.component("izmena-org", {
 		        	  }
 		        	  else{
 		        		  promeniRutu("orgs");
-		        		  toast("Organizacije "+ this.staroIme +" je izmenjena");
+		        		  alert("Organizacije "+ this.staroIme +" je izmenjena");
 		        	  }
-		          });
+		          }).catch(response => function(response){
+			          alert("jes");
+			        });;
 		    }
 
+		},
+		ponisti: function(){
+			promeniRutu("orgs");
 		},
 		promeniPutanju: function () {
 			this.file = this.$refs.file.files[0]; // Metod za promenu putanje fajla
@@ -327,9 +320,11 @@ Vue.component("izmena-org", {
 	        .catch(response => function(response){
 	          alert("Fajl nije dobar");
 	        });
+	            
 	      }
 	},
 	mounted () {
+		this.staroIme = router.currentRoute.params.org;
         axios
           .post('/orgs/getOrg/' + this.staroIme)
           .then(response => {

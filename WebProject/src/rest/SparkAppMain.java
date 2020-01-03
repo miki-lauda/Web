@@ -116,7 +116,7 @@ public class SparkAppMain {
 		disk4.setVm(vm.getIme());
 		cloud.getVirtualneMasine().put(vm.getIme(), vm);
 		
-		Organizacija org=new Organizacija("Org1","fgdfg","slika.img",null,new ArrayList<VM>());
+		Organizacija org=new Organizacija("Org1","fgdfg","slika.img",new ArrayList<Korisnik>(),new ArrayList<VM>());
 		org.getListaResursa().add(vm);
 		cloud.getOrganizacija().put(org.getIme(), org);
 		

@@ -1,5 +1,6 @@
 const Orgs = { template: '<organizacije></organizacije>' };
 const addOrg = {template : '<dodaj-org></dodaj-org>'};
+const izmenaOrg = {template: '<izmena-org></izmena-org>'};
 //const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
 
 const router = new VueRouter({
@@ -7,6 +8,7 @@ const router = new VueRouter({
 	  routes: [
 	    { path: '/orgs', component: Orgs},
 	    { path: '/orgs/dodaj', name: 'dodaj',component: addOrg}
+	    ,{ path: '/orgs/izmena/:org', component: izmenaOrg}
 	  ]
 });
 var app = new Vue({

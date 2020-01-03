@@ -110,7 +110,7 @@ public class OrganizacijeServis {
 				//Izbaci korisnike iz drugih organizacija
 				Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
 				korisnici.add(k1);
-				Organizacija org1 = k.getOrganizacija();
+				Organizacija org1 = k1.getOrganizacija();
 				if(org1 != null) {
 					int index = org1.getListaKorisnika().indexOf(k1);
 					if(index != -1) 
@@ -126,7 +126,7 @@ public class OrganizacijeServis {
 				VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
 				resursi.add(vm1);
 			}
-			org.setListaResursa(resursi);;
+			org.setListaResursa(resursi);
 			
 			
 			cloud.getOrganizacija().put(org.getIme(), org);
@@ -140,23 +140,57 @@ public class OrganizacijeServis {
 			// Ako organizacija ne postoji vrati false
 			if (org == null)
 				return false;
-			return g.toJson(org);
+			ObjectMapper mapper = new ObjectMapper();
+	        try {
+	            return mapper.writeValueAsString(org);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return "WHOOPS";
+	        }
 		});
 		
-		post("orgs/izmeniOrg", (req,res) ->{
-			HashMap<String, String> mapa = new HashMap<String, String>();
-			
-			mapa = g.fromJson(req.body(), mapa.getClass());
-			
+		post("orgs/izmeniOrg/:org", (req,res) ->{
+			res.type("text");
+			res.status(200);
+			String staroIme = req.params(":org");
+			ObjectMapper mapper = new ObjectMapper();
+			Organizacija org = mapper.readValue(req.body(), Organizacija.class);
+			//Organizacija org = g.fromJson(req.body(), Organizacija.class);
 			// Ukoliko vec postoji takvo ime organizacije i razlicito je od starog
-			if(cloud.getOrganizacija().get(mapa.get("novoIme")) != null &&
-					!mapa.get("staroIme").equals(mapa.get("novoIme"))) {
+			
+			if(cloud.getOrganizacija().get(org.getIme()) != null &&
+					!staroIme.equals(org.getIme())) {
 				return false;
 			}
-			Organizacija org = cloud.getOrganizacija().get(mapa.get("staroIme"));
-			org.setIme(mapa.get("novoIme"));
-			org.setOpis(mapa.get("opis"));
-			org.setLogo(mapa.get("logo"));
+			// Originalana organizacija
+			Organizacija orgO = cloud.getOrganizacija().get(staroIme);
+			orgO.setIme(org.getIme());
+			orgO.setOpis(org.getOpis());
+			orgO.setLogo(org.getLogo());
+			
+			ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>(); 
+			for(Korisnik k : org.getListaKorisnika()) {
+				//Izbaci korisnike iz drugih organizacija
+				Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
+				korisnici.add(k1);
+				Organizacija org1 = k1.getOrganizacija();
+				if(org1 != null) {
+					int index = org1.getListaKorisnika().indexOf(k1);
+					if(index != -1) 
+						org1.getListaKorisnika().remove(index);
+				}
+				//Ubaci ih u druge
+				k1.setOrganizacija(orgO);
+			}
+			orgO.setListaKorisnika(korisnici);
+			
+			ArrayList<VM> resursi = new ArrayList<VM>(); 
+			for(VM vm : org.getListaResursa()) {
+				VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
+				resursi.add(vm1);
+			}
+			orgO.setListaResursa(resursi);
+			
 			
 			return true;
 		});
