@@ -3,8 +3,10 @@ import static spark.Spark.before;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
+import java.io.IOException;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import beans.CloudService;
@@ -39,9 +41,16 @@ public class KorisniciServis {
 			return "OK";
 		});	
 
-		post("/korisnici/getAllUsers", (res,req) ->{
-			return g.toJson(cloud.getKorisnici());
-		});
+		get("/korisnici/getAllUsers", (req,res) ->{
+			res.type("application/json");
+			ObjectMapper mapper = new ObjectMapper();
+	        try {
+	            return mapper.writeValueAsString(cloud.getKorisnici().values());
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return "WHOOPS";
+	        }
+	     });
 	}
 	
 	public static String checkLogin(Request req, Response res, Gson g, CloudService cloud) {

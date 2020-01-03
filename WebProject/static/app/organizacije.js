@@ -11,7 +11,7 @@ Vue.component("organizacije", {
 			<tr>
 				<th>Ime</th><th>Opis</th><th>Logo</th></tr>
 			</tr>
-			<tr v-for="org in orgs" :id="org.ime">
+			<tr v-for="org in orgs" @click="izmenaOrg(org)">
 				<td> {{org.ime}}</td>
 				<td> {{org.opis}}</td>
 				<td> <img :src = "org.logo" height = "40" width = "40"></td>
@@ -31,13 +31,13 @@ Vue.component("organizacije", {
 		dodajOrg : function () {
 			
 		} , 
-		izmenaOrg : function () {
-		
+		izmenaOrg : function (org) {
+			
 		} 
 	},
 	mounted () {
         axios
-          .post('/orgs/getAllOrgs')
+          .get('/orgs/getAllOrgs')
           .then(response => {
         	  this.orgs = response.data;
           });
@@ -59,7 +59,7 @@ Vue.component("dodaj-org", {
 	template: ` 
 <div>
 		<h2>Dodaj organizaciju</h2>
-		<form id="forma"">
+		<form id="forma">
 			<table border="1" align>
 			    <tr>
 			        <td>Ime</td>
@@ -110,8 +110,7 @@ Vue.component("dodaj-org", {
 										</tr>
 										<tr v-for = "r in resursi">
 											<td>{{r.ime}}  <input :value='r' type='checkbox' v-model="resursiOrg"/></td>
-											<td v-if="r.kategorija == undefined">Disk|{{r.kapacitet}} GB {{r.tip}}</td>
-											<td v-else> VM |{{r.kategorija.brojJezgara}} CPU 
+											<<td> VM |{{r.kategorija.brojJezgara}} CPU 
 											{{r.kategorija.gpuJezgra}} GPU
 											{{r.kategorija.ram}} RAM</td>
 										</tr>
@@ -124,8 +123,8 @@ Vue.component("dodaj-org", {
 			    </tr>
 			</table>
 		<br /> 
-			<button v-on:click="dodajOrg">Dodaj</button>
 		</form>
+		<button v-on:click="dodajOrg">Dodaj</button>
 </div>		  
 `
 	, 
@@ -140,15 +139,14 @@ Vue.component("dodaj-org", {
 		    });
 		    
 		    if(!(data['ime'] === '')){
-		    	let org = {}
-		    	org.ime = data['ime'];
-		    	org.logo = this.filePath;
-		    	org.opis = data['opis'];
-		    	org.listaKorisnika = this.korisniciOrg;
-		    	org.listaResursa = this.resursiOrg;
-		    	
 		    	axios
-		          .post('/orgs/addOrg', org)
+		          .post('/orgs/addOrg', 
+		        		  {'ime': ''+data['ime'],
+		  		    	'logo' : ''+ this.filePath,
+				    	'opis' : ''+data['opis'],
+				    	'listaKorisnika' : this.korisniciOrg,
+				    	'listaResursa' : this.resursiOrg
+				    	})
 		          .then(response => {
 		        	  let uslov = response.data;
 		        	  if(!uslov){
@@ -156,7 +154,10 @@ Vue.component("dodaj-org", {
 		        	  }
 		        	  else{
 		        		  promeniRutu("orgs");
+		        		  toast("Uspesno ste dodali organizaciju: " + data['ime']);
 		        	  }
+		          }).catch(response => {
+			          alert(response.data);
 		          });
 		    }
 
@@ -197,7 +198,7 @@ Vue.component("dodaj-org", {
 	      }
 	},
 	mounted(){
-		axios.post('/korisnici/getAllUsers')
+		axios.get('/korisnici/getAllUsers')
 		.then(response =>{
 			this.korisnici = response.data;
 		});
@@ -205,11 +206,6 @@ Vue.component("dodaj-org", {
 		axios.get('/VM/getalljsonVM')
 		.then(response =>{
 			this.resursi = response.data;
-		});
-		
-		axios.get('/Diskovi/getalljsonDiskovi')
-		.then(response =>{
-			this.resursi.push.apply(this.resursi,response.data);
 		});
 		
 	}
