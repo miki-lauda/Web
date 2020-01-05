@@ -70,5 +70,18 @@ public class DiskoviServis {
 			cloud.setVirtualneMasine(mapaVM);
 			return "";
 		});
+		post("/Disk/dodajNoviDisk",(req,res)->{
+			Disk novi=g.fromJson(req.body(), Disk.class);
+			cloud.getDiskovi().put(novi.getIme(), novi);
+			if(novi.getVm()!=null) {
+				for(VM virt:cloud.getVirtualneMasine().values()) {
+					if(virt.getIme().equals(novi.getVm())) {
+						virt.getListaResursa().add(novi);
+						break;
+					}
+				}
+			}
+			return "";
+		});
 	}
 }

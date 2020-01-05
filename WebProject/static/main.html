@@ -533,22 +533,33 @@
 			<table id="tabelaDodavanjaDiska" border="1">
 				<tr><td class="menu">Ime:</td>
 					<td>
-						<input type="text" v-model="noviDisk.ime" />
+						<input id="novoImeDiska" type="text" v-model="noviDisk.ime" />
 					</td>
 				</tr>
 				<tr>
 					<td class="menu">Kapacitet:</td>
-					<td><input class="kapacitetValue" type="number" v-model="noviDisk.kapacitet" ></td>
+					<td><input id="noviKapacitetDisk" class="kapacitetValue" type="number" v-model="noviDisk.kapacitet" ></td>
 				</tr>
 				<tr>
 					<td class="menu">
 						Tip diska:
 					</td>
 					<td>
-						<select id="tipDiska" v-model="noviDisk.tip" >
+						<select id="tipDiskaDisk" v-model="noviDisk.tip" >
 							<option id="HDDDisk">HDD</option>
 							<option id="SSDDisk">SSD</option>
 						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="menu">
+						VM:
+					</td>
+					<td>
+						<div v-for="virt in VM">
+							<input type="radio" v-bind:value="virt.ime" name="izborVMzaDisk" v-on:click="izaberiVM"/>
+							<label>{{virt.ime}}</label>
+						</div>
 					</td>
 				</tr>
 				<tr>
