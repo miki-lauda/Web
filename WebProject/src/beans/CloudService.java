@@ -22,6 +22,7 @@ public class CloudService {
 	}
 
 	public static CloudService ucitajIzBaze() {
+		// TODO Kada ucitava bazu treba prevezati reference jer ce korisnik biti bez organizacije
 		ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.readValue(new File("static/baza.json"), CloudService.class);

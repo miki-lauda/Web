@@ -3,6 +3,8 @@ package beans;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Korisnik {
@@ -15,6 +17,16 @@ public class Korisnik {
 	@JsonBackReference
 	private Organizacija organizacija;
 	private KorisnickaUloga uloga;
+	
+	@JsonProperty("imeOrg")
+	private String idOrganizacije() {
+		return this.organizacija == null ? "Nema organizaciju" : this.organizacija.getIme();
+	}
+	@JsonSetter("imeOrg")
+	private void setid(String rng) {
+		
+	}
+	
 	public Korisnik(String email, String ime, String prezime, String username, String password,Organizacija organizacija, KorisnickaUloga uloga) {
 		super();
 		this.email = email;
@@ -25,6 +37,9 @@ public class Korisnik {
 		this.organizacija = organizacija;
 		this.uloga = uloga;
 	}
+	
+	
+	
 	public Korisnik() {
 		super();
 	}
