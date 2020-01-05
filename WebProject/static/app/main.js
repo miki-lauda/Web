@@ -8,6 +8,7 @@ var prikazVM = new Vue({
 		selectedVM:{ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
 		mode:"BROWSE",
 		diskovi:null,
+		dostupniDiskovi:null,
 		novaVM:{ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
 		organizacije:null,
 		izabranaOrganizacija:null,
@@ -162,7 +163,7 @@ var prikazVM = new Vue({
 			for(var virt of this.VM){
 				if(virt.ime==this.selectedVM.ime){
 					indeks=this.VM.indexOf(virt);
-					axios.post("VM/deleteVM", virt).then(this.VM.splice(indeks,1));
+					axios.post("VM/deleteVM", this.backup).then(this.VM.splice(indeks,1));
 				}
 			}
 			document.getElementById("tabelaIzmjene").style.display="none";
@@ -409,4 +410,94 @@ var prikazVM = new Vue({
     		return parsed.format(format);
     	}*/
 	   },
+});
+
+var prikazVM = new Vue({ 
+	el: '#diskovi',
+	data:{
+		selectedDisk:{ime:"",kapacitet:0,tip:"",VM:""},
+		diskovi:[],
+		noviDisk:{ime:"",kapacitet:0,tip:"",VM:null},
+	},
+	mounted(){
+		axios.get("Disk/getall").then(response =>(this.diskovi=response.data));
+
+	},
+    methods:{
+		uzmiDiskoveizBaze : function(){
+			axios.get("Disk/getall").then(response =>(this.diskovi=response.data));
+		},
+		prikaziDiskove: function(){
+			$("#radSaDiskovima").css("display","block");
+		},
+		pretraziDisk: function(){
+			if(document.getElementById("pretragaDisk").value==""){
+				this.uzmiDiskoveizBaze();
+			}
+			axios
+			.post('Disk/pretraga',document.getElementById("pretragaDisk").value)
+			.then(response => (this.diskovi = response.data));
+		},
+		filtrirajDisk: function(){
+			var zadovoljavajuciDiskovi=[];
+			var odKapaciteta=document.getElementById("odKapacitet").value;
+			if(odKapaciteta==""){
+				odKapaciteta=0;
+			}
+			var doKapaciteta=document.getElementById("doKapacitet").value;
+			if(doKapaciteta==""){
+				doKapaciteta=Infinity;
+			}
+			for(var disk of this.diskovi){
+				if(odKapaciteta<=disk.kapacitet && disk.kapacitet<=doKapaciteta)
+				{
+					zadovoljavajuciDiskovi.push(disk);
+				}
+			}
+			this.diskovi=zadovoljavajuciDiskovi;
+		},
+		selectDisk: function(data){
+			this.selectedDisk = data;  
+			document.getElementById("tabelaIzmjeneDiska").style.display="block";
+			this.backup =Object.assign({}, this.selectedDisk);	
+		},
+		sacuvajPromjenuDiska: function(){
+			var slanje=[this.selectedDisk];
+			slanje.push(this.backup);
+			var jsonPodatak=JSON.stringify(slanje);
+			axios
+			.post("Disk/updateDisk", jsonPodatak);
+			document.getElementById("tabelaIzmjeneDiska").style.display="none";
+			this.selectedDisk={ime:"",kapacitet:0,tip:"",vm:""};
+		},
+		obrisiDisk: function(){
+			var indeks=null;
+			for(var disk of this.diskovi){
+				if(disk.ime==this.selectedDisk.ime){
+					indeks=this.diskovi.indexOf(disk);
+					axios.post("Disk/deleteDisk", this.backup).then(this.diskovi.splice(indeks,1));
+				}
+			}
+			document.getElementById("tabelaIzmjeneDiska").style.display="none";
+			this.selectedDisk={ime:"",kapacitet:0,tip:"",vm:""};
+		},
+		otkaziIzmjenuDiska: function(){
+			this.selectedDisk.ime=this.backup.ime;
+			this.selectedDisk.tip=this.backup.tip;
+			this.selectedDisk.kapacitet=this.backup.kapacitet;
+			this.selectedDisk.vm=this.backup.vm;
+			document.getElementById("tabelaIzmjeneDiska").style.display="none";
+		},
+		otkaziDodavanjeDiska: function(){
+			this.noviDisk={ime:"",kapacitet:0,tip:"",vm:null};
+			document.getElementById("tabelaDodavanjaDiska").style.display="none";
+		},
+		dodajDisk: function(){
+			document.getElementById("tabelaDodavanjaDiska").style.display="block";
+		},
+		dodajNoviDisk: function(){
+			let a=this.noviDisk;
+			this.otkaziDodavanjeDiska();
+		}
+	}
 });

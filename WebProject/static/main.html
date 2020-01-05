@@ -44,6 +44,9 @@
 			font-size:80%;background:black
 			
 			}
+		#tablemenuDisk{
+			font-size:80%;background:black;
+		}
 		#tableDiskmenu{
 			font-size:80%;background:black;
 		}
@@ -69,6 +72,11 @@
 			width: 10px;
 			height: 10px;
 		}
+		#menuFilterDiska{
+			background-color: black;
+			width: 10px;
+			height: 10px;
+		}
 		#divfilter{
 			width: 100%;
 		}
@@ -76,6 +84,9 @@
 	 		background-color: #aaaaaa;
 		}
 		#tabelaIzmjene{
+			display:none;
+		}
+		#tabelaIzmjeneDiska{
 			display:none;
 		}
 		#tabelaDodavanja{
@@ -86,6 +97,12 @@
 		}
 		.error{
 			border:1px solid red;
+		}
+		#radSaDiskovima{
+			display: none;
+		}
+		#tabelaDodavanjaDiska{
+			display: none;
 		}
 	</style>
 </head>
@@ -191,7 +208,7 @@
 					<td class="org">{{dobaviOrganizacijubyVM(virtM)}}</td>
 				</tr>
 			</table>
-		</div class="polja">
+		</div>
 		
 		<div class="polja">
 			<button class="dugme" id="dobaviVMdugme" name="ucitajVM" v-on:click="dobaviVM">Prikazi sve VM</button>
@@ -414,6 +431,141 @@
 		</div>
 	</div>
 
+	<div id="diskovi">
+		<div id="radSaDiskovima">
+			<div class="polja" id="pretragaDiskova">
+				<table>
+					<tr>
+						<td><b>Pretraga diskova</b></td>
+						<td>
+							<input id="pretragaDisk" type="text" name="pretraga" v-on:keyup="pretraziDisk">
+						</td>
+						<td>
+							<button class="dugme" v-on:click="pretraziDisk">Pretrazi</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div>
+				<table id="tablemenuDisk">
+					<tr bgcolor="#007EC9">
+						<td onMouseOver="showmenu('menuFilterDiska')" onMouseOut="hidemenu('menuFilterDiska')">
+							<p><b>Filter Diskova</b></p>
+							<table class="menu" id="menuFilterDiska" border="1">
+								<tr>
+									<td class="menu">
+										<b>Kapacitet</b>
+									</td>
+									<td>
+										<table>
+											<tr>
+												<td class="menu"><b>OD</b></td>
+												<td class="menu"><input id="odKapacitet" type="number" name="odKapacitet"></td>
+												<td class="menu"><b>DO</b></td>
+												<td class="menu"><input id="doKapacitet" type="number" name="odKapacitet"></td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+								<tr >
+									<td class="menu" colspan="2"><button class="dugme" name="buttonFiltriranjaDiska" v-on:click="filtrirajDisk">Filtriraj</button></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div>
+				<table id="tabelaIzmjeneDiska" border="1">
+					<tr><td class="menu">Ime:</td>
+						<td>
+							<input type="text" v-model="selectedDisk.ime" />
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">Kapacitet:</td>
+						<td><input class="kapacitetValue" type="number" v-model="selectedDisk.kapacitet"></td>
+					</tr>
+					<tr>
+						<td class="menu">
+							Tip diska:
+						</td>
+						<td>
+							<select id="tipDiska" v-model="selectedDisk.tip">
+								<option id="HDDDisk" v-bind:selected="selectedDisk.tip=='HDD'">HDD</option>
+								<option id="SSDDisk" v-bind:selected="selectedDisk.tip=='SSD'">SSD</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">VM:</td>
+						<td>
+							<input type="text" v-model="selectedDisk.vm" v-bind:disabled="true"/>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="dugme" v-on:click="sacuvajPromjenuDiska">Sacuvaj</button>
+							<button  class="dugme" v-on:click="obrisiDisk">Obrisi</button>
+						</td>
+						<td>
+							<button  class="dugme" v-on:click="otkaziIzmjenuDiska">Otkazi</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="polja">
+				<table border="1" id="tabelaSaDiskovima">
+					<tr>
+						<th>Ime</th>
+						<th>Kapacitet</th>
+						<th>VM</th>
+					</tr>
+					<tr v-for="disk in diskovi" v-on:click="selectDisk(disk)" v-bind:class="{selected : selectedDisk.ime===disk.ime}">
+						<td>{{disk.ime}}</td>
+						<td>{{disk.kapacitet}}</td>
+						<td class="VModDiska">{{disk.vm || disk.vm}}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div>
+			<table id="tabelaDodavanjaDiska" border="1">
+				<tr><td class="menu">Ime:</td>
+					<td>
+						<input type="text" v-model="noviDisk.ime" />
+					</td>
+				</tr>
+				<tr>
+					<td class="menu">Kapacitet:</td>
+					<td><input class="kapacitetValue" type="number" v-model="noviDisk.kapacitet" ></td>
+				</tr>
+				<tr>
+					<td class="menu">
+						Tip diska:
+					</td>
+					<td>
+						<select id="tipDiska" v-model="noviDisk.tip" >
+							<option id="HDDDisk">HDD</option>
+							<option id="SSDDisk">SSD</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<button class="dugme" v-on:click="dodajNoviDisk">Dodaj disk</button>
+					</td>
+					<td>
+						<button  class="dugme" v-on:click="otkaziDodavanjeDiska">Otkazi</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<button class="dugme" id="prikaziDiskove" v-on:click="prikaziDiskove">Prikazi diskove</button>
+		<button class="dugme" id="dodajDisk" v-on:click="dodajDisk">Dodaj disk</button>
+	</div>
+	
+	
 	<script src="js/vue.js"></script>
 	<script src="js/axios.js"></script>
 	<script src="app/app.js"></script>
