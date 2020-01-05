@@ -1,14 +1,18 @@
 const Orgs = { template: '<organizacije></organizacije>' };
 const addOrg = {template : '<dodaj-org></dodaj-org>'};
 const izmenaOrg = {template: '<izmena-org></izmena-org>'};
+const Users = {template: '<korisnici></korisnici>'}
+const addUser = {template: '<dodaj-korisnika></dodaj-korisnika>'}
 //const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
 
 const router = new VueRouter({
 	  mode: 'hash',
 	  routes: [
-	    { path: '/orgs', component: Orgs},
-	    { path: '/orgs/dodaj', name: 'dodaj',component: addOrg}
+	    { path: '/orgs', component: Orgs}
+	    ,{ path: '/orgs/dodaj', name: 'dodaj',component: addOrg}
 	    ,{ path: '/orgs/izmena/:org', component: izmenaOrg}
+	    ,{ path: '/korisnici', component: Users}
+	    ,{ path: '/korisnici/dodaj', component: addUser}
 	  ]
 });
 var app = new Vue({

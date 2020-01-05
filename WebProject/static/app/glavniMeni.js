@@ -7,7 +7,7 @@ Vue.component("glavni-meni", {
 						<span class="caret"></span></button>
 						<ul class="dropdown-menu">
 							<li><a href="prebaciNaIzmenu">Izmeni profil</a></li>
-							<li><a href="#">CSS</a></li>
+							<li><a href="/logoff">Logoff</a></li>
 							<li><a href="#">JavaScript</a></li>
 						</ul>
 				</div>

@@ -6,7 +6,7 @@ Vue.component("organizacije", {
 	},
 	template: ` 
 <div>
-		Organizacije:
+		<h2>Organizacije</h2>
 		<table border="1">
 			<tr>
 				<th>Ime</th><th>Opis</th><th>Logo</th></tr>
