@@ -11,7 +11,7 @@ public class Organizacija {
 
 	private String ime;
 	private String opis;
-	private String logo;
+	private String logo = "slika/slika.jpg";
 	@JsonManagedReference
 	private ArrayList<Korisnik> listaKorisnika = new ArrayList<Korisnik>();
 	private ArrayList<VM> listaResursa = new ArrayList<VM>();

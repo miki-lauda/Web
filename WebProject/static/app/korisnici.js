@@ -256,3 +256,94 @@ Vue.component("izmena-korisnika", {
 		})
     }
 });
+
+
+Vue.component("profil", {
+	data: function () {
+		    return {
+		    	stariUser: '',
+		    	korisnik: {}
+		    }
+	},
+	template: ` 
+<div>
+		<h2>Izmena profila</h2>
+		<table>
+			<tr>
+				<td>Username</td>
+			    <td><input id='username' type ="text" :value = "korisnik.username" /></td>
+			    <td id="poruka"></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+			    <td><input id='password' type ="password"/></td>
+			</tr>
+			<tr>
+				<td>Potvrdi password</td>
+			    <td><input id='passwordConf' type ="password"/></td>
+			    <td id="porukaPassConf"></td>
+			</tr>
+			<tr>
+				<td>Ime</td>
+			    <td><input id='ime' type ="text" :value = "korisnik.ime"/></td>
+			    <td id="porukaIme"></td>
+			</tr>
+			<tr>
+				<td>Prezime</td>
+			    <td><input id='prezime' type ="text" :value = "korisnik.prezime" /></td>
+			</tr>
+			<tr>
+				<td>Email</td>
+			    <td><input id='email' type ="text" :value = "korisnik.email" /></td>
+			</tr>
+		</table>
+		<br /> 
+		<button v-on:click="izmeniKorisnika">Izmeni</button>
+	
+</div>		  
+`
+	, 
+	methods : {
+		init : function() {
+			this.korisnik = {};
+		}, 
+		izmeniKorisnika : function(){
+			$("#poruka").text($("#username").val() === "" ? "Obavezno polje" : "");
+			$("#porukaIme").text($("#ime").val() === "" ? "Obavezno polje" : "");
+			$("#porukaPassConf").text($("#password").val() !== $("#passwordConf").val() ? "Šifre se ne poklapaju" : "");
+			if( $("#username").val() !== "" && $("#ime").val() !== "" && $("#password").val() === $("#passwordConf").val()){
+				axios
+				.post("/korisnici/izmeniKorisnika/"+this.stariUser, {
+					"username" : $("#username").val(),
+					"password" : $("#password").val(),
+					"ime" : $("#ime").val(),
+					"prezime" : $("#prezime").val(),
+					"email" : $("#email").val(),
+					"uloga" : this.korisnik.uloga,
+					"organizacija" : this.korisnik.organizacija,
+				})
+				.then(response => {
+					if(response.data){
+						alert("Uspesno ste izmenili profil:" + $("#username").val());
+						promeniRutu("");
+					}
+					else{
+						alert("Korisničko ime je zauzeto");
+					}
+				})
+			}
+		}
+	},
+	mounted () {
+		axios.post("/getCurUser")
+		.then(response =>{
+			this.stariUser = response.data;
+			axios.post("/korisnici/getUser/"+this.stariUser)
+			.then(response => {
+				this.korisnik = response.data;
+			});
+		});
+		
+    }
+});
+

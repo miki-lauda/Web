@@ -105,10 +105,7 @@ public class KorisniciServis {
 					!staroIme.equals(k.getUsername())) {
 				return false;
 			}
-			// Ne dozvoliti da uloga bude superadmin
-			if (k.getUloga().equals(KorisnickaUloga.SUPERADMIN))
-				return false;
-			
+
 			// Originalani korisnik
 			// Promeni atribute staticke
 			Korisnik k1 = cloud.getKorisnici().get(staroIme);
@@ -136,6 +133,13 @@ public class KorisniciServis {
 			}
 			
 			return true;
+		});
+		
+		
+		post("/getCurUser", (req,res)->{
+			res.type("text");
+			Korisnik k  = (Korisnik) req.session().attribute("user");
+			return k.getUsername();
 		});
 	}
 	
