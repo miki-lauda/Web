@@ -56,10 +56,6 @@ Vue.component("korisnici", {
     }
 });
 
-function nadjiOrganizacije(korisnici){
-	
-}
-
 Vue.component("dodaj-korisnika", {
 	data: function () {
 		    return {
@@ -157,5 +153,106 @@ Vue.component("dodaj-korisnika", {
         	  if(this.orgs.length > 0)
         		  this.organizacija = this.orgs[0];
           });
+    }
+});
+
+
+Vue.component("izmena-korisnika", {
+	data: function () {
+		    return {
+		    	stariUser: '',
+		    	korisnik: {}
+		    }
+	},
+	template: ` 
+<div>
+		<h2>Izmena korisnika</h2>
+		<table>
+			<tr>
+				<td>Username</td>
+			    <td><input id='username' type ="text" :value = "korisnik.username" /></td>
+			    <td id="poruka"></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+			    <td><input id='password' type ="password" :value = "korisnik.password"/></td>
+			    <td id="porukaPass"></td>
+			</tr>
+			<tr>
+				<td>Ime</td>
+			    <td><input id='ime' type ="text" :value = "korisnik.ime"/></td>
+			    <td id="porukaIme"></td>
+			</tr>
+			<tr>
+				<td>Prezime</td>
+			    <td><input id='prezime' type ="text" :value = "korisnik.prezime" /></td>
+			</tr>
+			<tr>
+				<td>Email</td>
+			    <td>{{this.korisnik.email}}</td>
+			</tr>
+			<tr>
+				<td>Tip korisnika</td>
+			    <td v-if="korisnik.uloga == 'SUPERADMIN'">
+			    	SUPERADMIN
+			    </td>
+			    <td v-else>
+			    	<select id = "tip">
+			    		<option value = "ADMIN">Admin</option>
+			    		<option value = "KORISNIK" :selected = "korisnik.uloga == 'KORISNIK'">Korisnik</option>
+			    	</select>
+			    </td>
+			    
+			</tr>
+			<tr>
+				<td>Organizacija</td>
+			    <td>
+			    	{{this.korisnik.imeOrg}}
+			    </td>
+			</tr>
+		</table>
+		<br /> 
+		<button v-on:click="izmeniKorisnika">Izmeni korisnika</button>
+	
+</div>		  
+`
+	, 
+	methods : {
+		init : function() {
+			this.korisnik = {};
+		}, 
+		izmeniKorisnika : function(){
+			$("#poruka").text($("#username").val() === "" ? "Obavezno polje" : "");
+			$("#porukaPass").text($("#password").val() === "" ? "Obavezno polje" : "");
+			$("#porukaIme").text($("#ime").val() === "" ? "Obavezno polje" : "");
+			if( $("#username").val() !== "" && $("#password").val() !== "" && $("#ime").val() !== ""){
+				axios
+				.post("/korisnici/izmeniKorisnika/"+this.stariUser, {
+					"username" : $("#username").val(),
+					"password" : $("#password").val(),
+					"ime" : $("#ime").val(),
+					"prezime" : $("#prezime").val(),
+					"email" : this.korisnik.email,
+					"uloga" : $("#tip").val(),
+					"organizacija" : this.korisnik.organizacija,
+				})
+				.then(response => {
+					if(response.data){
+						alert("Uspesno ste izmenili korisnika:" + $("#username").val());
+						promeniRutu("korisnici");
+					}
+					else{
+						alert("Korisnicko ime je zauzeto");
+					}
+				})
+			}
+		}
+	},
+	mounted () {
+		this.stariUser = router.currentRoute.params.user;
+		axios.post("/korisnici/getUser/"+this.stariUser)
+		.then(response => {
+			this.korisnik = response.data;
+		})
     }
 });

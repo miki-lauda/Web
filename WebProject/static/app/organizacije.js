@@ -108,7 +108,7 @@ Vue.component("dodaj-org", {
 										</tr>
 										<tr v-for = "r in resursi">
 											<td>{{r.ime}}  <input :value='r' type='checkbox' v-model="resursiOrg"/></td>
-											<<td> VM |{{r.kategorija.brojJezgara}} CPU 
+											<td> VM |{{r.kategorija.brojJezgara}}CPU 
 											{{r.kategorija.gpuJezgra}} GPU
 											{{r.kategorija.ram}} RAM</td>
 										</tr>
@@ -194,7 +194,7 @@ Vue.component("dodaj-org", {
 			this.korisnici = response.data;
 		});
 		
-		axios.get('/VM/getalljsonVM')
+		axios.post('/VM/getalljsonVM')
 		.then(response =>{
 			this.resursi = response.data;
 		});
@@ -208,7 +208,9 @@ Vue.component("izmena-org", {
 			file: '',
 			filePath: '',
 			staroIme : '',
-			org : {}
+			org : {},
+			resursi: {},
+			korisnici: {}
 		};
 	},
 	template: ` 
@@ -240,7 +242,7 @@ Vue.component("izmena-org", {
 			
 			<br /> 
 		<h3>Lista korisnika</h3>
-		<table>
+		<table border= "1">
 			<tr>
 				<th>Ime</th>
 				<th>Prezime</th>
@@ -252,6 +254,56 @@ Vue.component("izmena-org", {
 				<td>{{k.email}}</td>
 			</tr>
 		</table>
+		<div class = "dropdown">
+			<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+			Svi korisnici<span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li v-for = "k in korisnici">
+					<table>
+						<tr>
+							<td><input :value='k' type='checkbox' v-model="org.listaKorisnika"/></td>
+							<td>{{k.ime}}</td>
+						</tr>
+					</table>
+				</li>
+			</ul>
+		</div>
+		<h3>Lista resursa</h3>
+		<table border = "1">
+			<tr>
+				<th>Ime resursa</th>
+				<th>CPU</th>
+				<th>GPU</th>
+				<th>RAM</th>
+			</tr>
+			<tr v-for="r in org.listaResursa">
+				<td>{{r.ime}}</td>
+				<td>{{r.kategorija.brojJezgara}}</td>
+				<td>{{r.kategorija.gpuJezgra}}</td>
+				<td>{{r.kategorija.ram}}</td>
+			</tr>
+		</table>
+		<div class = "dropdown">
+			<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+			Svi resursi<span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li>
+					<table border = "1">
+						<tr>
+							<th>Ime</th>
+							<th>Tip</th>
+						</tr>
+						<tr v-for = "r in resursi">
+							<td>{{r.ime}}  <input :value='r' type='checkbox' v-model="org.listaResursa"/></td>
+							<td> VM |{{r.kategorija.brojJezgara}} CPU 
+							{{r.kategorija.gpuJezgra}} GPU
+							{{r.kategorija.ram}} RAM</td>
+						</tr>
+					</table>
+				</li>
+			</ul>
+		</div>
+		
 </div>		  
 `
 	, 
@@ -289,6 +341,13 @@ Vue.component("izmena-org", {
 		promeniPutanju: function () {
 			this.file = this.$refs.file.files[0]; // Metod za promenu putanje fajla
 			
+		},
+		checkFun: function(resurs){
+			for(r of this.resursi){
+				if(resurs.ime === r.ime)
+					return true;
+			}
+			return false;
 		},
 		submitFile: function(){ //Metod za slanje slike
 	        /*
@@ -331,6 +390,32 @@ Vue.component("izmena-org", {
         	  this.org = response.data;
         	  this.filePath = this.org.logo;
           });
+        axios.post('/VM/getalljsonVM')
+		.then(response =>{
+			this.resursi = response.data;
+			for(r in this.resursi){
+				for(r2 in this.org.listaResursa){
+					if(this.resursi[r].ime === this.org.listaResursa[r2].ime){
+						this.resursi[r] = this.org.listaResursa[r2];
+						break;
+					}
+				}
+			}
+		});
+        
+        axios.get('/korisnici/getAllUsers')
+		.then(response =>{
+			this.korisnici = response.data;
+			for(k in this.korisnici){
+				for(k2 in this.org.listaKorisnika){
+					if(this.korisnici[k].username === this.org.listaKorisnika[k2].username){
+						this.korisnici[k] = this.org.listaKorisnika[k2];
+						break;
+					}
+				}
+			}
+		});
+        
     }
 });
 

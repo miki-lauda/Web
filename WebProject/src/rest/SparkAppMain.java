@@ -77,8 +77,8 @@ public class SparkAppMain {
 		HashMap<String,VM> VMasine = new HashMap<String, VM>();
 		HashMap<String, Disk> diskovi=new HashMap<String, Disk>();
 		
-		korisnici.put("dusan",new Korisnik("debelidusan@gmail.com", "Dusan", "Stojancevic", "dusan", "dusan", null, KorisnickaUloga.ADMIN));
-		korisnici.put("miki",new Korisnik("mikilauda@gmail.com", "Milan", "Marinkovic", "miki", "lauda", null, KorisnickaUloga.ADMIN));
+		korisnici.put("dusan",new Korisnik("debelidusan@gmail.com", "Dusan", "Stojancevic", "dusan", "dusan", null, KorisnickaUloga.SUPERADMIN));
+		korisnici.put("miki",new Korisnik("mikilauda@gmail.com", "Milan", "Marinkovic", "miki", "lauda", null, KorisnickaUloga.SUPERADMIN));
 		cloud.setKorisnici(korisnici);
 		
 		KategorijaVM kategorijaVM=new KategorijaVM("MojaKategoija", 3, 8, 6); 
@@ -116,7 +116,7 @@ public class SparkAppMain {
 		disk4.setVm(vm.getIme());
 		cloud.getVirtualneMasine().put(vm.getIme(), vm);
 		
-		Organizacija org=new Organizacija("Org1","fgdfg","slika.img",new ArrayList<Korisnik>(),new ArrayList<VM>());
+		Organizacija org=new Organizacija("Org1","fgdfg","slike/slika.jpg",new ArrayList<Korisnik>(),new ArrayList<VM>());
 		org.getListaResursa().add(vm);
 		cloud.getOrganizacija().put(org.getIme(), org);
 		

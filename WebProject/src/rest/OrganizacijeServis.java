@@ -182,7 +182,15 @@ public class OrganizacijeServis {
 				//Ubaci ih u druge
 				k1.setOrganizacija(orgO);
 			}
+			for(Korisnik k : orgO.getListaKorisnika()) {
+				if(!korisnici.contains(k)) {
+					k.setOrganizacija(null);
+				}
+			}
 			orgO.setListaKorisnika(korisnici);
+			
+			
+			
 			
 			ArrayList<VM> resursi = new ArrayList<VM>(); 
 			for(VM vm : org.getListaResursa()) {

@@ -4,9 +4,11 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.delete;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import beans.CloudService;
@@ -97,6 +99,19 @@ public class VMServis {
 				}
 			}
 			return "";
+		});
+		
+		
+		post("/VM/getalljsonVM", (req, res) -> {
+			res.type("application/json");
+			// Mora sa jacksoonom zbog kruzne zavisnosti
+			ObjectMapper mapper = new ObjectMapper();
+	        try {
+	            return mapper.writeValueAsString(cloud.getVirtualneMasine().values());
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return "WHOOPS";
+	        }
 		});
 	}
 }
