@@ -75,12 +75,7 @@ public class VMServis {
 		post("/VM/deleteVM", (req,res)->{
 			VM deleteVM= g.fromJson(req.body(), VM.class);
 			
-			for(VM virt : cloud.getVirtualneMasine().values()) {
-				if(virt.getIme().equals(deleteVM.getIme())) {
-					cloud.getVirtualneMasine().remove(deleteVM.getIme());
-					break;
-				}
-			}
+			cloud.getVirtualneMasine().remove(deleteVM.getIme());
 			
 			for(Disk dsk:cloud.getDiskovi().values()) {
 				if(dsk.getVm()==null) {

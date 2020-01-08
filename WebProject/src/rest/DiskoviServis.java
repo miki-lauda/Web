@@ -118,5 +118,28 @@ public class DiskoviServis {
 			}
 			return "";
 		});
+		
+		post("/Diskovi/getDiskovibyOrg",(req,res)->{
+			ArrayList<Disk> diskovi=new ArrayList<Disk>();
+			String org=req.body();
+			if(org==null) {
+				//treba da idemo kroz sve diskove te org
+				for(Disk disk:cloud.getDiskovi().values()) {
+					if(disk.getVm()==null) {
+						diskovi.add(disk);
+					}
+				}
+			}
+			else {
+				String organizacija=g.fromJson(org, String.class);
+				for(Disk disk:cloud.getDiskovi().values()) {
+					if(disk.getVm()==null) {
+						diskovi.add(disk);
+					}
+				}
+			}
+			
+			return g.toJson(diskovi);
+		});
 	}
 }
