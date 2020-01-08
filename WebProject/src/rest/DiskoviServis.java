@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.Disk;
+import beans.Organizacija;
 import beans.VM;
 import static spark.Spark.post;
 
@@ -20,6 +21,23 @@ public class DiskoviServis {
 		get("/Disk/getall", (req, res) -> {
 			return g.toJson(cloud.getDiskovi().values());
 		});
+		post("/Disk/getallbyOrg", (req, res) -> {
+			String org = g.fromJson(req.body(), String.class);
+			ArrayList<Disk> disks=new ArrayList<Disk>();
+			
+			for(Organizacija organizacija:cloud.getOrganizacija().values()) {
+				if(organizacija.getIme().equals(org)) {
+					for(VM vm:organizacija.getListaResursa()) {
+						for(Disk disk:vm.getListaResursa()) {
+							disks.add(disk);
+						}
+					}
+					return g.toJson(disks);
+				}
+			}
+			return g.toJson(new ArrayList<Disk>());
+		});
+		
 		post("/Disk/pretraga", (req, res) -> {
 			String ime = g.fromJson(req.body(), String.class);
 			ArrayList<Disk> diskovi = new ArrayList<Disk>();
@@ -38,7 +56,6 @@ public class DiskoviServis {
 
 			disks.remove(diskovi[1].getIme());
 			disks.put(diskovi[0].getIme(), diskovi[0]);
-			Disk virt = disks.get(diskovi[0].getIme());
 			if (diskovi[0].getVm() != null) {
 				for (VM masina : cloud.getVirtualneMasine().values()) {
 					if (masina.getIme().equals(diskovi[1].getVm())) {
@@ -46,28 +63,46 @@ public class DiskoviServis {
 						masina.getListaResursa().add(diskovi[0]);
 					}
 				}
-			}
-			return "";
-		});
-		post("/Disk/deleteDisk",(req,res)->{
-			Disk disk=g.fromJson(req.body(), Disk.class);
-			HashMap<String, Disk> mapa=cloud.getDiskovi();
-			for(Disk d:mapa.values()) {
-				if(d.getIme().equals(disk.getIme())) {
-					mapa.remove(d.getIme());
-				}
-			}
-			cloud.setDiskovi(mapa);
-			HashMap<String, VM> mapaVM=cloud.getVirtualneMasine();
-			for(VM virt:mapaVM.values()) {
-				for(Disk diskVM:virt.getListaResursa()) {
-					if(diskVM.getIme().equals(disk.getIme())) {
-						virt.getListaResursa().remove(disk);
-						break;
+				String imeVM=diskovi[0].getIme();
+				for(VM masina:cloud.getVirtualneMasine().values()) {
+					if(masina.getIme().equals(diskovi[0].getVm())) {
+						boolean postoji=false;
+						for(Disk disk:masina.getListaResursa()) {
+							if(disk.getIme().equals(diskovi[0].getIme()))
+								postoji=true;
+						}
+						if(!postoji) {
+							masina.getListaResursa().add(diskovi[0]);
+							break;
+						}
+					}
+					for(Disk disk:masina.getListaResursa()) {
+						if(disk.getIme().equals(diskovi[0].getIme())) {
+							if(diskovi[0].getVm().equals(masina.getIme())) {
+								continue;
+							}
+							else {
+								masina.getListaResursa().remove(disk);
+								
+							}
+						}
 					}
 				}
 			}
-			cloud.setVirtualneMasine(mapaVM);
+			
+			return "";
+		});
+		
+		post("/Disk/deleteDisk",(req,res)->{
+			Disk disk=g.fromJson(req.body(), Disk.class);
+			cloud.getDiskovi().remove(disk.getIme());
+			if(disk.getVm()!=null) {
+				for(VM virt:cloud.getVirtualneMasine().values()) {
+					if(virt.getIme().equals(disk.getIme())) {
+						virt.getListaResursa().remove(disk);
+					}
+				}
+			}
 			return "";
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{

@@ -31,7 +31,7 @@ var prikazVM = new Vue({
 			document.getElementById("tabelaSaVM").style.display="block";
         },
         dobaviOrganizacijubyVM : function(vm){
-			if(vm.ime==""){
+			if(vm==""){
 				return "";
 			}
             var podatak=JSON.stringify(vm);
@@ -412,6 +412,8 @@ var prikazVM = new Vue({
 	   },
 });
 
+Vue.prototype.$korisnik={tip:"SUPERADMIN",organizacija:"Org1"};
+
 var prikazVM = new Vue({ 
 	el: '#diskovi',
 	data:{
@@ -421,12 +423,57 @@ var prikazVM = new Vue({
 		VM: null,
 	},
 	mounted(){
-		axios.get("Disk/getall").then(response =>(this.diskovi=response.data));
-		axios.get('VM/getalljsonVM').then(response => (this.VM = response.data));
+		if(this.$korisnik.tip=="ADMIN"){
+			axios
+			.post('Organizacija/getVMbyOrg',this.$korisnik.organizacija)
+			.then(response => (this.VM = response.data));
+			axios
+			.post("Disk/getallbyOrg",this.$korisnik.organizacija)
+			.then(response =>(this.diskovi=response.data));
+		}
+		else if(this.$korisnik.tip=="SUPERADMIN"){
+			axios
+			.get('VM/getalljsonVM')
+			.then(response => (this.VM = response.data));
+			axios
+			.get("Disk/getall")
+			.then(response =>(this.diskovi=response.data));
+		}
+		else{
+			axios
+			.post('Organizacija/getVMbyOrg',this.$korisnik.organizacija)
+			.then(response => (this.VM = response.data));
+			axios
+			.post("Disk/getallbyOrg",this.$korisnik.organizacija)
+			.then(response =>(this.diskovi=response.data));
+		}
 	},
     methods:{
 		uzmiDiskoveizBaze : function(){
-			axios.get("Disk/getall").then(response =>(this.diskovi=response.data));
+			if(this.$korisnik.tip=="ADMIN"){
+				axios
+				.post('Organizacija/getVMbyOrg',this.$korisnik.organizacija)
+				.then(response => (this.VM = response.data));
+				axios
+				.post("Disk/getallbyOrg",this.$korisnik.organizacija)
+				.then(response =>(this.diskovi=response.data));
+			}
+			else if(this.$korisnik.tip=="SUPERADMIN"){
+				axios
+				.get('VM/getalljsonVM')
+				.then(response => (this.VM = response.data));
+				axios
+				.get("Disk/getall")
+				.then(response =>(this.diskovi=response.data));
+			}
+			else{
+				axios
+				.post('Organizacija/getVMbyOrg',this.$korisnik.organizacija)
+				.then(response => (this.VM = response.data));
+				axios
+				.post("Disk/getallbyOrg",this.$korisnik.organizacija)
+				.then(response =>(this.diskovi=response.data));
+			}
 		},
 		prikaziDiskove: function(){
 			$("#radSaDiskovima").css("display","block");
@@ -476,7 +523,9 @@ var prikazVM = new Vue({
 			for(var disk of this.diskovi){
 				if(disk.ime==this.selectedDisk.ime){
 					indeks=this.diskovi.indexOf(disk);
-					axios.post("Disk/deleteDisk", this.backup).then(this.diskovi.splice(indeks,1));
+					axios.post("Disk/deleteDisk", this.backup).then(this.diskovi.splice(indeks,1)).catch(error => {
+						console.log(error.response)
+					});;
 				}
 			}
 			document.getElementById("tabelaIzmjeneDiska").style.display="none";
@@ -492,6 +541,9 @@ var prikazVM = new Vue({
 		otkaziDodavanjeDiska: function(){
 			this.noviDisk={ime:"",kapacitet:0,tip:"",vm:null};
 			document.getElementById("tabelaDodavanjaDiska").style.display="none";
+			[].forEach.call(document.getElementsByClassName("radiobtnsVM"), function (el) {
+				el.checked=false;
+			});
 		},
 		dodajDisk: function(){
 			document.getElementById("tabelaDodavanjaDiska").style.display="block";
@@ -526,7 +578,8 @@ var prikazVM = new Vue({
 				return false;
 			}
 			axios
-			.post('Disk/dodajNoviDisk',JSON.stringify(this.noviDisk));
+			.post('Disk/dodajNoviDisk',JSON.stringify(this.noviDisk)).catch(error => {
+				console.log(error.response)});
 			let izbori=document.getElementsByName("izborVMzaDisk");
 			for(let izbor of izbori){
 				if(izbor.checked){
@@ -553,6 +606,57 @@ var prikazVM = new Vue({
 					break;
 				}
 			}
-		}
+		},
+		promijeniVMzaDisk: function(){
+			let izbori=document.getElementsByName("izborVMzaDisk");
+			for(let izbor of izbori){
+				if(izbor.checked){
+					this.selectedDisk.vm=izbor.value;
+					break;
+				}
+			}
+		},
+		provjeraTipaKorisnikaBrisanje:function(){
+			if(this.$korisnik.tip=="SUPERADMIN"){
+				return false;
+			}
+			else{
+				return true;
+			}
+		},
+		provjeraTipaKorisnikaIzmjena: function(){
+			if(this.$korisnik.tip=="SUPERADMIN" || this.$korisnik.tip=="ADMIN"){
+				return false;
+			}
+			else{
+				return true;
+			}
+		},
+		dobaviNazivOrg: function(){
+			if(this.$korisnik.tip!="SUPERADMIN"){
+
+				return this.$korisnik.organizacija;
+			}
+			else{
+
+				axios.post("Organizacija/getOrganizacijebyVM/",this.selectedDisk.vm)
+				.then(response =>{
+					let org=response.data;
+					$("#nazivOrgPregled").val(org.ime);
+				});
+			}
+
+		},
+		iskljuciVM: function(){
+			return;
+		},
+		provjeraTipaKorisnikaIskljucivanjeVM:function(){
+			if(this.$korisnik.tip=="SUPERADMIN"){
+				return false;
+			}
+			else{
+				return true;
+			}
+		},
 	}
 });

@@ -211,10 +211,10 @@ public class OrganizacijeServis {
 			if(payload.equals("")) {
 				return "";
 			}
-			VM vm = g.fromJson(payload, VM.class);
+			String vm = g.fromJson(payload, String.class);
 			for(Organizacija organizacija: cloud.getOrganizacija().values()) {
 				for(VM resurs:organizacija.getListaResursa()) {
-					if(resurs.getIme().equals(vm.getIme())) {
+					if(resurs.getIme().equals(vm)) {
 						return g.toJson(organizacija);
 					}
 				}
@@ -232,6 +232,16 @@ public class OrganizacijeServis {
 			VM vm=cloud.getVirtualneMasine().get(orgVM[0]);
 			org.getListaResursa().add(vm);
 			cloud.getOrganizacija().put(org.getIme(), org);
+			return "";
+		});
+		
+		post("/Organizacija/getVMbyOrg", (req,res) -> {
+			String org=g.fromJson(req.body(), String.class);
+			for(Organizacija organizacija:cloud.getOrganizacija().values()) {
+				if(org.equals(organizacija.getIme())) {
+					return g.toJson(organizacija.getListaResursa());
+				}
+			}
 			return "";
 		});
 	
