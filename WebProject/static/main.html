@@ -205,7 +205,7 @@
 					<td>{{virtM.kategorija && virtM.kategorija.brojJezgara}}</td>
 					<td>{{virtM.kategorija && virtM.kategorija.ram}}</td>
 					<td>{{virtM.kategorija && virtM.kategorija.gpuJezgra}}</td>
-					<td class="org">{{dobaviOrganizacijubyVM(virtM)}}</td>
+					<td class="org">{{dobaviOrganizacijubyVM(virtM.ime)}}</td>
 				</tr>
 			</table>
 		</div>
@@ -220,7 +220,7 @@
 				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="mode=='BROWSE'" /></td></tr>
 				<tr>
 					<td class="menu">Organizacija:</td>
-					<td><input class="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM(selectedVM)"></td>
+					<td><input class="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM(selectedVM.ime)"></td>
 				</tr>
 				<tr>
 					<td class="menu">Kategorija:</td>
@@ -475,45 +475,6 @@
 					</tr>
 				</table>
 			</div>
-			<div>
-				<table id="tabelaIzmjeneDiska" border="1">
-					<tr><td class="menu">Ime:</td>
-						<td>
-							<input type="text" v-model="selectedDisk.ime" />
-						</td>
-					</tr>
-					<tr>
-						<td class="menu">Kapacitet:</td>
-						<td><input class="kapacitetValue" type="number" v-model="selectedDisk.kapacitet"></td>
-					</tr>
-					<tr>
-						<td class="menu">
-							Tip diska:
-						</td>
-						<td>
-							<select id="tipDiska" v-model="selectedDisk.tip">
-								<option id="HDDDisk" v-bind:selected="selectedDisk.tip=='HDD'">HDD</option>
-								<option id="SSDDisk" v-bind:selected="selectedDisk.tip=='SSD'">SSD</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td class="menu">VM:</td>
-						<td>
-							<input type="text" v-model="selectedDisk.vm" v-bind:disabled="true"/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<button class="dugme" v-on:click="sacuvajPromjenuDiska">Sacuvaj</button>
-							<button  class="dugme" v-on:click="obrisiDisk">Obrisi</button>
-						</td>
-						<td>
-							<button  class="dugme" v-on:click="otkaziIzmjenuDiska">Otkazi</button>
-						</td>
-					</tr>
-				</table>
-			</div>
 			<div class="polja">
 				<table border="1" id="tabelaSaDiskovima">
 					<tr>
@@ -528,52 +489,101 @@
 					</tr>
 				</table>
 			</div>
-		</div>
-		<div>
-			<table id="tabelaDodavanjaDiska" border="1">
-				<tr><td class="menu">Ime:</td>
-					<td>
-						<input id="novoImeDiska" type="text" v-model="noviDisk.ime" />
-					</td>
-				</tr>
-				<tr>
-					<td class="menu">Kapacitet:</td>
-					<td><input id="noviKapacitetDisk" class="kapacitetValue" type="number" v-model="noviDisk.kapacitet" ></td>
-				</tr>
-				<tr>
-					<td class="menu">
-						Tip diska:
-					</td>
-					<td>
-						<select id="tipDiskaDisk" v-model="noviDisk.tip" >
-							<option id="HDDDisk">HDD</option>
-							<option id="SSDDisk">SSD</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<td class="menu">
-						VM:
-					</td>
-					<td>
-						<div v-for="virt in VM">
-							<input type="radio" v-bind:value="virt.ime" name="izborVMzaDisk" v-on:click="izaberiVM"/>
-							<label>{{virt.ime}}</label>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<button class="dugme" v-on:click="dodajNoviDisk">Dodaj disk</button>
-					</td>
-					<td>
-						<button  class="dugme" v-on:click="otkaziDodavanjeDiska">Otkazi</button>
-					</td>
-				</tr>
-			</table>
+			<div class="polja">
+				<table id="tabelaIzmjeneDiska" border="1">
+					<tr><td class="menu">Ime:</td>
+						<td>
+							<input type="text" v-model="selectedDisk.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" />
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">Kapacitet:</td>
+						<td><input class="kapacitetValue" type="number" v-model="selectedDisk.kapacitet" v-bind:disabled="provjeraTipaKorisnikaIzmjena()"></td>
+					</tr>
+					<tr>
+						<td class="menu">
+							Tip diska:
+						</td>
+						<td>
+							<select id="tipDiska" v-model="selectedDisk.tip" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">
+								<option id="HDDDisk" v-bind:selected="selectedDisk.tip=='HDD'">HDD</option>
+								<option id="SSDDisk" v-bind:selected="selectedDisk.tip=='SSD'">SSD</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">VM:</td>
+						<td>
+							<div v-for="virt in VM">
+								<input v-bind:disabled="provjeraTipaKorisnikaIzmjena()" class="radiobtnsVM" type="radio" v-bind:value="virt.ime" name="izborVMzaDisk" v-on:click="promijeniVMzaDisk" v-bind:checked="virt.ime==selectedDisk.vm"/>
+								<label>{{virt.ime}}</label></br>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">Organizacija:</td>
+						<td>
+							<input id="nazivOrgPregled" type="text" v-bind:value="dobaviNazivOrg()" v-bind:disabled="true"/>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="dugme" v-on:click="sacuvajPromjenuDiska" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Sacuvaj</button>
+							<button  class="dugme" v-on:click="obrisiDisk" v-bind:disabled="provjeraTipaKorisnikaBrisanje()">Obrisi</button>
+							<button  class="dugme" v-on:click="iskljuciVM" v-bind:disabled="provjeraTipaKorisnikaIskljucivanjeVM()">Iskljuci VM</button>
+						</td>
+						<td>
+							<button  class="dugme" v-on:click="otkaziIzmjenuDiska">Otkazi</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="polja">
+				<table id="tabelaDodavanjaDiska" border="1">
+					<tr><td class="menu">Ime:</td>
+						<td>
+							<input id="novoImeDiska" type="text" v-model="noviDisk.ime" />
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">Kapacitet:</td>
+						<td><input id="noviKapacitetDisk" class="kapacitetValue" type="number" v-model="noviDisk.kapacitet" ></td>
+					</tr>
+					<tr>
+						<td class="menu">
+							Tip diska:
+						</td>
+						<td>
+							<select id="tipDiskaDisk" v-model="noviDisk.tip" >
+								<option id="HDDDisk">HDD</option>
+								<option id="SSDDisk">SSD</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu">
+							VM:
+						</td>
+						<td>
+							<div v-for="virt in VM">
+								<input class="radiobtnsVM" type="radio" v-bind:value="virt.ime" name="izborVMzaDisk" v-on:click="izaberiVM"/>
+								<label>{{virt.ime}}</label></br>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="dugme" v-on:click="dodajNoviDisk">Dodaj disk</button>
+						</td>
+						<td>
+							<button  class="dugme" v-on:click="otkaziDodavanjeDiska">Otkazi</button>
+						</td>
+					</tr>
+				</table>
+			</div>
 		</div>
 		<button class="dugme" id="prikaziDiskove" v-on:click="prikaziDiskove">Prikazi diskove</button>
-		<button class="dugme" id="dodajDisk" v-on:click="dodajDisk">Dodaj disk</button>
+		<button class="dugme" id="dodajDisk" v-on:click="dodajDisk" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Dodaj disk</button>
 	</div>
 	
 	
