@@ -1,3 +1,5 @@
+Vue.prototype.$korisnik={tip:"ADMIN",organizacija:"Org1"};
+
 
 var prikazVM = new Vue({ 
     el: '#tabelaVM',
@@ -12,20 +14,30 @@ var prikazVM = new Vue({
 		novaVM:{ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
 		organizacije:null,
 		izabranaOrganizacija:null,
+		korisnik:null,
 	},
 	mounted(){
+		this.korisnik=this.$korisnik;
+		this.izabranaOrganizacija=this.$korisnik.organizacija;
 		this.uzmiVMizBaze();
+		
 		axios
 		.get('Kategorije/getalljsonKategorije')
-	  .then(response => (this.kategorije = response.data));
-	  axios
-		.get('Diskovi/getalljsonDiskovi')
-	  .then(response => (this.diskovi = response.data));
-	  axios
+	  	.then(response => (this.kategorije = response.data));
+		
+		axios
 		.get('Organizacija/getAll')
-	  .then(response => (this.organizacije = response.data));
+		.then(response => (this.organizacije = response.data));
+		
+		axios
+		.post('Diskovi/getDiskovibyOrg',this.izabranaOrganizacija)
+		.then(response => (this.diskovi = response.data));
 	},
     methods: {
+		dobaviDiskove: function(){
+				axios.post('Diskovi/getDiskovibyOrg',this.izabranaOrganizacija)
+				.then(response => (this.diskovi = response.data));
+		},
         dobaviVM: function(){
 			this.uzmiVMizBaze();
 			document.getElementById("tabelaSaVM").style.display="block";
@@ -56,9 +68,17 @@ var prikazVM = new Vue({
             });
 		},
 		uzmiVMizBaze : function(){
-			axios
-			.get('VM/getalljsonVM')
-			.then(response => (this.VM = response.data));
+
+			if(this.$korisnik.tip=="SUPERADMIN"){
+				axios
+				.get('VM/getalljsonVM')
+				.then(response => (this.VM = response.data));
+			}
+			else{
+				axios
+				.post('Organizacija/getVMbyOrg',this.$korisnik.organizacija)
+				.then(response => (this.VM = response.data));
+			}
 		},
 		pretraziVM: function(){
 			if(document.getElementById("inputPretrage").value==""){
@@ -147,7 +167,7 @@ var prikazVM = new Vue({
 			}
 			var OrgVM=[];
 			OrgVM.push(this.novaVM.ime);
-			OrgVM.push(this.izabranaOrganizacija.ime);
+			OrgVM.push(this.izabranaOrganizacija);
 			axios
 			.post('VM/dodajNovuVM',JSON.stringify(this.novaVM))
 			.then(document.getElementById("tabelaDodavanja").style.display="none");
@@ -159,13 +179,8 @@ var prikazVM = new Vue({
 			this.novaVM={ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]};
 		},
 		izbrisiVM: function(){
-			var indeks=null;
-			for(var virt of this.VM){
-				if(virt.ime==this.selectedVM.ime){
-					indeks=this.VM.indexOf(virt);
-					axios.post("VM/deleteVM", this.backup).then(this.VM.splice(indeks,1));
-				}
-			}
+			
+			axios.post("VM/deleteVM", this.backup).then(this.uzmiVMizBaze()).error(function(){alert("GRESKA!");return;});
 			document.getElementById("tabelaIzmjene").style.display="none";
 			this.selectedVM={ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]};
 		},
@@ -209,9 +224,15 @@ var prikazVM = new Vue({
 			this.novaVM.kategorija=this.kategorije[document.getElementById("kategorijeNoveVM").selectedIndex-1];
 		},
 		izaberiOrganizaciju :function(){
-			this.izabranaOrganizacija=this.organizacije[document.getElementById("izborNoveOrg").selectedIndex-1];
+			this.izabranaOrganizacija=this.organizacije[document.getElementById("izborNoveOrg").selectedIndex-1].ime;
+			this.dobaviDiskove();
 		},
-
+		provjeraIzbora: function(data){
+			if(this.izabranaOrganizacija==data){
+				return true;
+			}
+			return false;
+		},
 		provjera: function(tip,data){
 			if(tip==data){
 				return true;
@@ -379,7 +400,23 @@ var prikazVM = new Vue({
 			else{
 				this.selectedVM.listaUkljucenostiVM[indeks]=novi;
 			}
-		}
+		},
+		provjeraTipaKorisnikaIzmjena: function(){
+			if(this.$korisnik.tip=="SUPERADMIN" || this.$korisnik.tip=="ADMIN"){
+				return false;
+			}
+			else{
+				return true;
+			}
+		},
+		provjeraTipaKorisnikaIzmjenaOrg: function(){
+			if(this.$korisnik.tip=="SUPERADMIN"){
+				return false;
+			}
+			else{
+				return true;
+			}
+		},
     	/*selectStudent : function(student) {
     		if (this.mode == 'BROWSE') {
     			this.selectedStudent = student;
@@ -412,7 +449,6 @@ var prikazVM = new Vue({
 	   },
 });
 
-Vue.prototype.$korisnik={tip:"SUPERADMIN",organizacija:"Org1"};
 
 var prikazVM = new Vue({ 
 	el: '#diskovi',

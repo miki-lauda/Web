@@ -122,7 +122,7 @@
 					</tr>
 				</table>
 		</div>
-			<div class="polja" id="divfilter">
+		<div class="polja" id="divfilter">
 			<table id="tablemenu">
 				<tr bgcolor="#007EC9">
 				 <td onMouseOver="showmenu('menuFilter')" onMouseOut="hidemenu('menuFilter')">
@@ -212,7 +212,7 @@
 		
 		<div class="polja">
 			<button class="dugme" id="dobaviVMdugme" name="ucitajVM" v-on:click="dobaviVM">Prikazi sve VM</button>
-			<button class="dugme" id="dodajVMdugme" name="novaVM" v-on:click="dodajVM">Dodaj novu VM</button>
+			<button class="dugme" id="dodajVMdugme" name="novaVM" v-on:click="dodajVM" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Dodaj novu VM</button>
 		</div>
 		<div id="izmjenaVM" class="polja">
 			<table id="tabelaIzmjene" border="1"> 
@@ -322,11 +322,11 @@
 				</tr>
 				<tr>
 					<td>
-						<button class="dugme" id="cuvajPromjene" name="cuvajPromjene" v-on:click="cuvajPromjene" v-bind:disabled="mode=='BROWSE'">Sacuvaj</button>
-						<button class="dugme" id="izbrisiVM" name="izbrisiVM" v-on:click="izbrisiVM" v-bind:disabled="false">Obrisi</button>
+						<button class="dugme" id="cuvajPromjene" name="cuvajPromjene" v-on:click="cuvajPromjene">Sacuvaj</button>
+						<button class="dugme" id="izbrisiVM" name="izbrisiVM" v-on:click="izbrisiVM" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Obrisi</button>
 					</td>
 					<td>
-						<button class="dugme" v-on:click="cancelEditing" v-bind:disabled="mode=='BROWSE'">Otkazi</button> <br />
+						<button class="dugme" v-on:click="cancelEditing">Otkazi</button> <br />
 					</td>
 				</tr>
 				
@@ -342,9 +342,9 @@
 				<tr>
 					<td class="menu">Organizacija:</td>
 					<td>
-						<select id="izborNoveOrg"  v-bind:disabled="false" v-on:change="izaberiOrganizaciju">
+						<select id="izborNoveOrg" v-on:change="izaberiOrganizaciju" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()">
 							<option style="display:none">Izaberite organizaciju</option>
-							<option  v-for="(org,index) in organizacije" v-bind:value="org.ime">{{org.ime}}</option>
+							<option  v-for="(org,index) in organizacije" v-bind:value="org.ime" v-bind:selected="provjeraIzbora(org.ime)">{{org.ime}}</option>
 						</select>
 					</td>
 				</tr>
@@ -370,11 +370,11 @@
 					<td>
 						<table border="1" v-for="res in novaVM.listaResursa">
 							<tr>
-								<td class="menu">Ime</td>
+								<td class="menu">Ime:</td>
 								<td class="menu"><input type="text" v-model="res.ime" v-bind:disabled="true" /></td>
 							</tr>
 							<tr>
-								<td class="menu">Tip diska</td>
+								<td class="menu">Tip diska:</td>
 								<td class="menu">
 									<select name="tipDiska" value="res.tip" v-model="res.tip" v-bind:disabled="true">
 										<option value="HDD" v-bind:selected="provjera(res.tip,'HDD')">HDD</option>
@@ -384,7 +384,7 @@
 							</tr>	
 							<tr>
 								<td class="menu">
-									Kapacitet
+									Kapacitet:
 								</td>
 								<td class="menu">
 									<input type="number" v-model="res.kapacitet" v-bind:disabled="true" />
