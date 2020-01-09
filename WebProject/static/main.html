@@ -217,7 +217,7 @@
 		<div id="izmjenaVM" class="polja">
 			<table id="tabelaIzmjene" border="1"> 
 				<tr><td class="menu">Ime:</td>
-				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="mode=='BROWSE'" /></td></tr>
+				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" /></td></tr>
 				<tr>
 					<td class="menu">Organizacija:</td>
 					<td><input class="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM(selectedVM.ime)"></td>
@@ -225,7 +225,7 @@
 				<tr>
 					<td class="menu">Kategorija:</td>
 					<td>
-						<select id="katSelect" v-bind:disabled="mode=='BROWSE'" v-on:change="izabranaKategorija">
+						<select id="katSelect" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" v-on:change="izabranaKategorija">
 							<option v-for="(kat,index) in kategorije" v-bind:id="index" v-bind:selected="kat.ime==selectedVM.kategorija.ime">{{kat.ime}}</option>
 						</select>
 					</td>
@@ -237,7 +237,7 @@
 				<tr><td class="menu">GPU jezgra:</td>
 				<td><input type="text" v-model="selectedVM.kategorija.gpuJezgra" v-bind:disabled="true" /></td> </tr>
 				<tr><td class="menu">Status:</td>
-				<td><input type="checkbox" v-model="selectedVM.status" v-bind:disabled="mode=='BROWSE'" v-bind:checked="selectedVM.status" /></td></tr>
+				<td><input type="checkbox" v-model="selectedVM.status" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" v-bind:checked="selectedVM.status" /></td></tr>
 				<tr><td class="menu" colspan="2">Diskovi</td></tr>
 				<tr>
 					<td>
@@ -276,10 +276,10 @@
 												Izaberite disk
 											</td>
 										</tr>
-										<tr v-for="(disk,index) in diskovi">
+										<tr v-for="(disk,index) in diskoviIzmjena">
 											<td>
 												<table>
-													<tr><td class="menu">{{disk.ime}}</td><td rowspan="3" class="menu"><input type="checkbox" v-bind:id="index"  v-on:change="izmijeniListuDiskova(index,selectedVM)" v-bind:checked="provjeraDiskauListi(index,selectedVM)"></td></tr>
+													<tr><td class="menu">{{disk.ime}}</td><td rowspan="3" class="menu"><input type="checkbox" v-bind:id="index"  v-on:change="izmijeniListuDiskova(index,selectedVM)" v-bind:checked="provjeraDiskauListi(index,selectedVM)" v-bind:disabled="provjeraTipaKorisnikaIzmjena()"></td></tr>
 													<tr><td class="menu">{{disk.tip}}</td></tr>
 													<tr><td class="menu">{{disk.kapacitet}}</td></tr>
 												</table>
@@ -305,7 +305,7 @@
 						<table border="1" v-for="(akt,index) in selectedVM.listaUkljucenostiVM">
 							<tr>
 								<td class="menu">
-									<input type="datetime-local" v-bind:id="'ukljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('U',index,akt)"/>
+									<input type="datetime-local" v-bind:id="'ukljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('U',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
 								</td>
 							</tr>
 						</table>
@@ -314,7 +314,7 @@
 						<table border="1" v-for="(akt, index) in selectedVM.listaIskljucenostiVM">
 							<tr>
 								<td class="menu">
-									<input type="datetime-local" v-bind:id="'iskljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('I',index,akt)"/>
+									<input type="datetime-local" v-bind:id="'iskljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('I',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
 								</td>
 							</tr>
 						</table>
@@ -322,7 +322,7 @@
 				</tr>
 				<tr>
 					<td>
-						<button class="dugme" id="cuvajPromjene" name="cuvajPromjene" v-on:click="cuvajPromjene">Sacuvaj</button>
+						<button class="dugme" id="cuvajPromjene" name="cuvajPromjene" v-on:click="cuvajPromjene" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Sacuvaj</button>
 						<button class="dugme" id="izbrisiVM" name="izbrisiVM" v-on:click="izbrisiVM" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Obrisi</button>
 					</td>
 					<td>

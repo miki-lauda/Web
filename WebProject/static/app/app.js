@@ -5,6 +5,9 @@ const Users = {template: '<korisnici></korisnici>'};
 const addUser = {template: '<dodaj-korisnika></dodaj-korisnika>'};
 const izmeniUser = {template: '<izmena-korisnika></izmena-korisnika>'}
 const profil = {template: '<profil></profil>'}
+const diskovi={template: '<diskovi></diskovi>'}
+const diskAdd={template: '<dodaj-disk></dodaj-disk>'}
+const IzmjenaDiska={template:'<izmjena-diska></izmjena-diska>'}
 //const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
 
 const router = new VueRouter({
@@ -16,7 +19,10 @@ const router = new VueRouter({
 	    ,{ path: '/korisnici', component: Users}
 	    ,{ path: '/korisnici/dodaj', component: addUser}
 	    ,{ path: '/korisnici/izmena/:user', component: izmeniUser}
-	    ,{ path: '/profil', component: profil}
+		,{ path: '/profil', component: profil}
+		,{ path: '/diskovi', component: diskovi},
+		,{ path: '/diskAdd', component: diskAdd}
+		,{ path: '/diskovi/izmjena/:disk', component: IzmjenaDiska}
 	  ]
 });
 var app = new Vue({

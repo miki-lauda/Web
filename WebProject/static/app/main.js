@@ -1,4 +1,4 @@
-Vue.prototype.$korisnik={tip:"ADMIN",organizacija:"Org1"};
+Vue.prototype.$korisnik={tip:"SUPERADMIN",organizacija:"Org1"};
 
 
 var prikazVM = new Vue({ 
@@ -15,6 +15,7 @@ var prikazVM = new Vue({
 		organizacije:null,
 		izabranaOrganizacija:null,
 		korisnik:null,
+		diskoviIzmjena:[],
 	},
 	mounted(){
 		this.korisnik=this.$korisnik;
@@ -31,12 +32,16 @@ var prikazVM = new Vue({
 		
 		axios
 		.post('Diskovi/getDiskovibyOrg',this.izabranaOrganizacija)
-		.then(response => (this.diskovi = response.data));
+		.then(response => {
+			this.diskovi = response.data;
+		});
 	},
     methods: {
 		dobaviDiskove: function(){
 				axios.post('Diskovi/getDiskovibyOrg',this.izabranaOrganizacija)
-				.then(response => (this.diskovi = response.data));
+				.then(response => {
+					this.diskovi = response.data;
+				});
 		},
         dobaviVM: function(){
 			this.uzmiVMizBaze();
@@ -127,8 +132,7 @@ var prikazVM = new Vue({
 			
 		},
 		selectVM : function(virtualna) {	
-			this.selectedVM = virtualna;
-			this.mode="EDIT";    
+			this.selectedVM = virtualna;   
 			document.getElementById("tabelaIzmjene").style.display="block";
 			this.backup =Object.assign({}, this.selectedVM);
 		},
@@ -204,8 +208,8 @@ var prikazVM = new Vue({
 			this.selectedVM.listaResursa=this.backup.listaResursa;
 			this.selectedVM.listaUkljucenostiVM=this.backup.listaUkljucenostiVM;
 			this.selectedVM.listaIskljucenostiVM=this.backup.listaIskljucenostiVM;
-			this.mode = 'BROWSE';
 			document.getElementById("tabelaIzmjene").style.display="none";
+
 		},
 		cuvajPromjene: function(){
 			var slanje=[this.selectedVM];
@@ -242,7 +246,7 @@ var prikazVM = new Vue({
 			}
 		},
 		izmijeniListuDiskova: function(indeks,data){
-			var disk=this.diskovi[indeks];
+			var disk=this.diskoviIzmjena[indeks];
 			var brisanje=false;
 			var indeksDiska=null;
 			for(var diskVM of data.listaResursa){
@@ -260,7 +264,7 @@ var prikazVM = new Vue({
 			}
 		},
 		provjeraDiskauListi: function(indeks,data){
-			var disk=this.diskovi[indeks];
+			var disk=this.diskoviIzmjena[indeks];
 			for(var diskVM of data.listaResursa){
 				if(diskVM.ime==disk.ime){
 					return true;
@@ -696,3 +700,5 @@ var prikazVM = new Vue({
 		},
 	}
 });
+
+
