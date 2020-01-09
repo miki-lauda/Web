@@ -64,7 +64,7 @@ Vue.component("diskovi", {
 					</tr>
 				</table>
 		<br /> 
-		<router-link id="dugmeDodaj" to="diskAdd" tag="button">Dodaj disk</router-link>
+		<router-link id="dugmeDodaj" to="masineAdd" tag="button">Dodaj VM</router-link>
 	
 </div>		  
 `
