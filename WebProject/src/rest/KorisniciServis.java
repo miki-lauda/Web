@@ -141,6 +141,12 @@ public class KorisniciServis {
 			Korisnik k  = (Korisnik) req.session().attribute("user");
 			return k.getUsername();
 		});
+		
+		get("Korisnik/getCurUser", (req,res)->{
+			res.type("text");
+			Korisnik k  = (Korisnik) req.session().attribute("user");
+			return g.toJson(k);
+		});
 	}
 	
 	public static String checkLogin(Request req, Response res, Gson g, CloudService cloud) {

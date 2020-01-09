@@ -37,6 +37,15 @@ public class DiskoviServis {
 			}
 			return g.toJson(new ArrayList<Disk>());
 		});
+		post("/Disk/getDisk",(req,res)->{
+			String ime=req.body();
+			for(Disk disk:cloud.getDiskovi().values()) {
+				if(disk.getIme().equals(ime)) {
+					return g.toJson(disk);
+				}
+			}
+			return "";
+		});
 		
 		post("/Disk/pretraga", (req, res) -> {
 			String ime = g.fromJson(req.body(), String.class);
@@ -90,7 +99,7 @@ public class DiskoviServis {
 				}
 			}
 			
-			return "";
+			return true;
 		});
 		
 		post("/Disk/deleteDisk",(req,res)->{
@@ -103,7 +112,7 @@ public class DiskoviServis {
 					}
 				}
 			}
-			return "";
+			return true;
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{
 			Disk novi=g.fromJson(req.body(), Disk.class);
@@ -116,7 +125,7 @@ public class DiskoviServis {
 					}
 				}
 			}
-			return "";
+			return true;
 		});
 		
 		post("/Diskovi/getDiskovibyOrg",(req,res)->{
