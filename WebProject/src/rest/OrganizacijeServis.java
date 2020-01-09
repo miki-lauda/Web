@@ -219,7 +219,7 @@ public class OrganizacijeServis {
 					}
 				}
 			}
-			return "";
+			return true;
 		});
 		
 		get("/Organizacija/getAll",(req,res)-> {
@@ -232,7 +232,7 @@ public class OrganizacijeServis {
 			VM vm=cloud.getVirtualneMasine().get(orgVM[0]);
 			org.getListaResursa().add(vm);
 			cloud.getOrganizacija().put(org.getIme(), org);
-			return "";
+			return true;
 		});
 		
 		post("/Organizacija/getVMbyOrg", (req,res) -> {
@@ -242,7 +242,7 @@ public class OrganizacijeServis {
 					return g.toJson(organizacija.getListaResursa());
 				}
 			}
-			return "";
+			return true;
 		});
 	
 	}

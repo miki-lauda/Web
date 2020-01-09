@@ -52,12 +52,19 @@ public class VMServis {
 				}
 				postoji=false;
 			}
-			return "";
+			return true;
 		});
 		post("/VM/dodajNovuVM",(req,res)->{
 			VM novaVM=g.fromJson(req.body(), VM.class);
 			cloud.getVirtualneMasine().put(novaVM.getIme(), novaVM);
-			return "";
+			for(Disk disc:novaVM.getListaResursa()) {
+				for(Disk disk:cloud.getDiskovi().values()) {	
+					if(disk.getIme().equals(disc.getIme())) {
+						disk.setVm(novaVM.getIme());
+					}
+				}
+			}
+			return true;
 		});	
 		
 		post("/VM/pretraga",(req,res)->{
@@ -93,7 +100,7 @@ public class VMServis {
 					}
 				}
 			}
-			return "";
+			return true;
 		});
 		
 		
