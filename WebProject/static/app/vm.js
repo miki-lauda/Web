@@ -497,3 +497,465 @@ Vue.component("masine-dodavanje",{
         },
     }
 });
+
+Vue.component("izmjena-masine",{
+	data:function(){
+		return{
+			selectedVM:{ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
+			kategorije:[],
+			diskovi:[],
+			VM:[],
+			korisnik:{},
+			organizacija:{},
+			backup:{ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]},
+		}
+	},
+	template:
+	`
+	<div id="izmjenaVM" class="polja">
+			<table id="tabelaIzmjene" border="1"> 
+				<tr><td class="menu">Ime:</td>
+				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" /></td></tr>
+				<tr>
+					<td class="menu">Organizacija:</td>
+					<td><input id="org" class="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM('a')"></td>
+				</tr>
+				<tr>
+					<td class="menu">Kategorija:</td>
+					<td>
+						<select id="katSelect" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" v-on:change="izabranaKategorija">
+							<option v-for="(kat,index) in kategorije" v-bind:id="index" v-bind:selected="kat.ime==selectedVM.kategorija.ime">{{kat.ime}}</option>
+						</select>
+					</td>
+				</tr>
+				<tr><td class="menu">Broj jezgara:</td>
+				<td><input name="ime" type="text" v-model="selectedVM.kategorija.brojJezgara" v-bind:disabled="true" /></td> </tr>
+				<tr><td class="menu">RAM:</td>
+				<td><input type="text" v-model="selectedVM.kategorija.ram" v-bind:disabled="true" /></td></tr>
+				<tr><td class="menu">GPU jezgra:</td>
+				<td><input type="text" v-model="selectedVM.kategorija.gpuJezgra" v-bind:disabled="true" /></td> </tr>
+				<tr><td class="menu">Status:</td>
+				<td><input type="checkbox" v-model="selectedVM.status" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" v-bind:checked="selectedVM.status" /></td></tr>
+				<tr><td class="menu" colspan="2">Diskovi</td></tr>
+				<tr>
+					<td>
+						<table border="1" v-for="res in selectedVM.listaResursa">
+							<tr>
+								<td class="menu">Ime</td>
+								<td class="menu"><input type="text" v-model="res.ime" v-bind:disabled="true" /></td>
+							</tr>
+							<tr>
+								<td class="menu">Tip diska</td>
+								<td class="menu">
+									<select name="tipDiska" value="res.tip" v-model="res.tip" v-bind:disabled="true">
+										<option value="HDD" v-bind:selected="provjera(res.tip,'HDD')">HDD</option>
+										<option value="SSD" v-bind:selected="provjera(res.tip,'SSD')">SSD</option>
+									</select>
+								</td>
+							</tr>	
+							<tr>
+								<td class="menu">
+									Kapacitet
+								</td>
+								<td class="menu">
+									<input type="number" v-model="res.kapacitet" v-bind:disabled="true" />
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td>
+						<table id="tableDiskmenu">
+							<tr bgcolor="#007EC9">
+								<td v-on:MouseOver="showmenu('diskFilter')" v-on:MouseOut="hidemenu('diskFilter')">
+									<p><b>Izmijeni listu diskova</b></p>
+									<table class="menu" id="diskFilter" border="1">
+										<tr>
+											<td class="menu">
+												Izaberite disk
+											</td>
+										</tr>
+										<tr v-for="(disk,index) in diskovi">
+											<td>
+												<table>
+													<tr><td class="menu">{{disk.ime}}</td><td rowspan="3" class="menu"><input type="checkbox" v-bind:id="index"  v-on:change="izmijeniListuDiskova(index,selectedVM)" v-bind:checked="provjeraDiskauListi(index,selectedVM)" v-bind:disabled="provjeraTipaKorisnikaIzmjena()"></td></tr>
+													<tr><td class="menu">{{disk.tip}}</td></tr>
+													<tr><td class="menu">{{disk.kapacitet}}</td></tr>
+												</table>
+										</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td class="menu" colspan="2">
+						Tabela aktivnosti
+					</td>
+				</tr>
+				<tr>
+					<td class="menu">Datumi ukljucenja</td>
+					<td class="menu">Datumi iskljucenja</td>
+				</tr>
+				<tr>
+					<td>
+						<table border="1" v-for="(akt,index) in selectedVM.listaUkljucenostiVM">
+							<tr>
+								<td class="menu">
+									<input type="datetime-local" v-bind:id="'ukljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('U',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td>
+						<table border="1" v-for="(akt, index) in selectedVM.listaIskljucenostiVM">
+							<tr>
+								<td class="menu">
+									<input type="datetime-local" v-bind:id="'iskljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('I',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<button class="dugme" id="cuvajPromjene" name="cuvajPromjene" v-on:click="cuvajPromjene" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Sacuvaj</button>
+						<button class="dugme" id="izbrisiVM" name="izbrisiVM" v-on:click="izbrisiVM" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Obrisi</button>
+					</td>
+					<td>
+						<button  class="dugme" v-on:click="otkaziIzmjenuVM">Otkazi</button>
+					</td>
+				</tr>
+				
+			</table>
+		</div>
+	`,
+	mounted(){
+		axios.get("Korisnik/getCurUser").then(response=>{
+            this.selectedVM = router.currentRoute.params.vm;
+            axios.post("VM/getVM",this.selectedVM)
+		    .then(response => {
+                this.selectedVM = response.data;
+				this.backup =Object.assign({}, this.selectedVM);	
+		    });
+			this.korisnik=response.data;
+
+			axios
+			.get('Kategorije/getalljsonKategorije')
+			.then(response => (this.kategorije = response.data));
+			
+			axios
+			.get('VM/getalljsonVM')
+			.then(response => {
+				this.VM = response.data;
+				for(var a of this.VM){
+                    if(a.ime==this.selectedVM.ime){
+                        this.VM.splice(this.VM.indexOf(a),1);
+                        break;
+                    }
+                }
+			}); 
+			axios
+            .post("Organizacija/getOrganizacijebyVM/",this.backup.ime)
+            .then(respond=>{
+			   this.organizacija=respond.data;
+			   $("#org").val(respond.data.ime);
+			   axios.post('Diskovi/getDiskovibyOrg',this.organizacija.ime)
+				.then(response => {
+					this.diskovi = response.data;
+					for(var a of this.selectedVM.listaResursa){
+						this.diskovi.push(a);
+					}
+				});
+            });
+		});
+	},
+	methods:{
+		init : function() {
+            this.selectedVM={ime:"",kategorija:{ime:"",brojJezgara:0,ram:0,gpuJezgra:0},status:false,listaResursa:[],listaUkljucenostiVM:[],listaIskljucenostiVM:[]}; 
+		}, 
+		provjeraTipaKorisnikaIzmjena:function(){
+			if(this.korisnik.uloga=="SUPERADMIN" || this.korisnik.uloga=="ADMIN"){
+				return false;
+			}
+			else{
+				return true;
+			}
+		},
+		provjeraTipaKorisnikaIzmjenaOrg: function(){
+			if(this.korisnik.uloga=="SUPERADMIN"){
+				return false;
+			}
+			else{
+				return true;
+			}
+		},
+		dobaviOrganizacijubyVM : function(vm){
+            axios
+            .post("Organizacija/getOrganizacijebyVM/",this.backup.ime)
+            .then(respond=>{
+                if(respond.data==""){
+                    return;
+                }
+                $("#org").val(respond.data.ime);
+            });
+            
+		},
+		izabranaKategorija: function(){
+			this.selectedVM.kategorija=this.kategorije[document.getElementById("katSelect").selectedIndex];
+		},
+		provjera: function(tip,data){
+			if(tip==data){
+				return true;
+			}
+			else{
+				return false;
+			}
+		},
+		provjeraZauzetostiImena: function(ime){
+			for(var virt of this.VM){
+				if(virt.ime==ime){
+					return true;
+				}
+			}
+			return false;
+		},
+		cuvajPromjene: function(){
+			var provjera=true;
+			if(this.selectedVM.ime=="" || this.provjeraZauzetostiImena(this.selectedVM.ime)){
+				$("#novoIme").addClass("error");
+				provjera= false;
+			}
+			else{
+				$("#novoIme").removeClass("error");
+			}
+
+			if(this.selectedVM.kategorija.ime==""){
+				$("#kategorijeNoveVM").addClass("error");
+				provjera= false;
+			}
+			else{
+				$("#kategorijeNoveVM").removeClass("error");
+			}
+
+			if(!provjera){
+				return false;
+			}
+			var slanje=[this.selectedVM];
+			slanje.push(this.backup);
+			var jsonPodatak=JSON.stringify(slanje);
+			axios
+    		.post("VM/updateVM", jsonPodatak)
+    		.then(response => {
+				slanje=[this.selectedVM.ime,this.backup.ime,$("#org").val()];
+				axios
+				.post("Organizacija/updateVMkodOrg",JSON.stringify(slanje))
+				.then(resposnse=>{
+
+					if(response.data){
+						alert("Uspesno ste izmijenili VM");
+						promeniRutu("masine");
+					}
+					else{
+						alert("Neuspjesna izmjena VM");
+					}
+				});
+			});
+			},
+		izbrisiVM: function(){
+			if(confirm("Da li ste sigurni da zelite da obrisete VM?")){
+				axios
+				.post("VM/deleteVM", this.backup)
+				.then(response=>{
+					if (response.data)
+						alert("Uspesno ste obrisali VM");
+					promeniRutu("masine");
+				});
+			}
+		},
+		rijesiDatum: function(data){
+			var datum=data;
+			var podjelaDatuma=datum.split(",");
+			mjesecDan=podjelaDatuma[0].split(" ");
+			datum=podjelaDatuma[1].trim()+"-"
+			dan=mjesecDan[1];
+			
+			switch(mjesecDan[0]){
+				case "Jan":
+					datum=datum+"01-"
+					break;
+				case "Feb":
+					datum=datum+"02-"
+					break;
+				case "Mar":
+					datum=datum+"03-"
+					break;
+				case "Apr":
+					datum=datum+"04-"
+					break;
+				case "May":
+					datum=datum+"05-"
+					break;
+				case "Jun":
+					datum=datum+"06-"
+					break;
+				case "Jul":
+					datum=datum+"07-"
+					break;
+				case "Aug":
+					datum=datum+"08-"
+					break;
+				case "Sep":
+					datum=datum+"09-"
+					break;
+				case "Oct":
+					datum=datum+"10-"
+					break;
+				case "Nov":
+					datum=datum+"11-"
+					break;
+				case "Dec":
+					datum=datum+"12-"
+					break;
+			}
+			if(parseInt(dan,10)<10){
+				datum=datum+"0"+mjesecDan[1]+"T";
+			}
+			else{
+				datum=datum+mjesecDan[1]+"T";
+			}
+			podjelaDatuma=podjelaDatuma[2].split(" ");
+			var sati=podjelaDatuma[1].split(":")[0];
+			if(podjelaDatuma[2]=="PM"){
+				switch(sati){
+					case "1":
+						datum=datum+"13:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+						break;
+					case "2":
+						datum=datum+"14:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+					break;
+					case "3":
+						datum=datum+"15:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+						break;
+					case "4":
+						datum=datum+"16:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+					break;
+					case "5":
+						datum=datum+"17:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+						break;
+					case "6":
+						datum=datum+"18:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+					break;
+					case "7":
+						datum=datum+"19:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+						break;
+					case "8":
+						datum=datum+"20:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+					break;
+					case "9":
+						datum=datum+"21:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+						break;
+					case "10":
+						datum=datum+"22:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+					break;
+					case "11":
+						datum=datum+"23:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+						break;
+					default:
+						datum=datum+"12:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
+					break;
+				}
+			}
+			else{
+				if(parseInt(sati,10)<10){
+					datum=datum+"0"+podjelaDatuma[1];
+				}
+				else{
+					datum=datum+podjelaDatuma[1];
+				}
+			}
+			return datum;
+		},
+		izmjenaDatuma: function(flag,indeks,datum){
+
+			if(flag=="I"){
+				var noviDatum=(new Date($("#iskljucen"+indeks).val())).toString();
+			}
+			else{
+				var noviDatum=(new Date($("#ukljucen"+indeks).val())).toString();
+				
+			}
+			noviDatum=noviDatum.split(" ");
+			if(noviDatum.length<3){
+				return;
+			}
+			var novi=noviDatum[1]+" "+noviDatum[2]+", "+noviDatum[3]+", ";
+			if(parseInt(noviDatum[4].split(":")[0],10)>=12){
+				if(parseInt(noviDatum[4].split(":")[0],10)==12){
+					var satiOstalo=noviDatum[4].split(":");
+					novi=novi+(parseInt(satiOstalo[0],10))+":"+satiOstalo[1]+":"+satiOstalo[2]+" PM";	
+				}
+				else{
+				var satiOstalo=noviDatum[4].split(":");
+				novi=novi+(parseInt(satiOstalo[0],10)-12)+":"+satiOstalo[1]+":"+satiOstalo[2]+" PM";
+				}
+			}
+			else{
+				if(parseInt(noviDatum[4].split(":")[0],10)==0){
+					var satiOstalo=noviDatum[4].split(":");
+					novi=novi+(parseInt(satiOstalo[0],10)+12)+":"+satiOstalo[1]+":"+satiOstalo[2]+" AM";
+				}
+				else{
+				var satiOstalo=noviDatum[4].split(":");
+				novi=novi+parseInt(satiOstalo[0],10)+":"+satiOstalo[1]+":"+satiOstalo[2]+" AM";
+				}
+			}
+
+
+			if(flag=="I"){
+				this.selectedVM.listaIskljucenostiVM[indeks]=novi;
+			}
+			else{
+				this.selectedVM.listaUkljucenostiVM[indeks]=novi;
+			}
+		},
+		otkaziIzmjenuVM:function(){
+            promeniRutu("masine");
+		},
+		izmijeniListuDiskova: function(indeks,data){
+			var disk=this.diskovi[indeks];
+			var brisanje=false;
+			var indeksDiska=null;
+			for(var diskVM of data.listaResursa){
+				if(diskVM.ime==disk.ime){
+					brisanje=true;
+					indeksDiska=data.listaResursa.indexOf(diskVM);
+					break;
+				}
+			}
+			if(brisanje){
+				data.listaResursa.splice(indeksDiska,1);
+			}
+			else{
+				data.listaResursa.push(disk);
+			}
+        },
+        provjeraDiskauListi: function(indeks,data){
+			var disk=this.diskovi[indeks];
+			for(var diskVM of data.listaResursa){
+				if(diskVM.ime==disk.ime){
+					return true;
+
+				}
+			}
+			return false;
+		},
+		showmenu: function(data){
+            document.getElementById(data).style.visibility="visible";
+        },
+        hidemenu: function(data){
+            document.getElementById(data).style.visibility="hidden";
+        },
+	}
+})

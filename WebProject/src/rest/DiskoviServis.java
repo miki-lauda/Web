@@ -61,10 +61,10 @@ public class DiskoviServis {
 		post("/Disk/updateDisk", (req, res) -> {
 			String a = req.body();
 			Disk[] diskovi = g.fromJson(req.body(), Disk[].class);
-			HashMap<String, Disk> disks = cloud.getDiskovi();
-
-			disks.remove(diskovi[1].getIme());
-			disks.put(diskovi[0].getIme(), diskovi[0]);
+			
+			cloud.getDiskovi().remove(diskovi[1].getIme());
+			cloud.getDiskovi().put(diskovi[0].getIme(), diskovi[0]);
+			
 			if (diskovi[0].getVm() != null) {
 				for (VM masina : cloud.getVirtualneMasine().values()) {
 					if (masina.getIme().equals(diskovi[1].getVm())) {

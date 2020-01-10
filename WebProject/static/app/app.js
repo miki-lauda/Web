@@ -10,6 +10,7 @@ const diskAdd={template: '<dodaj-disk></dodaj-disk>'}
 const IzmjenaDiska={template:'<izmjena-diska></izmjena-diska>'}
 const vm={template:'<masine></masine>'}
 const vmAdd={template:'<masine-dodavanje></masine-dodavanje>'}
+const IzmjenaVM={template:'<izmjena-masine></izmjena-masine>'}
 //const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
 
 const router = new VueRouter({
@@ -27,6 +28,7 @@ const router = new VueRouter({
 		,{ path: '/diskovi/izmjena/:disk', component: IzmjenaDiska}
 		,{ path: '/masine', component: vm}
 		,{ path: '/masineAdd', component: vmAdd}
+		,{ path: '/masine/izmjena/:vm', component: IzmjenaVM}
 	  ]
 });
 var app = new Vue({

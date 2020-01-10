@@ -244,6 +244,23 @@ public class OrganizacijeServis {
 			}
 			return true;
 		});
+		
+		post("/Organizacija/updateVMkodOrg",(req,res)->{
+			String [] params=g.fromJson(req.body(), String[].class);
+			String vmNovi=params[0];
+			String vmStari=params[1];
+			String org=params[2];
+			Organizacija organizacija=cloud.getOrganizacija().get(org);
+			for(VM vm: organizacija.getListaResursa()) {
+				if(vm.getIme().equals(vmStari)) {
+					organizacija.getListaResursa().remove(vm);
+					break;
+				}
+			}
+			organizacija.getListaResursa().add(cloud.getVirtualneMasine().get(vmNovi));
+			cloud.getOrganizacija().put(organizacija.getIme(), organizacija);
+			return true;
+		});
 	
 	}
 	

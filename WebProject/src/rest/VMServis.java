@@ -6,6 +6,7 @@ import static spark.Spark.delete;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,17 +25,38 @@ public class VMServis {
 			return g.toJson(cloud.getVirtualneMasine().values());
 		});
 		
+		post("/VM/getVM",(req,res)->{
+			String imeVM=g.fromJson(req.body(), String.class);
+			for(VM vm:cloud.getVirtualneMasine().values()) {
+				if(vm.getIme().equals(imeVM)) {
+					return g.toJson(vm);
+				}
+			}
+			return "";
+		});
+		
 		post("/VM/updateVM", (req,res)->{
 			String a=req.body();
 			VM[] vm=g.fromJson(req.body(), VM[].class);
-			HashMap<String, VM> vms= cloud.getVirtualneMasine();
 			
-			vms.remove(vm[1].getIme());
-			vms.put(vm[0].getIme(), vm[0]);
-			VM virt=vms.get(vm[0].getIme());
+			
+			cloud.getVirtualneMasine().remove(vm[1].getIme());
+			cloud.getVirtualneMasine().put(vm[0].getIme(), vm[0]);
+			VM virt=cloud.getVirtualneMasine().get(vm[0].getIme());
+			
+			if(virt.isStatus()!=vm[1].isStatus()){
+				if(virt.isStatus()) {
+					virt.getListaUkljucenostiVM().add(new Date());
+				}
+				else {
+					virt.getListaIskljucenostiVM().add(new Date());
+				}
+			}
+			
 			for(Disk disk:virt.getListaResursa()) {
 				disk.setVm(virt.getIme());
 			}
+			
 			for(Disk disk:cloud.getDiskovi().values()) {
 				boolean postoji=false;
 				if(disk.getVm()==null) {
@@ -52,6 +74,15 @@ public class VMServis {
 				}
 				postoji=false;
 			}
+			
+			for(Disk disk:cloud.getDiskovi().values()) {
+				for(Disk diskVM:virt.getListaResursa()) {
+					if(disk.getIme().equals(diskVM.getIme())) {
+						disk.setVm(virt.getIme());
+					}
+				}
+			}
+			cloud.getVirtualneMasine().put(vm[0].getIme(), vm[0]);
 			return true;
 		});
 		post("/VM/dodajNovuVM",(req,res)->{
@@ -93,9 +124,9 @@ public class VMServis {
 				}
 			}
 			for(Organizacija org:cloud.getOrganizacija().values()) {
-				for(VM virt:org.getListaResursa()) {
-					if(virt.getIme().equals(deleteVM.getIme())) {
-						org.getListaResursa().remove(deleteVM);
+				for(int i=0;i<org.getListaResursa().size();i++) {
+					if(org.getListaResursa().get(i).getIme().equals(deleteVM.getIme())) {
+						org.getListaResursa().remove(i);
 						break;
 					}
 				}
