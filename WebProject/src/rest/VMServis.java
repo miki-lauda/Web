@@ -41,8 +41,7 @@ public class VMServis {
 			
 			
 			cloud.getVirtualneMasine().remove(vm[1].getIme());
-			cloud.getVirtualneMasine().put(vm[0].getIme(), vm[0]);
-			VM virt=cloud.getVirtualneMasine().get(vm[0].getIme());
+			VM virt=vm[0];
 			
 			if(virt.isStatus()!=vm[1].isStatus()){
 				if(virt.isStatus()) {
@@ -62,7 +61,7 @@ public class VMServis {
 				if(disk.getVm()==null) {
 					continue;
 				}
-				if(disk.getVm().equals(virt.getIme())) {
+				if(disk.getVm().equals(vm[1].getIme())) {
 					for(Disk diskVm:virt.getListaResursa()) {
 						if(disk.getIme().equals(diskVm.getIme())) {
 							postoji=true;
@@ -70,6 +69,9 @@ public class VMServis {
 					}
 					if(!postoji) {
 						disk.setVm(null);
+					}
+					else {
+						disk.setVm(virt.getIme());
 					}
 				}
 				postoji=false;
@@ -82,7 +84,7 @@ public class VMServis {
 					}
 				}
 			}
-			cloud.getVirtualneMasine().put(vm[0].getIme(), vm[0]);
+			cloud.getVirtualneMasine().put(virt.getIme(), virt);
 			return true;
 		});
 		post("/VM/dodajNovuVM",(req,res)->{

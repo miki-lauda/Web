@@ -9,7 +9,7 @@ Vue.component("diskovi", {
 	template: ` 
 <div>
         <h2>Diskovi</h2>
-        <div class="polja" id="pretragaDiskova">
+        <div>
 				<table>
 					<tr>
 						<td><b>Pretraga diskova</b></td>
@@ -23,9 +23,9 @@ Vue.component("diskovi", {
 				</table>
 			</div>
 			<div>
-				<table id="tablemenuDisk">
+				<table>
 					<tr bgcolor="#007EC9">
-						<td v-on:onMouseOver="showmenu('menuFilterDiska')" v-on:MouseOut="hidemenu('menuFilterDiska')">
+						<td @mouseover="showmenu('menuFilterDiska')" @mouseleave="hidemenu('menuFilterDiska')">
 							<p><b>Filter Diskova</b></p>
 							<table class="menu" id="menuFilterDiska" border="1">
 								<tr>
@@ -51,7 +51,7 @@ Vue.component("diskovi", {
 					</tr>
 				</table>
 			</div>
-		<table border="1" id="tabelaSaDiskovima">
+		<table border="1">
 					<tr>
 						<th>Ime</th>
 						<th>Kapacitet</th>
@@ -64,7 +64,7 @@ Vue.component("diskovi", {
 					</tr>
 				</table>
 		<br /> 
-		<router-link id="dugmeDodaj" to="masineAdd" tag="button">Dodaj VM</router-link>
+		<router-link id="dugmeDodaj" class="dugme" to="diskAdd" tag="button">Dodaj disk</router-link>
 	
 </div>		  
 `
@@ -115,10 +115,10 @@ Vue.component("diskovi", {
 			}
         },
         showmenu: function(data){
-            document.getElementById(data).style.visibility="visible";
+            document.getElementById(data).style.display="block";
         },
         hidemenu: function(data){
-            document.getElementById(data).style.visibility="hidden";
+            document.getElementById(data).style.display="none";
         },
         pretragaiFilter:function(){
             if(this.korisnik.uloga=="SUPERADMIN"){
@@ -213,20 +213,22 @@ Vue.component("dodaj-disk", {
                 diskovi:[],
 		    }
 	},
-    template: `
-    <div class="polja">
-        <table id="tabelaDodavanjaDiska" border="1">
-            <tr><td class="menu">Ime:</td>
+	template: `
+	
+	<div>
+	<h2>Diskovi</h2>
+        <table border="1">
+            <tr><td >Ime:</td>
                 <td>
                     <input id="novoImeDiska" type="text" v-model="noviDisk.ime" />
                 </td>
             </tr>
             <tr>
-                <td class="menu">Kapacitet:</td>
+                <td >Kapacitet:</td>
                 <td><input id="noviKapacitetDisk" class="kapacitetValue" type="number" v-model="noviDisk.kapacitet" ></td>
             </tr>
             <tr>
-                <td class="menu">
+                <td >
                     Tip diska:
                 </td>
                 <td>
@@ -237,7 +239,7 @@ Vue.component("dodaj-disk", {
                 </td>
             </tr>
             <tr>
-                <td class="menu">
+                <td >
                     VM:
                 </td>
                 <td>
@@ -252,7 +254,7 @@ Vue.component("dodaj-disk", {
                     <button class="dugme" v-on:click="dodajNoviDisk">Dodaj disk</button>
                 </td>
                 <td>
-                    <router-link to="diskovi" tag="button">Otkazi dodavanje</router-link>
+                    <router-link to="diskovi" tag="button" class="dugme">Otkazi dodavanje</router-link>
                 </td>
             </tr>
         </table>
@@ -353,19 +355,20 @@ Vue.component("izmjena-diska", {
 		    }
 	},
     template: `
-<div class="polja">
-    <table id="tabelaIzmjeneDiska" border="1">
-        <tr><td class="menu">Ime:</td>
+<div >
+<h2>Diskovi</h2>
+    <table border="1">
+        <tr><td >Ime:</td>
             <td>
                 <input type="text" v-model="selectedDisk.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" />
             </td>
         </tr>
         <tr>
-            <td class="menu">Kapacitet:</td>
+            <td >Kapacitet:</td>
             <td><input class="kapacitetValue" type="number" v-model="selectedDisk.kapacitet" v-bind:disabled="provjeraTipaKorisnikaIzmjena()"></td>
         </tr>
         <tr>
-            <td class="menu">
+            <td >
                 Tip diska:
             </td>
             <td>
@@ -376,7 +379,7 @@ Vue.component("izmjena-diska", {
             </td>
         </tr>
         <tr>
-            <td class="menu">VM:</td>
+            <td >VM:</td>
             <td>
                 <div v-for="virt in VM">
                     <input v-bind:disabled="provjeraTipaKorisnikaIzmjena()" class="radiobtnsVM" type="radio" v-bind:value="virt.ime" name="izborVMzaDisk" v-on:click="promijeniVMzaDisk" v-bind:checked="virt.ime==selectedDisk.vm"/>
@@ -385,7 +388,7 @@ Vue.component("izmjena-diska", {
             </td>
         </tr>
         <tr>
-            <td class="menu">Organizacija:</td>
+            <td >Organizacija:</td>
             <td>
                 <input id="nazivOrgPregled" type="text" v-bind:value="dobaviNazivOrg()" v-bind:disabled="true"/>
             </td>
@@ -397,7 +400,7 @@ Vue.component("izmjena-diska", {
             </td>
             <td>
                 <button  class="dugme" v-on:click="otkaziIzmjenuDiska">Otkazi</button>
-                <button id="brisanje" v-on:click="brisanjeDiska">&#10060</button>
+                <button id="brisanje" v-on:click="brisanjeDiska" class="dugme">&#10060</button>
             </td>
         </tr>
     </table>

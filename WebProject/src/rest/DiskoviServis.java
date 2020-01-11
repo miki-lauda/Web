@@ -68,8 +68,13 @@ public class DiskoviServis {
 			if (diskovi[0].getVm() != null) {
 				for (VM masina : cloud.getVirtualneMasine().values()) {
 					if (masina.getIme().equals(diskovi[1].getVm())) {
-						masina.getListaResursa().remove(diskovi[1]);
-						masina.getListaResursa().add(diskovi[0]);
+						for(Disk d:masina.getListaResursa()) {
+							if(d.getIme().equals(diskovi[1].getIme())) {
+								masina.getListaResursa().remove(d);
+								masina.getListaResursa().add(diskovi[0]);
+								break;
+							}
+						}
 					}
 				}
 				String imeVM=diskovi[0].getIme();
@@ -107,8 +112,13 @@ public class DiskoviServis {
 			cloud.getDiskovi().remove(disk.getIme());
 			if(disk.getVm()!=null) {
 				for(VM virt:cloud.getVirtualneMasine().values()) {
-					if(virt.getIme().equals(disk.getIme())) {
-						virt.getListaResursa().remove(disk);
+					if(virt.getIme().equals(disk.getVm())) {
+						for(Disk d:virt.getListaResursa()) {
+							if(d.getIme().equals(disk.getIme())) {
+								virt.getListaResursa().remove(d);
+								break;
+							}
+						}
 					}
 				}
 			}

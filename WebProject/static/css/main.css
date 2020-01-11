@@ -1,4 +1,3 @@
-
 h2 {
 	color : white;
 }
@@ -51,12 +50,12 @@ table.menu
 	
 	font-size:100%;
 	position:absolute;
-	visibility:hidden;
 }
 #menuFilter{
 	background-color: black;
 	width: 10px;
 	height: 10px;
+	display: none;
 }
 #menuFilterDiska{
 	background-color: black;
@@ -66,27 +65,16 @@ table.menu
 #divfilter{
 	width: 100%;
 }
-tr.selected {
-		background-color: #aaaaaa;
-}
-#tabelaIzmjene{
-	display:none;
-}
-#tabelaIzmjeneDiska{
-	display:none;
-}
-#tabelaDodavanja{
-	display: none;
-}
-#tabelaSaVM{
-	display: none;
-}
 .error{
 	border:1px solid red;
 }
-#radSaDiskovima{
+
+#menuFilterDiska{
 	display: none;
 }
-#tabelaDodavanjaDiska{
+#diskFilterNovaVM{
+	display: none;
+}
+#diskFilter{
 	display: none;
 }
