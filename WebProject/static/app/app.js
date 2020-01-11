@@ -26,7 +26,7 @@ const router = new VueRouter({
 		,{ path: '/diskovi', component: diskovi},
 		,{ path: '/diskAdd', component: diskAdd}
 		,{ path: '/diskovi/izmjena/:disk', component: IzmjenaDiska}
-		,{ path: '/masine', component: vm}
+		,{ path: '/', component: vm}
 		,{ path: '/masineAdd', component: vmAdd}
 		,{ path: '/masine/izmjena/:vm', component: IzmjenaVM}
 	  ]
@@ -40,7 +40,7 @@ var app = new Vue({
 
 
 function promeniRutu(ruta){
-	router.replace("/"+ ruta);
+	router.push("/"+ ruta);
 }
 
 function sendUserPassword(){

@@ -41,6 +41,7 @@ public class KorisniciServis {
 		
 		get("/logoff",(req, res) -> {
 			req.session(true).invalidate();
+			req.session().attribute("path", "index.html");
 			res.removeCookie("userID");
 			res.redirect("/login.html");
 			return "OK";
@@ -177,7 +178,7 @@ public class KorisniciServis {
 				String[] params = req.splat();
 				String path;// = req.session(true).attribute("path");
 				if(params.length == 0)
-					path = "main.html";
+					path = "index.html";
 				else
 					path = params[0];
 				System.out.println(path);

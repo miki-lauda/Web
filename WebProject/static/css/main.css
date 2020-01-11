@@ -1,0 +1,92 @@
+
+h2 {
+	color : white;
+}
+.dugme{
+	background: #007EC9;
+	border-radius: 10px;
+}
+body{
+          background: #394B58;
+      }
+.polja{
+	float: left;
+	margin-left: 15px;
+}
+td, th{
+          color: aliceblue;
+          
+      }
+.kontejner{
+	width: 100%;
+	float: left;
+	margin-bottom: 25px;
+}
+#pretragadiv{
+	width: 100%;
+}
+#tablemenu{
+	
+	font-size:80%;background:black
+	
+	}
+#tablemenuDisk{
+	font-size:80%;background:black;
+}
+#tableDiskmenu{
+	font-size:80%;background:black;
+}
+p{
+	color:white;
+	text-decoration:none;
+	font:bold
+}
+
+
+td.menu{
+	background:black}
+
+table.menu
+{
+	
+	font-size:100%;
+	position:absolute;
+	visibility:hidden;
+}
+#menuFilter{
+	background-color: black;
+	width: 10px;
+	height: 10px;
+}
+#menuFilterDiska{
+	background-color: black;
+	width: 10px;
+	height: 10px;
+}
+#divfilter{
+	width: 100%;
+}
+tr.selected {
+		background-color: #aaaaaa;
+}
+#tabelaIzmjene{
+	display:none;
+}
+#tabelaIzmjeneDiska{
+	display:none;
+}
+#tabelaDodavanja{
+	display: none;
+}
+#tabelaSaVM{
+	display: none;
+}
+.error{
+	border:1px solid red;
+}
+#radSaDiskovima{
+	display: none;
+}
+#tabelaDodavanjaDiska{
+	display: none;
+}
