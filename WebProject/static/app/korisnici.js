@@ -16,11 +16,11 @@ Vue.component("korisnici", {
 				<td v-on:click="izmenaKorisnika(k.username)"> {{k.ime}}</td>
 				<td v-on:click="izmenaKorisnika(k.username)"> {{k.prezime}}</td>
 				<td v-on:click="izmenaKorisnika(k.username)"> {{k.imeOrg}}</td>
-				<td> <button v-on:click="brisanjeKorisnika(k.username)">&#10060</button></td>
+				<td> <button class="dugme" v-on:click="brisanjeKorisnika(k.username)">&#10060</button></td>
 			</tr>
 		</table>
 		<br /> 
-		<router-link to="korisnici/dodaj" tag="button">Dodaj korisnika</router-link>
+		<router-link class="dugme" to="korisnici/dodaj" tag="button">Dodaj korisnika</router-link>
 	
 </div>		  
 `
@@ -66,32 +66,32 @@ Vue.component("dodaj-korisnika", {
 	template: ` 
 <div>
 		<h2>Dodavanje korisnika</h2>
-		<table>
+		<table border="1">
 			<tr>
-				<td>Username</td>
+				<td>Username:</td>
 			    <td><input id='username' type ="text"/></td>
 			    <td id="poruka"></td>
 			</tr>
 			<tr>
-				<td>Password</td>
+				<td>Password:</td>
 			    <td><input id='password' type ="password"/></td>
 			    <td id="porukaPass"></td>
 			</tr>
 			<tr>
-				<td>Ime</td>
+				<td>Ime:</td>
 			    <td><input id='ime' type ="text"/></td>
 			    <td id="porukaIme"></td>
 			</tr>
 			<tr>
-				<td>Prezime</td>
+				<td>Prezime:</td>
 			    <td><input id='prezime' type ="text"/></td>
 			</tr>
 			<tr>
-				<td>Email</td>
+				<td>Email:</td>
 			    <td><input id='email' type ="text"/></td>
 			</tr>
 			<tr>
-				<td>Tip korisnika</td>
+				<td>Tip korisnika:</td>
 			    <td>
 			    	<select id = "tip">
 			    		<option value = "ADMIN">Admin</option>
@@ -100,7 +100,7 @@ Vue.component("dodaj-korisnika", {
 			    </td>
 			</tr>
 			<tr>
-				<td>Organizacija</td>
+				<td>Organizacija:</td>
 			    <td>
 			    	<select id='organizacija' v-model="organizacija">
 			    		<option v-for="org in orgs" :value = "org">{{org.ime}}</option>
@@ -109,7 +109,7 @@ Vue.component("dodaj-korisnika", {
 			</tr>
 		</table>
 		<br /> 
-		<button v-on:click="dodajKorisnika">Dodaj</button>
+		<button class="dugme" v-on:click="dodajKorisnika">Dodaj</button>
 	
 </div>		  
 `
@@ -167,32 +167,32 @@ Vue.component("izmena-korisnika", {
 	template: ` 
 <div>
 		<h2>Izmena korisnika</h2>
-		<table>
+		<table border="1">
 			<tr>
-				<td>Username</td>
+				<td>Username:</td>
 			    <td><input id='username' type ="text" :value = "korisnik.username" /></td>
 			    <td id="poruka"></td>
 			</tr>
 			<tr>
-				<td>Password</td>
+				<td>Password:</td>
 			    <td><input id='password' type ="password" :value = "korisnik.password"/></td>
 			    <td id="porukaPass"></td>
 			</tr>
 			<tr>
-				<td>Ime</td>
+				<td>Ime:</td>
 			    <td><input id='ime' type ="text" :value = "korisnik.ime"/></td>
 			    <td id="porukaIme"></td>
 			</tr>
 			<tr>
-				<td>Prezime</td>
+				<td>Prezime:</td>
 			    <td><input id='prezime' type ="text" :value = "korisnik.prezime" /></td>
 			</tr>
 			<tr>
-				<td>Email</td>
+				<td>Email:</td>
 			    <td>{{this.korisnik.email}}</td>
 			</tr>
 			<tr>
-				<td>Tip korisnika</td>
+				<td>Tip korisnika:</td>
 			    <td v-if="korisnik.uloga == 'SUPERADMIN'">
 			    	SUPERADMIN
 			    </td>
@@ -205,14 +205,14 @@ Vue.component("izmena-korisnika", {
 			    
 			</tr>
 			<tr>
-				<td>Organizacija</td>
+				<td>Organizacija:</td>
 			    <td>
 			    	{{this.korisnik.imeOrg}}
 			    </td>
 			</tr>
 		</table>
 		<br /> 
-		<button v-on:click="izmeniKorisnika">Izmeni korisnika</button>
+		<button class="dugme" v-on:click="izmeniKorisnika">Izmeni korisnika</button>
 	
 </div>		  
 `

@@ -18,7 +18,7 @@ Vue.component("organizacije", {
 			</tr>
 		</table>
 		<br /> 
-		<router-link to="orgs/dodaj" tag="button">Dodaj organizaciju</router-link>
+		<router-link class="dugme" to="orgs/dodaj" tag="button">Dodaj organizaciju</router-link>
 	
 </div>		  
 `
@@ -58,20 +58,20 @@ Vue.component("dodaj-org", {
 		<h2>Dodaj organizaciju</h2>
 		<table border="1">
 			    <tr>
-			        <td>Ime</td>
+			        <td>Ime:</td>
 			        <td><input id='imeOrg' type ="text" name='ime' required/></td>
 			    </tr>
 			    <tr>
-			        <td>Opis</td>
+			        <td>Opis:</td>
 			        <td><textarea id='opis' name="opis" cols="30" rows="3" placeholder = 'Kratak opis'></textarea></td>
 			    </tr>
 			    <tr>
-			    	<td>Logo</td>
+			    	<td>Logo:</td>
 			    	<td><img :src = "filePath" width="75" height="75" id="slika"/></td>
 			    </tr>
 			    <tr>
 			        <td><input type ="file" ref='file' v-on:change='promeniPutanju()' name='slika' accept="image/*"/></td>
-			        <td><button v-on:click="submitFile()">Posalji sliku</button></td>
+			        <td><button class="dugme" v-on:click="submitFile()">Posalji sliku</button></td>
 			    </tr>
 			    <tr>
 			    	<td>Lista korisnika</td>
@@ -121,7 +121,7 @@ Vue.component("dodaj-org", {
 			    </tr>
 			</table>
 		<br />
-		<button v-on:click="dodajOrg">Dodaj</button>
+		<button class="dugme" v-on:click="dodajOrg">Dodaj</button>
 </div>		  
 `
 	, 
@@ -218,24 +218,24 @@ Vue.component("izmena-org", {
 		<h2>Detaljan prikaz organizacije</h2>
 		<table border = "1">
 			    <tr>
-			        <td>Ime</td>
+			        <td>Ime:</td>
 			        <td><input id='imeOrg'type ="text" name='ime' :value = "org.ime" required/></td>
 			    </tr>
 			    <tr>
-			        <td>Opis</td>
+			        <td>Opis:</td>
 			        <td><textarea id='opis' name="opis" cols="30" rows="3" placeholder = 'Kratak opis'>{{org.opis}}</textarea></td>
 			    </tr>
 			    <tr>
-			    	<td>Logo</td>
+			    	<td>Logo:</td>
 			    	<td><img :src = "org.logo" width="75" height="75" id="slika"/></td>
 			    </tr>
 			    <tr>
 			        <td><input type ="file" ref='file' v-on:change='promeniPutanju()' name='slika' accept="image/*"/></td>
-			        <td><button v-on:click="submitFile()">Posalji sliku</button></td>
+			        <td><button class="dugme" v-on:click="submitFile()">Posalji sliku</button></td>
 			    </tr>
 			    <tr>
-			    	<td><button v-on:click="izmeniOrg()">Izmeni</button></td>
-			    	<td><button v-on:click="ponisti()">Pregled organizacija</button></td>
+			    	<td><button class="dugme" v-on:click="izmeniOrg()">Izmeni</button></td>
+			    	<td><button class="dugme" v-on:click="ponisti()">Pregled organizacija</button></td>
 			    </tr>
 			</table>
 			
