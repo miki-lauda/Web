@@ -15,20 +15,24 @@ public class Organizacija {
 	@JsonManagedReference
 	private ArrayList<Korisnik> listaKorisnika = new ArrayList<Korisnik>();
 	private ArrayList<VM> listaResursa = new ArrayList<VM>();
+	private ArrayList<Disk> listaDiskova = new ArrayList<Disk>();
 	
 	
 	public Organizacija() {
 		super();
 	}
+	
 	public Organizacija(String ime, String opis, String logo, ArrayList<Korisnik> listaKorisnika,
-			ArrayList<VM> listaResursa) {
+			ArrayList<VM> listaResursa, ArrayList<Disk> listaDiskova) {
 		super();
 		this.ime = ime;
 		this.opis = opis;
 		this.logo = logo;
 		this.listaKorisnika = listaKorisnika;
 		this.listaResursa = listaResursa;
+		this.listaDiskova = listaDiskova;
 	}
+
 	public String getIme() {
 		return ime;
 	}
@@ -62,6 +66,12 @@ public class Organizacija {
 	
 	
 	
+	public ArrayList<Disk> getListaDiskova() {
+		return listaDiskova;
+	}
+	public void setListaDiskova(ArrayList<Disk> listaDiskova) {
+		this.listaDiskova = listaDiskova;
+	}
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

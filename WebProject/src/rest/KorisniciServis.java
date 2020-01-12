@@ -145,8 +145,9 @@ public class KorisniciServis {
 		
 		get("Korisnik/getCurUser", (req,res)->{
 			res.type("text");
+			ObjectMapper mapper = new ObjectMapper();
 			Korisnik k  = (Korisnik) req.session().attribute("user");
-			return g.toJson(k);
+			return mapper.writeValueAsString(k);
 		});
 	}
 	

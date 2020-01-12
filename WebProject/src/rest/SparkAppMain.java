@@ -79,7 +79,7 @@ public class SparkAppMain {
 		
 		korisnici.put("dusan",new Korisnik("debelidusan@gmail.com", "Dusan", "Stojancevic", "dusan", "dusan", null, KorisnickaUloga.SUPERADMIN));
 		korisnici.put("miki",new Korisnik("mikilauda@gmail.com", "Milan", "Marinkovic", "miki", "lauda", null, KorisnickaUloga.SUPERADMIN));
-		cloud.setKorisnici(korisnici);
+		
 		
 		KategorijaVM kategorijaVM=new KategorijaVM("MojaKategoija", 3, 8, 6); 
 		KategorijaVM kategorijaVM2=new KategorijaVM("MojaKategoija2", 1, 15, 3); 
@@ -115,9 +115,17 @@ public class SparkAppMain {
 		disk.setVm(vm.getIme());
 		disk4.setVm(vm.getIme());
 		cloud.getVirtualneMasine().put(vm.getIme(), vm);
-		
-		Organizacija org=new Organizacija("Org1","fgdfg","slike/slika.jpg",new ArrayList<Korisnik>(),new ArrayList<VM>());
+		ArrayList<Disk> diskZaOrg=new ArrayList<Disk>();
+		diskZaOrg.add(disk);
+		diskZaOrg.add(disk4);
+		diskZaOrg.add(disk3);
+		Organizacija org=new Organizacija("Org1","fgdfg","slike/slika.jpg",new ArrayList<Korisnik>(),new ArrayList<VM>(),diskZaOrg);
+		korisnici.put("milan",new Korisnik("mikilauda@gmail.com", "Milan", "Marinkovic", "milan", "milan", org, KorisnickaUloga.ADMIN));
+		korisnici.put("dule",new Korisnik("debelidusan@gmail.com", "Dusan", "Stojancevic", "dule", "dule", org, KorisnickaUloga.KORISNIK));
+		cloud.setKorisnici(korisnici);
 		org.getListaResursa().add(vm);
+		org.getListaKorisnika().add(cloud.getKorisnici().get("milan"));
+		org.getListaKorisnika().add(cloud.getKorisnici().get("dule"));
 		cloud.getOrganizacija().put(org.getIme(), org);
 		
 		ObjectMapper mapper = new ObjectMapper();

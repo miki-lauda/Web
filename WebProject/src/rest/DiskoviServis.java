@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.Disk;
+import beans.Korisnik;
 import beans.Organizacija;
 import beans.VM;
 import static spark.Spark.post;
@@ -22,17 +23,11 @@ public class DiskoviServis {
 			return g.toJson(cloud.getDiskovi().values());
 		});
 		post("/Disk/getallbyOrg", (req, res) -> {
-			String org = g.fromJson(req.body(), String.class);
-			ArrayList<Disk> disks=new ArrayList<Disk>();
-			
+			String org = req.body();
+		
 			for(Organizacija organizacija:cloud.getOrganizacija().values()) {
 				if(organizacija.getIme().equals(org)) {
-					for(VM vm:organizacija.getListaResursa()) {
-						for(Disk disk:vm.getListaResursa()) {
-							disks.add(disk);
-						}
-					}
-					return g.toJson(disks);
+					return g.toJson(organizacija.getListaDiskova());
 				}
 			}
 			return g.toJson(new ArrayList<Disk>());
@@ -59,7 +54,7 @@ public class DiskoviServis {
 			return g.toJson(diskovi);
 		});
 		post("/Disk/updateDisk", (req, res) -> {
-			String a = req.body();
+			
 			Disk[] diskovi = g.fromJson(req.body(), Disk[].class);
 			
 			cloud.getDiskovi().remove(diskovi[1].getIme());
@@ -77,7 +72,7 @@ public class DiskoviServis {
 						}
 					}
 				}
-				String imeVM=diskovi[0].getIme();
+				
 				for(VM masina:cloud.getVirtualneMasine().values()) {
 					if(masina.getIme().equals(diskovi[0].getVm())) {
 						boolean postoji=false;
@@ -103,7 +98,14 @@ public class DiskoviServis {
 					}
 				}
 			}
-			
+			for(Organizacija org:cloud.getOrganizacija().values()) {
+				for(Disk disk:org.getListaDiskova()) {
+					if(disk.getIme().equals(diskovi[1].getIme())) {
+						org.getListaDiskova().remove(disk);
+						org.getListaDiskova().add(diskovi[0]);
+					}
+				}
+			}
 			return true;
 		});
 		
@@ -122,6 +124,14 @@ public class DiskoviServis {
 					}
 				}
 			}
+			for(Organizacija org:cloud.getOrganizacija().values()) {
+				for(Disk d:org.getListaDiskova()) {
+					if(d.getIme().equals(disk.getIme())) {
+						org.getListaDiskova().remove(d);
+						break;
+					}
+				}
+			}
 			return true;
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{
@@ -134,6 +144,12 @@ public class DiskoviServis {
 						break;
 					}
 				}
+			}
+			Korisnik k=(Korisnik) req.session().attribute("user");
+			if(k.getOrganizacija()!=null) {
+				Organizacija org=cloud.getOrganizacija().get(k.getOrganizacija().getIme());
+				org.getListaDiskova().add(novi);
+				cloud.getOrganizacija().put(org.getIme(), org);
 			}
 			return true;
 		});
@@ -151,7 +167,7 @@ public class DiskoviServis {
 			}
 			else {
 				String organizacija=g.fromJson(org, String.class);
-				for(Disk disk:cloud.getDiskovi().values()) {
+				for(Disk disk:cloud.getOrganizacija().get(organizacija).getListaDiskova()) {
 					if(disk.getVm()==null) {
 						diskovi.add(disk);
 					}
