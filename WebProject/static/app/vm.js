@@ -124,11 +124,11 @@ Vue.component("masine", {
                 .then(response => (this.VM = response.data));
             }
             else{
-                if(this,korisnik.uloga=="KORISNIK"){
+                if(this.korisnik.uloga=="KORISNIK"){
                     $("#dugmeDodaj").css("display","none");
                 }
                 axios
-                .post('Organizacija/getVMbyOrg',this.korisnik.organizacija.ime)
+                .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
                 .then(response => (this.VM = response.data));
                 $(".org").css("display","none");
             }});
@@ -158,7 +158,7 @@ Vue.component("masine", {
 			}
 			else{
 				axios
-                .post('Organizacija/getVMbyOrg',this.korisnik.organizacija.ime)
+                .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
 				.then(response =>{this.VM=response.data;this.uradiPretraguiFilter()});
 			}
         },
@@ -351,7 +351,7 @@ Vue.component("masine-dodavanje",{
         axios.get("Korisnik/getCurUser").then(response=>{
             this.korisnik=response.data;
             if(this.korisnik.uloga=="ADMIN")
-                this.izabranaOrganizacija=this.korisnik.organizacija.ime;
+                this.izabranaOrganizacija=this.korisnik.imeOrg;
             axios
             .get('Kategorije/getalljsonKategorije')
             .then(response => (this.kategorije = response.data));

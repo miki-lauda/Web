@@ -82,7 +82,7 @@ Vue.component("diskovi", {
         uzmiDiskoveizBaze: function(){
             if(this.korisnik.uloga=="ADMIN"){
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.organizacija.ime)
+				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
 				.then(response =>(this.diskovi=response.data));
 			}
 			else if(this.korisnik.uloga=="SUPERADMIN"){
@@ -93,7 +93,7 @@ Vue.component("diskovi", {
 			else{
                 $("#dugmeDodaj").css("display","none");
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.organizacija.ime)
+				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
 				.then(response =>(this.diskovi=response.data));
 			}
         },
@@ -129,7 +129,7 @@ Vue.component("diskovi", {
 			else{
                 
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.organizacija.ime)
+				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
 				.then(response =>{this.diskovi=response.data;this.uradiPretraguiFilter()});
 			}
         },
@@ -185,7 +185,7 @@ Vue.component("diskovi", {
 			this.korisnik=response.data;
 			if(this.korisnik.uloga=="ADMIN"){
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.organizacija.ime)
+				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
 				.then(response =>(this.diskovi=response.data));
 			}
 			else if(this.korisnik.uloga=="SUPERADMIN"){
@@ -196,7 +196,7 @@ Vue.component("diskovi", {
 			else{
                 $("#dugmeDodaj").css("display","none");
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.organizacija.ime)
+				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
 				.then(response =>(this.diskovi=response.data));
 			}
 		});
@@ -268,7 +268,7 @@ Vue.component("dodaj-disk", {
 			.then(response =>(this.diskovi=response.data));
 			if(this.korisnik.uloga=="ADMIN"){
 				axios
-			    .post('Organizacija/getVMbyOrg',this.korisnik.organizacija)
+			    .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
 			    .then(response => (this.VM = response.data));
 			}
 			else if(this.korisnik.uloga=="SUPERADMIN"){
@@ -278,7 +278,7 @@ Vue.component("dodaj-disk", {
 			}
 			else{
 				axios
-			    .post('Organizacija/getVMbyOrg',this.korisnik.organizacija)
+			    .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
 			    .then(response => (this.VM = response.data));
 			}
 		});
@@ -431,7 +431,7 @@ Vue.component("izmjena-diska", {
                 $("#paljenje").css("display","none");
                 $("#brisanje").css("display","none");
 				axios
-			    .post('Organizacija/getVMbyOrg',this.korisnik.organizacija)
+			    .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
 			    .then(response => (this.VM = response.data));
 			}
 			else if(this.korisnik.uloga=="SUPERADMIN"){
@@ -443,7 +443,7 @@ Vue.component("izmjena-diska", {
                 $("#brisanje").css("display","none");
                 $("#paljenje").css("display","none");
 				axios
-			    .post('Organizacija/getVMbyOrg',this.korisnik.organizacija)
+			    .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
 			    .then(response => (this.VM = response.data));
 			}
 		});
@@ -461,7 +461,7 @@ Vue.component("izmjena-diska", {
         dobaviNazivOrg: function(){
 			if(this.korisnik.uloga!="SUPERADMIN"){
 
-				return this.korisnik.organizacija.ime;
+				return this.korisnik.imeOrg;
 			}
 			else{
 
