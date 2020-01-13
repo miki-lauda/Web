@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import beans.CloudService;
+import beans.Disk;
 import beans.Korisnik;
 import beans.Organizacija;
 import beans.VM;
@@ -206,24 +207,44 @@ public class OrganizacijeServis {
 		
 		//dobavlja organizaciju na osnovu VM
 		post("/Organizacija/getOrganizacijebyVM/", (req,res) -> {
-			res.type("application/json");
 			String payload = req.body();
 			if(payload.equals("")) {
 				return "";
 			}
-			String vm = g.fromJson(payload, String.class);
+			String vm = req.body();
 			for(Organizacija organizacija: cloud.getOrganizacija().values()) {
 				for(VM resurs:organizacija.getListaResursa()) {
 					if(resurs.getIme().equals(vm)) {
-						return g.toJson(organizacija);
+						ObjectMapper mapper = new ObjectMapper();
+						
+						return mapper.writeValueAsString(organizacija);
 					}
 				}
 			}
 			return true;
 		});
 		
+		post("/Organizacija/getOrganizacijebyDisk/", (req,res) -> {
+			String payload = req.body();
+			if(payload.equals("")) {
+				return "";
+			}
+			String disk = req.body();
+			for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+				for(Disk resurs:organizacija.getListaDiskova()) {
+					if(resurs.getIme().equals(disk)) {
+						ObjectMapper mapper = new ObjectMapper();
+						
+						return mapper.writeValueAsString(organizacija);
+					}
+				}
+			}
+			return true;
+		});
 		get("/Organizacija/getAll",(req,res)-> {
-			return g.toJson(cloud.getOrganizacija().values());
+			ObjectMapper mapper = new ObjectMapper();
+			
+			return mapper.writeValueAsString(cloud.getOrganizacija().values());
 		});
 		
 		post("/Organizacija/dodajVMuOrg", (req,res) -> {
@@ -231,6 +252,27 @@ public class OrganizacijeServis {
 			Organizacija org=cloud.getOrganizacija().get(orgVM[1]);
 			VM vm=cloud.getVirtualneMasine().get(orgVM[0]);
 			org.getListaResursa().add(vm);
+			cloud.getOrganizacija().put(org.getIme(), org);
+			for(Disk disk:org.getListaDiskova()) {
+				for(Disk d:vm.getListaResursa()) {
+					if(d.getIme().equals(disk.getIme())) {
+						disk.setVm(vm.getIme());
+					}
+				}
+			}
+			for(Disk disk:vm.getListaResursa()) {
+				boolean postoji=false;
+				for(Disk d:org.getListaDiskova()) {
+					if(disk.getIme().equals(d.getIme())) {
+						postoji=true;
+						d.setVm(vm.getIme());
+					}
+				}
+				if(!postoji) {
+					disk.setVm(vm.getIme());
+					org.getListaDiskova().add(disk);
+				}
+			}
 			cloud.getOrganizacija().put(org.getIme(), org);
 			return true;
 		});
@@ -259,6 +301,13 @@ public class OrganizacijeServis {
 			}
 			organizacija.getListaResursa().add(cloud.getVirtualneMasine().get(vmNovi));
 			cloud.getOrganizacija().put(organizacija.getIme(), organizacija);
+			return true;
+		});
+		post("/Organizacija/dodajDisk",(req,res)->{
+			String[] param=g.fromJson(req.body(), String[].class);
+			Organizacija org=cloud.getOrganizacija().get(param[1]);
+			org.getListaDiskova().add(cloud.getDiskovi().get(param[0]));
+			cloud.getOrganizacija().put(org.getIme(), org);
 			return true;
 		});
 	

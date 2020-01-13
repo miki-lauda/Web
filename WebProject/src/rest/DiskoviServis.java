@@ -66,7 +66,9 @@ public class DiskoviServis {
 						for(Disk d:masina.getListaResursa()) {
 							if(d.getIme().equals(diskovi[1].getIme())) {
 								masina.getListaResursa().remove(d);
-								masina.getListaResursa().add(diskovi[0]);
+								if(diskovi[0].getVm()!=null && diskovi[0].getVm().equals(masina.getIme())) {
+									masina.getListaResursa().add(diskovi[0]);
+								}
 								break;
 							}
 						}
@@ -92,7 +94,24 @@ public class DiskoviServis {
 							}
 							else {
 								masina.getListaResursa().remove(disk);
-								
+								break;
+							}
+						}
+					}
+				}
+				
+				VM masina=cloud.getVirtualneMasine().get(diskovi[0].getVm());
+				for(Organizacija org:cloud.getOrganizacija().values()) {
+					for(VM vm:org.getListaResursa()) {
+						if(vm.getIme().equals(masina.getIme())) {
+							boolean postoji=false;
+							for(Disk d:org.getListaDiskova()) {
+								if(d.getIme().equals(diskovi[0].getIme())) {
+									postoji=true;
+								}
+							}
+							if(!postoji) {
+								org.getListaDiskova().add(diskovi[0]);
 							}
 						}
 					}
@@ -103,6 +122,7 @@ public class DiskoviServis {
 					if(disk.getIme().equals(diskovi[1].getIme())) {
 						org.getListaDiskova().remove(disk);
 						org.getListaDiskova().add(diskovi[0]);
+						break;
 					}
 				}
 			}
@@ -145,19 +165,13 @@ public class DiskoviServis {
 					}
 				}
 			}
-			Korisnik k=(Korisnik) req.session().attribute("user");
-			if(k.getOrganizacija()!=null) {
-				Organizacija org=cloud.getOrganizacija().get(k.getOrganizacija().getIme());
-				org.getListaDiskova().add(novi);
-				cloud.getOrganizacija().put(org.getIme(), org);
-			}
 			return true;
 		});
 		
 		post("/Diskovi/getDiskovibyOrg",(req,res)->{
 			ArrayList<Disk> diskovi=new ArrayList<Disk>();
 			String org=req.body();
-			if(org==null) {
+			if(org.equals("Nema organizacije") || org==null) {
 				//treba da idemo kroz sve diskove te org
 				for(Disk disk:cloud.getDiskovi().values()) {
 					if(disk.getVm()==null) {
@@ -166,8 +180,8 @@ public class DiskoviServis {
 				}
 			}
 			else {
-				String organizacija=g.fromJson(org, String.class);
-				for(Disk disk:cloud.getOrganizacija().get(organizacija).getListaDiskova()) {
+				
+				for(Disk disk:cloud.getOrganizacija().get(org).getListaDiskova()) {
 					if(disk.getVm()==null) {
 						diskovi.add(disk);
 					}

@@ -20,7 +20,7 @@ public class Korisnik {
 	
 	@JsonProperty("imeOrg")
 	private String idOrganizacije() {
-		return this.organizacija == null ? "Nema organizaciju" : this.organizacija.getIme();
+		return this.organizacija == null ? "Nema organizacije" : this.organizacija.getIme();
 	}
 	@JsonSetter("imeOrg")
 	private void setid(String rng) {

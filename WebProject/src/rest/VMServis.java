@@ -97,6 +97,14 @@ public class VMServis {
 					}
 				}
 			}
+			for(Disk d:novaVM.getListaResursa()) {
+				for(Disk disk:cloud.getDiskovi().values()) {
+					if(d.getIme().equals(disk.getIme())) {
+						disk.setVm(novaVM.getIme());
+					}
+				}
+			}
+			
 			return true;
 		});	
 		
