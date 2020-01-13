@@ -97,15 +97,6 @@ Vue.component("diskovi", {
 				.then(response =>(this.diskovi=response.data));
 			}
         },
-		brisanjeDiska : function(disk){
-			if(confirm("Da li ste sigurni da zelite da obrisete disk?")){
-				axios.post("Disk/deleteDisk", disk).then(response =>{
-					if (response.data)
-						alert("Uspesno ste obrisali disk");
-					location.reload();
-				});
-			}
-        },
         provjeraTipaKorisnikaBrisanje:function(){
 			if(this.korisnik.uloga=="SUPERADMIN"){
 				return false;
@@ -321,7 +312,11 @@ Vue.component("dodaj-disk", {
                 }
                 else{
                     alert("Neuspjesno dodavanje novog diska");
-                }
+				}
+				if(this.korisnik.imeOrg!="Nema organizacije"){
+					let podaci=[this.noviDisk.ime,this.korisnik.imeOrg];
+					axios.post("Organizacija/dodajDisk",JSON.stringify(podaci));
+				}
             });
         },
         provjeraZauzetostiImena: function(data){
@@ -465,7 +460,7 @@ Vue.component("izmjena-diska", {
 			}
 			else{
 
-				axios.post("Organizacija/getOrganizacijebyVM/",this.selectedDisk.vm)
+				axios.post("Organizacija/getOrganizacijebyDisk/",this.backup.ime)
 				.then(response =>{
 					let org=response.data;
 					$("#nazivOrgPregled").val(org.ime);

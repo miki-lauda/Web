@@ -139,6 +139,7 @@ Vue.component("masine", {
 			promeniRutu('masine/izmjena/'+virt.ime);
         },
         dobaviOrganizacijubyVM : function(vm,indeks){
+			
             axios
             .post("Organizacija/getOrganizacijebyVM/",vm)
             .then(respond=>{
@@ -243,7 +244,7 @@ Vue.component("masine-dodavanje",{
             diskovi:[],
             VM:null,
             izabranaOrganizacija:null,
-            korisnik:null,
+            korisnik:{uloga:""},
             organizacije:[],
             kategorije:[],
         }
@@ -350,8 +351,12 @@ Vue.component("masine-dodavanje",{
     mounted(){
         axios.get("Korisnik/getCurUser").then(response=>{
             this.korisnik=response.data;
-            if(this.korisnik.uloga=="ADMIN")
-                this.izabranaOrganizacija=this.korisnik.imeOrg;
+            if(this.korisnik.uloga=="ADMIN"){
+				this.izabranaOrganizacija=this.korisnik.imeOrg;
+			}
+			else{
+
+			}
             axios
             .get('Kategorije/getalljsonKategorije')
             .then(response => (this.kategorije = response.data));
@@ -364,11 +369,11 @@ Vue.component("masine-dodavanje",{
             .get('VM/getalljsonVM')
             .then(response => (this.VM = response.data));
 
-            axios
+            /*axios
             .post('Diskovi/getDiskovibyOrg',this.izabranaOrganizacija)
             .then(response => {
                     this.diskovi = response.data;
-            });
+            });*/
         });
     },
     methods:{
@@ -520,7 +525,7 @@ Vue.component("izmjena-masine",{
 				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" /></td></tr>
 				<tr>
 					<td >Organizacija:</td>
-					<td><input id="org" class="orgValue" type="text" v-bind:disabled="true" v-bind:value="dobaviOrganizacijubyVM('a')"></td>
+					<td><input id="org" class="orgValue" type="text" v-bind:disabled="true"></td>
 				</tr>
 				<tr>
 					<td >Kategorija:</td>
@@ -568,7 +573,7 @@ Vue.component("izmjena-masine",{
 					<td>
 						<table>
 							<tr bgcolor="#007EC9">
-								<td @mouseover="showmenu('diskFilter')" @mouseleave="hidemenu('diskFilter')">
+								<td @mouseover="showmenu('diskFilter')" @mouseleave="hidemenu('diskFilter')" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">
 									<p><b>Izmijeni listu diskova</b></p>
 									<table  id="diskFilter" border="1">
 										<tr>
@@ -635,13 +640,28 @@ Vue.component("izmjena-masine",{
 	`,
 	mounted(){
 		axios.get("Korisnik/getCurUser").then(response=>{
-            this.selectedVM = router.currentRoute.params.vm;
-            axios.post("VM/getVM",this.selectedVM)
+			this.korisnik=response.data;
+            
+            axios.post("VM/getVM",router.currentRoute.params.vm)
 		    .then(response => {
                 this.selectedVM = response.data;
-				this.backup =Object.assign({}, this.selectedVM);	
+				this.backup =Object.assign({}, this.selectedVM);
+
+				axios
+            .post("Organizacija/getOrganizacijebyVM/",this.backup.ime)
+            .then(respond=>{
+			   this.organizacija=respond.data;
+			   $("#org").val(this.organizacija.ime);
+			   $("#org").val(respond.data.ime);
+			   axios.post('Diskovi/getDiskovibyOrg',this.organizacija.ime)
+				.then(response => {
+					this.diskovi = response.data;
+					for(var a of this.selectedVM.listaResursa){
+						this.diskovi.push(a);
+					}
+				});
+            });	
 		    });
-			this.korisnik=response.data;
 
 			axios
 			.get('Kategorije/getalljsonKategorije')
@@ -658,19 +678,6 @@ Vue.component("izmjena-masine",{
                     }
                 }
 			}); 
-			axios
-            .post("Organizacija/getOrganizacijebyVM/",this.backup.ime)
-            .then(respond=>{
-			   this.organizacija=respond.data;
-			   $("#org").val(respond.data.ime);
-			   axios.post('Diskovi/getDiskovibyOrg',this.organizacija.ime)
-				.then(response => {
-					this.diskovi = response.data;
-					for(var a of this.selectedVM.listaResursa){
-						this.diskovi.push(a);
-					}
-				});
-            });
 		});
 	},
 	methods:{
@@ -692,17 +699,6 @@ Vue.component("izmjena-masine",{
 			else{
 				return true;
 			}
-		},
-		dobaviOrganizacijubyVM : function(vm){
-            axios
-            .post("Organizacija/getOrganizacijebyVM/",this.backup.ime)
-            .then(respond=>{
-                if(respond.data==""){
-                    return;
-                }
-                $("#org").val(respond.data.ime);
-            });
-            
 		},
 		izabranaKategorija: function(){
 			this.selectedVM.kategorija=this.kategorije[document.getElementById("katSelect").selectedIndex];
