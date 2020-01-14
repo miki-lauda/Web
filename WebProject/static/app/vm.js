@@ -645,7 +645,7 @@ Vue.component("izmjena-masine",{
             axios.post("VM/getVM",router.currentRoute.params.vm)
 		    .then(response => {
                 this.selectedVM = response.data;
-				this.backup =Object.assign({}, this.selectedVM);
+				this.backup =JSON.parse(JSON.stringify(this.selectedVM));
 
 				axios
             .post("Organizacija/getOrganizacijebyVM/",this.backup.ime)
