@@ -407,7 +407,10 @@ Vue.component("izmjena-diska", {
             
             axios.post("Disk/getDisk",this.selectedDisk)
 		    .then(response => {
-                this.selectedDisk = response.data;
+				this.selectedDisk = response.data;
+				if(this.selectedDisk.vm==null){
+					$("#paljenje").css("display","none");
+				}
                 this.backup =Object.assign({}, this.selectedDisk);	
 		    });
             this.korisnik=response.data;
@@ -522,10 +525,13 @@ Vue.component("izmjena-diska", {
             });
         },
         iskljuciVM: function(){
-            return;
+			axios.post("VM/promijeniStatusVM",this.selectedDisk.vm)
+			.then(response=>(alert("Masina uspjesno "+(response.data?"ukljucena":"iskljucena"))));
+            
         },
         provjeraTipaKorisnikaIskljucivanjeVM:function(){
 			if(this.korisnik.uloga=="SUPERADMIN"){
+				
 				return false;
 			}
 			else{
