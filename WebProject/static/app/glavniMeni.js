@@ -9,6 +9,7 @@ Vue.component("glavni-meni", {
 					<button type="button" class="btn btn-primary" @click="prebaci('korisnici')">Korisnici</button>
 					<button type="button" class="btn btn-primary" @click="prebaci('orgs')">Organizacije</button>
 					<button type="button" class="btn btn-primary" @click="prebaci('diskovi')">Diskovi</button>
+					<button type="button" class="btn btn-primary" @click="prebaci('kategorije')">Kategorije</button>
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
 					<span class="caret"></span></button>
 					<ul class="dropdown-menu">
