@@ -13,6 +13,7 @@ const vmAdd={template:'<masine-dodavanje></masine-dodavanje>'}
 const IzmjenaVM={template:'<izmjena-masine></izmjena-masine>'}
 const kategorije={template:'<kategorije></kategorije>'}
 const kategorijeAdd={template:'<dodaj-kategoriju></dodaj-kategoriju>'}
+const IzmjenaKategorije={template:'<izmjena-kategorije></izmjena-kategorije>'}
 //const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
 
 const router = new VueRouter({
@@ -33,6 +34,7 @@ const router = new VueRouter({
 		,{ path: '/masine/izmjena/:vm', component: IzmjenaVM}
 		,{ path: '/kategorije', component: kategorije},
 		,{ path: '/kategorijeAdd', component: kategorijeAdd},
+		,{ path: '/kategorije/izmjena/:kategorija', component: IzmjenaKategorije}
 	  ]
 });
 var app = new Vue({

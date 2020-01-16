@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.KategorijaVM;
+import beans.Organizacija;
+import beans.VM;
 
 public class KategorijeServis {
 
@@ -16,9 +18,48 @@ public class KategorijeServis {
 		});
 		
 		post("/Kategorije/getKategoriju", (req, res) -> {
-			return g.toJson(cloud.getKategorije().values());
+			String kategorija=g.fromJson(req.body(), String.class);
+			KategorijaVM k=cloud.getKategorije().get(kategorija);
+			return g.toJson(k);
 		});
-		post("Kategorije/dodajKategoriju",(req,res)->{
+		
+		post("/Kategorije/deleteKategorija",(req,res)->{
+			KategorijaVM k=g.fromJson(req.body(), KategorijaVM.class);
+			boolean postoji=false;
+			for(Organizacija org:cloud.getOrganizacija().values()) {
+				for(VM virt:org.getListaResursa()) {
+					if(virt.getKategorija().getIme().equals(k.getIme())) {
+						postoji=true;
+					}
+				}
+			}
+			if(postoji) {
+				return false;
+			}
+			cloud.getKategorije().remove(k.getIme());
+			return true;
+		});
+		
+		post("/Kategorija/updateKategorija",(req,res)->{
+			KategorijaVM[] kategorije=g.fromJson(req.body(), KategorijaVM[].class);
+			cloud.getKategorije().remove(kategorije[1].getIme());
+			for(Organizacija org:cloud.getOrganizacija().values()) {
+				for(VM virt:org.getListaResursa()) {
+					if(virt.getKategorija().getIme().equals(kategorije[1].getIme())) {
+						virt.setKategorija(kategorije[0]);
+					}
+				}
+			}
+			for(VM virt:cloud.getVirtualneMasine().values()) {
+				if(virt.getKategorija().getIme().equals(kategorije[1].getIme())) {
+					virt.setKategorija(kategorije[0]);
+				}
+			}
+			cloud.getKategorije().put(kategorije[0].getIme(), kategorije[0]);
+			return true;
+		});
+		
+		post("/Kategorije/dodajKategoriju",(req,res)->{
 			KategorijaVM k=g.fromJson(req.body(), KategorijaVM.class);
 			cloud.getKategorije().put(k.getIme(), k);
 			return true;
