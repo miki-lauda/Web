@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import rest.SparkAppMain;
+import spark.Spark;
+
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Korisnik {
 
@@ -24,7 +27,7 @@ public class Korisnik {
 	}
 	@JsonSetter("imeOrg")
 	private void setid(String rng) {
-		
+		this.organizacija = SparkAppMain.cloud.getOrganizacija().get(rng);
 	}
 	
 	public Korisnik(String email, String ime, String prezime, String username, String password,Organizacija organizacija, KorisnickaUloga uloga) {

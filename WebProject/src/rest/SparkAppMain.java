@@ -38,7 +38,7 @@ import spark.Spark;
 public class SparkAppMain {
 
 	private static Gson g = new Gson();
-	private static CloudService cloud = null;
+	public static CloudService cloud = null;
 	
 	
 	
