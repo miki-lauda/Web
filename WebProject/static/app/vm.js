@@ -610,7 +610,7 @@ Vue.component("izmjena-masine",{
 						<table border="1" v-for="(akt,index) in selectedVM.listaUkljucenostiVM">
 							<tr>
 								<td >
-									<input type="datetime-local" v-bind:id="'ukljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('U',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
+									<input type="datetime-local" v-bind:min="minDatumZaUkljucenost(akt,index)" v-bind:max="maxDatumZaUkljucenost(akt,index)" v-bind:id="'ukljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('U',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
 								</td>
 							</tr>
 						</table>
@@ -619,7 +619,7 @@ Vue.component("izmjena-masine",{
 						<table border="1" v-for="(akt, index) in selectedVM.listaIskljucenostiVM">
 							<tr>
 								<td >
-									<input type="datetime-local" v-bind:id="'iskljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('I',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
+									<input type="datetime-local" v-bind:min="minDatumZaIskljucenost(akt,index)" v-bind:max="maxDatumZaIskljucenost(akt,index)" v-bind:id="'iskljucen'+index" v-bind:value="rijesiDatum(akt)" v-on:change="izmjenaDatuma('I',index,akt)" v-bind:disabled="provjeraTipaKorisnikaIzmjenaOrg()"/>
 								</td>
 							</tr>
 						</table>
@@ -771,6 +771,24 @@ Vue.component("izmjena-masine",{
 					promeniRutu("");
 				});
 			}
+		},
+		minDatumZaUkljucenost: function(datum,indeks){
+			if(indeks!=0){
+				return this.rijesiDatum(this.selectedVM.listaIskljucenostiVM[indeks-1]);
+			}
+		},
+		minDatumZaIskljucenost: function(datum,indeks){
+				return this.rijesiDatum(this.selectedVM.listaUkljucenostiVM[indeks]);
+		},
+		maxDatumZaUkljucenost: function(datum,indeks){
+			if(indeks!=this.selectedVM.listaIskljucenostiVM.length)
+				return this.rijesiDatum(this.selectedVM.listaIskljucenostiVM[indeks]);
+			
+			
+		},
+		maxDatumZaIskljucenost: function(datum,indeks){
+			if(indeks!=this.selectedVM.listaIskljucenostiVM.length-1)
+				return this.rijesiDatum(this.selectedVM.listaUkljucenostiVM[indeks+1]);
 		},
 		rijesiDatum: function(data){
 			var datum=data;
