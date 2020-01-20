@@ -1,6 +1,7 @@
 	package rest;
 import static spark.Spark.before;
 import static spark.Spark.get;
+import static spark.Spark.halt;
 import static spark.Spark.post;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class KorisniciServis {
 		
 		get("/", (req, res) -> {
 			try {				
-				res.redirect("/main.html");
+				res.redirect("/");
 			}
 			catch(Exception e) {
 			}
@@ -41,7 +42,6 @@ public class KorisniciServis {
 		
 		get("/logoff",(req, res) -> {
 			req.session(true).invalidate();
-			req.session().attribute("path", "index.html");
 			res.removeCookie("userID");
 			res.redirect("/login.html");
 			return "OK";
@@ -51,7 +51,13 @@ public class KorisniciServis {
 			res.type("application/json");
 			ObjectMapper mapper = new ObjectMapper();
 	        try {
-	            return mapper.writeValueAsString(cloud.getKorisnici().values());
+	        	ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>();
+	        	for (Korisnik k : cloud.getKorisnici().values()) {
+	        		if(k.getUloga() != KorisnickaUloga.SUPERADMIN) {
+	        			korisnici.add(k);
+	        		}
+	        	}
+	            return mapper.writeValueAsString(korisnici);
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	            return "WHOOPS";
@@ -162,7 +168,7 @@ public class KorisniciServis {
 				res.cookie("userID", k.getUsername());
 				mapa.clear();
 				mapa.put("uslov", "TRUE");
-				mapa.put("path", req.session().attribute("path"));
+				mapa.put("path", "/");
 				return g.toJson(mapa);
 			}
 		}
@@ -179,15 +185,13 @@ public class KorisniciServis {
 				String[] params = req.splat();
 				String path;// = req.session(true).attribute("path");
 				if(params.length == 0)
-					path = "index.html";
+					path = "";
 				else
 					path = params[0];
-				System.out.println(path);
 				if(path.equals("checkLogin") || path.equals("favicon.ico"))
 					return;
-				req.session().attribute("path", path);
-				
 				res.redirect("/login.html");
+				halt(302);
 			}
 			else {
 				if(req.session().attribute("user") == null) {

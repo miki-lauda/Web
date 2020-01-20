@@ -16,33 +16,58 @@ const kategorijeAdd={template:'<dodaj-kategoriju></dodaj-kategoriju>'}
 const IzmjenaKategorije={template:'<izmjena-kategorije></izmjena-kategorije>'}
 //const ShoppingCart = { template: '<shopping-cart></shopping-cart>' }
 
-const router = new VueRouter({
-	  mode: 'hash',
-	  routes: [
-	    { path: '/orgs', component: Orgs}
-	    ,{ path: '/orgs/dodaj', name: 'dodaj',component: addOrg}
-	    ,{ path: '/orgs/izmena/:org', component: izmenaOrg}
-	    ,{ path: '/korisnici', component: Users}
-	    ,{ path: '/korisnici/dodaj', component: addUser}
-	    ,{ path: '/korisnici/izmena/:user', component: izmeniUser}
-		,{ path: '/profil', component: profil}
-		,{ path: '/diskovi', component: diskovi},
-		,{ path: '/diskAdd', component: diskAdd}
-		,{ path: '/diskovi/izmjena/:disk', component: IzmjenaDiska}
-		,{ path: '/', component: vm}
-		,{ path: '/masineAdd', component: vmAdd}
-		,{ path: '/masine/izmjena/:vm', component: IzmjenaVM}
-		,{ path: '/kategorije', component: kategorije},
-		,{ path: '/kategorijeAdd', component: kategorijeAdd},
-		,{ path: '/kategorije/izmjena/:kategorija', component: IzmjenaKategorije}
-	  ]
-});
-var app = new Vue({
-	router,
-	el: '#main'
+$(document).ready(function(){
+	if(location.pathname == "/login.html"){
+		axios.get("Korisnik/getCurUser").then(response => {
+			if(response.data.uloga != undefined){
+				location.replace("/");
+			}
+		});
+	}
+	else{		
+		axios.get("Korisnik/getCurUser").then(response => {
+			if(response.data.uloga == undefined){
+				location.replace("/login.html");
+			}
+			else{
+				napraviRuter();
+			}
+		});
+	}
 });
 
 
+function napraviRuter(){
+
+
+	const router = new VueRouter({
+		  mode: 'hash',
+		  routes: [
+		    { path: '/orgs', component: Orgs}
+		    ,{ path: '/orgs/dodaj', name: 'dodaj',component: addOrg}
+		    ,{ path: '/orgs/izmena/:org', component: izmenaOrg}
+		    ,{ path: '/korisnici', component: Users}
+		    ,{ path: '/korisnici/dodaj', component: addUser}
+		    ,{ path: '/korisnici/izmena/:user', component: izmeniUser}
+			,{ path: '/profil', component: profil}
+			,{ path: '/diskovi', component: diskovi},
+			,{ path: '/diskAdd', component: diskAdd}
+			,{ path: '/diskovi/izmjena/:disk', component: IzmjenaDiska}
+			,{ path: '/', component: vm}
+			,{ path: '/masineAdd', component: vmAdd}
+			,{ path: '/masine/izmjena/:vm', component: IzmjenaVM}
+			,{ path: '/kategorije', component: kategorije},
+			,{ path: '/kategorijeAdd', component: kategorijeAdd},
+			,{ path: '/kategorije/izmjena/:kategorija', component: IzmjenaKategorije}
+		  ]
+	});
+
+	var app = new Vue({
+		router,
+		el: '#main'
+	});
+
+}
 
 
 function promeniRutu(ruta){
