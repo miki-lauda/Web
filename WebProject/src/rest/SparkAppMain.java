@@ -2,18 +2,12 @@ package rest;
 
 import static spark.Spark.get;
 import static spark.Spark.port;
-import static spark.Spark.post;
-import static spark.Spark.before;
 import static spark.Spark.staticFiles;
-import static spark.Spark.path;
 
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream.PutField;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,13 +21,9 @@ import beans.Disk;
 import beans.KategorijaVM;
 import beans.KorisnickaUloga;
 import beans.Korisnik;
-import spark.Request;
-import spark.Response;
 import beans.Organizacija;
 import beans.TipDiska;
 import beans.VM;
-import spark.Session;
-import spark.Spark;
 
 public class SparkAppMain {
 
@@ -74,7 +64,6 @@ public class SparkAppMain {
 		cloud = new CloudService();
 		HashMap<String,Korisnik> korisnici = new HashMap<String, Korisnik>();
 		HashMap<String,KategorijaVM> kategorije = new HashMap<String, KategorijaVM>();
-		HashMap<String,VM> VMasine = new HashMap<String, VM>();
 		HashMap<String, Disk> diskovi=new HashMap<String, Disk>();
 		
 		korisnici.put("dusan",new Korisnik("debelidusan@gmail.com", "Dusan", "Stojancevic", "dusan", "dusan", null, KorisnickaUloga.SUPERADMIN));

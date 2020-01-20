@@ -82,7 +82,7 @@ Vue.component("diskovi", {
         uzmiDiskoveizBaze: function(){
             if(this.korisnik.uloga=="ADMIN"){
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
+				.post("Disk/getallbyOrg",JSON.stringify(this.korisnik.imeOrg))
 				.then(response =>(this.diskovi=response.data));
 			}
 			else if(this.korisnik.uloga=="SUPERADMIN"){
@@ -93,7 +93,7 @@ Vue.component("diskovi", {
 			else{
                 $("#dugmeDodaj").css("display","none");
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
+				.post("Disk/getallbyOrg",JSON.stringify(this.korisnik.imeOrg))
 				.then(response =>(this.diskovi=response.data));
 			}
         },
@@ -120,7 +120,7 @@ Vue.component("diskovi", {
 			else{
                 
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
+				.post("Disk/getallbyOrg",JSON.stringify(this.korisnik.imeOrg))
 				.then(response =>{this.diskovi=response.data;this.uradiPretraguiFilter()});
 			}
         },
@@ -176,7 +176,7 @@ Vue.component("diskovi", {
 			this.korisnik=response.data;
 			if(this.korisnik.uloga=="ADMIN"){
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
+				.post("Disk/getallbyOrg",JSON.stringify(this.korisnik.imeOrg))
 				.then(response =>(this.diskovi=response.data));
 			}
 			else if(this.korisnik.uloga=="SUPERADMIN"){
@@ -187,7 +187,7 @@ Vue.component("diskovi", {
 			else{
                 $("#dugmeDodaj").css("display","none");
 				axios
-				.post("Disk/getallbyOrg",this.korisnik.imeOrg)
+				.post("Disk/getallbyOrg",JSON.stringify(this.korisnik.imeOrg))
 				.then(response =>(this.diskovi=response.data));
 			}
 		});
@@ -405,7 +405,7 @@ Vue.component("izmjena-diska", {
         axios.get("Korisnik/getCurUser").then(response=>{
             this.selectedDisk = router.currentRoute.params.disk;
             
-            axios.post("Disk/getDisk",this.selectedDisk)
+            axios.post("Disk/getDisk",JSON.stringify(this.selectedDisk))
 		    .then(response => {
 				this.selectedDisk = response.data;
 				if(this.selectedDisk.vm==null){

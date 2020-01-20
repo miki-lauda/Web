@@ -2,12 +2,9 @@ package rest;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
-import static spark.Spark.delete;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -42,11 +39,13 @@ public class VMServis {
 				vm.getListaIskljucenostiVM().add(new Date());
 				vm.setStatus(false);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
+				cloud.upisiUBazu();
 				return false;
 			} else {
 				vm.getListaUkljucenostiVM().add(new Date());
 				vm.setStatus(true);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
+				cloud.upisiUBazu();
 				return true;
 			}
 		});
@@ -97,6 +96,7 @@ public class VMServis {
 				}
 			}
 			cloud.getVirtualneMasine().put(virt.getIme(), virt);
+			cloud.upisiUBazu();
 			return true;
 		});
 		post("/VM/dodajNovuVM", (req, res) -> {
@@ -134,7 +134,7 @@ public class VMServis {
 					}
 				}
 			}
-
+			cloud.upisiUBazu();
 			return true;
 		});
 
@@ -166,11 +166,19 @@ public class VMServis {
 			for (Organizacija org : cloud.getOrganizacija().values()) {
 				for (int i = 0; i < org.getListaResursa().size(); i++) {
 					if (org.getListaResursa().get(i).getIme().equals(deleteVM.getIme())) {
+						for(Disk disk:deleteVM.getListaResursa()) {
+							for(Disk diskOrg:org.getListaDiskova()) {
+								if(disk.getIme().equals(diskOrg.getIme())) {
+									diskOrg.setVm(null);
+								}
+							}
+						}
 						org.getListaResursa().remove(i);
 						break;
 					}
 				}
 			}
+			cloud.upisiUBazu();
 			return true;
 		});
 
@@ -186,4 +194,6 @@ public class VMServis {
 			}
 		});
 	}
+	
+	
 }
