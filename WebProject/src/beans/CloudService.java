@@ -32,7 +32,14 @@ public class CloudService {
         return null;
 	}
 
-
+	public void upisiUBazu() {
+		ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File("static/baza.json"), this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
 
 	public void setOrganizacija(HashMap<String, Organizacija> organizacija) {
 		this.organizacija = organizacija;

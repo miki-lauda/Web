@@ -6,13 +6,11 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.Disk;
-import beans.Korisnik;
 import beans.Organizacija;
 import beans.VM;
 import static spark.Spark.post;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 public class DiskoviServis {
 
 	public static void loadService(CloudService cloud, Gson g) {
@@ -23,7 +21,7 @@ public class DiskoviServis {
 			return g.toJson(cloud.getDiskovi().values());
 		});
 		post("/Disk/getallbyOrg", (req, res) -> {
-			String org = req.body();
+			String org = g.fromJson(req.body(), String.class);
 		
 			for(Organizacija organizacija:cloud.getOrganizacija().values()) {
 				if(organizacija.getIme().equals(org)) {
@@ -33,7 +31,7 @@ public class DiskoviServis {
 			return g.toJson(new ArrayList<Disk>());
 		});
 		post("/Disk/getDisk",(req,res)->{
-			String ime=req.body();
+			String ime=g.fromJson(req.body(), String.class);
 			for(Disk disk:cloud.getDiskovi().values()) {
 				if(disk.getIme().equals(ime)) {
 					return g.toJson(disk);
@@ -126,6 +124,7 @@ public class DiskoviServis {
 					}
 				}
 			}
+			cloud.upisiUBazu();
 			return true;
 		});
 		
@@ -152,6 +151,7 @@ public class DiskoviServis {
 					}
 				}
 			}
+			cloud.upisiUBazu();
 			return true;
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{
@@ -165,12 +165,13 @@ public class DiskoviServis {
 					}
 				}
 			}
+			cloud.upisiUBazu();
 			return true;
 		});
 		
 		post("/Diskovi/getDiskovibyOrg",(req,res)->{
 			ArrayList<Disk> diskovi=new ArrayList<Disk>();
-			String org=req.body();
+			String org=g.fromJson(req.body(), String.class);
 			if(org.equals("Nema organizacije") || org==null) {
 				//treba da idemo kroz sve diskove te org
 				for(Disk disk:cloud.getDiskovi().values()) {
@@ -187,7 +188,6 @@ public class DiskoviServis {
 					}
 				}
 			}
-			
 			return g.toJson(diskovi);
 		});
 	}
