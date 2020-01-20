@@ -369,11 +369,7 @@ Vue.component("masine-dodavanje",{
             .get('VM/getalljsonVM')
             .then(response => (this.VM = response.data));
 
-            /*axios
-            .post('Diskovi/getDiskovibyOrg',this.izabranaOrganizacija)
-            .then(response => {
-                    this.diskovi = response.data;
-            });*/
+            
         });
     },
     methods:{
@@ -438,7 +434,7 @@ Vue.component("masine-dodavanje",{
 			this.dobaviDiskove();
         },
         dobaviDiskove: function(){
-            axios.post('Diskovi/getDiskovibyOrg',this.izabranaOrganizacija)
+            axios.post('Diskovi/getDiskovibyOrg',JSON.stringify(this.izabranaOrganizacija))
             .then(response => {
                 this.diskovi = response.data;
             });
@@ -653,7 +649,7 @@ Vue.component("izmjena-masine",{
 			   this.organizacija=respond.data;
 			   $("#org").val(this.organizacija.ime);
 			   $("#org").val(respond.data.ime);
-			   axios.post('Diskovi/getDiskovibyOrg',this.organizacija.ime)
+			   axios.post('Diskovi/getDiskovibyOrg',JSON.stringify(this.organizacija.ime))
 				.then(response => {
 					this.diskovi = response.data;
 					for(var a of this.selectedVM.listaResursa){
