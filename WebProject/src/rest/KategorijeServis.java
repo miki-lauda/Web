@@ -44,6 +44,10 @@ public class KategorijeServis {
 		
 		post("/Kategorija/updateKategorija",(req,res)->{
 			KategorijaVM[] kategorije=g.fromJson(req.body(), KategorijaVM[].class);
+			if(kategorije[0].getIme().equals("") || kategorije[0].getBrojJezgara()<0 || kategorije[0].getGpuJezgra()<0 || kategorije[0].getRam()<0) {
+				res.status(400);
+				return g.toJson("GRESKA!");
+			}
 			cloud.getKategorije().remove(kategorije[1].getIme());
 			for(Organizacija org:cloud.getOrganizacija().values()) {
 				for(VM virt:org.getListaResursa()) {
@@ -64,6 +68,10 @@ public class KategorijeServis {
 		
 		post("/Kategorije/dodajKategoriju",(req,res)->{
 			KategorijaVM k=g.fromJson(req.body(), KategorijaVM.class);
+			if(k.getIme().equals("") || k.getBrojJezgara()<0 || k.getGpuJezgra()<0 || k.getRam()<0) {
+				res.status(400);
+				return g.toJson("GRESKA!");
+			}
 			cloud.getKategorije().put(k.getIme(), k);
 			cloud.upisiUBazu();
 			return true;

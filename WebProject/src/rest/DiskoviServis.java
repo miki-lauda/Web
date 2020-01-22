@@ -54,7 +54,10 @@ public class DiskoviServis {
 		post("/Disk/updateDisk", (req, res) -> {
 			
 			Disk[] diskovi = g.fromJson(req.body(), Disk[].class);
-			
+			if(diskovi[0].getIme().equals("") || diskovi[0].getTip()==null || diskovi[0].getKapacitet()<0) {
+				res.status(400);
+				return g.toJson("GRESKA");
+			}
 			cloud.getDiskovi().remove(diskovi[1].getIme());
 			cloud.getDiskovi().put(diskovi[0].getIme(), diskovi[0]);
 			
@@ -156,6 +159,10 @@ public class DiskoviServis {
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{
 			Disk novi=g.fromJson(req.body(), Disk.class);
+			if(novi.getIme().equals("") || novi.getTip()==null || novi.getKapacitet()<0) {
+				res.status(400);
+				return g.toJson("GRESKA");
+			}
 			cloud.getDiskovi().put(novi.getIme(), novi);
 			if(novi.getVm()!=null) {
 				for(VM virt:cloud.getVirtualneMasine().values()) {
