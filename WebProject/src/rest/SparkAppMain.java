@@ -3,7 +3,7 @@ package rest;
 import static spark.Spark.get;
 import static spark.Spark.port;
 import static spark.Spark.staticFiles;
-
+import static spark.Spark.after;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +34,9 @@ public class SparkAppMain {
 	
 	public static void main(String[] args) throws Exception {
 		port(8080);
-		praviBazu();
+		//praviBazu();
 		cloud = CloudService.ucitajIzBaze();
+		cloud.preveziReference();
 		staticFiles.externalLocation(new File("./static").getCanonicalPath());
 		
 		
@@ -53,7 +54,14 @@ public class SparkAppMain {
 		});
 		
 		
-		
+		after((req,res)->{
+			ObjectMapper mapper = new ObjectMapper();
+	        try {
+	            mapper.writeValue(new File("static/baza.json"), cloud);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+		});
 		
 	}
 	

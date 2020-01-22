@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -78,5 +79,12 @@ public class CloudService {
 	}
 	public HashMap<String, KategorijaVM> getKategorije() {
 		return kategorije;
+	}
+
+	public void preveziReference() {
+		for(Korisnik k : this.korisnici.values()) {
+			k.setOrganizacija(this.organizacija.get(k.org));
+		}
+		
 	}	
 }

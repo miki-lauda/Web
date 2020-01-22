@@ -49,6 +49,8 @@ Vue.component("dodaj-org", {
 			korisniciOrg: [],
 			korisnici: [],
 			resursi: [],
+			diskovi: [],
+			sviDiskovi : [],
 			resursiOrg: [],
 			putanja : ''
 		};
@@ -111,6 +113,12 @@ Vue.component("dodaj-org", {
 											<td> VM |{{r.kategorija.brojJezgara}}CPU 
 											{{r.kategorija.gpuJezgra}} GPU
 											{{r.kategorija.ram}} RAM</td>
+											
+										</tr>
+										<tr v-for = "r in sviDiskovi">
+											<td>{{r.ime}}  <input :value='r' type='checkbox' v-model="diskovi"/></td>
+											<td>DISK | {{r.kapcitet}} Kapacitet
+											{{r.tip}} Tip</td>
 										</tr>
 									</table>
 								</li>
@@ -136,7 +144,8 @@ Vue.component("dodaj-org", {
 		  		    	'logo' : ''+ this.filePath,
 				    	'opis' : ''+$("#opis").val(),
 				    	'listaKorisnika' : this.korisniciOrg,
-				    	'listaResursa' : this.resursiOrg
+				    	'listaResursa' : this.resursiOrg,
+				    	'listaDiskova' : this.diskovi
 				    	})
 		          .then(response => {
 		        	  let uslov = response.data;
@@ -199,6 +208,13 @@ Vue.component("dodaj-org", {
 			this.resursi = response.data;
 		});
 		
+		axios.get('/Disk/getall')
+		.then(response =>{
+			for(r of response.data){
+				this.sviDiskovi = response.data;
+			}
+		});
+		
 	}
 });
 
@@ -210,7 +226,8 @@ Vue.component("izmena-org", {
 			staroIme : '',
 			org : {},
 			resursi: {},
-			korisnici: {}
+			korisnici: {},
+			diskovi : {}
 		};
 	},
 	template: ` 
@@ -283,6 +300,19 @@ Vue.component("izmena-org", {
 				<td>{{r.kategorija.ram}}</td>
 			</tr>
 		</table>
+		<h3>Lista diskova</h3>
+		<table border = "1">
+			<tr>
+				<th>Ime resursa</th>
+				<th>Kapacitet</th>
+				<th>Tip</th>
+			</tr>
+			<tr v-for="d in org.listaDiskova">
+				<td>{{d.ime}}</td>
+				<td>{{d.kapacitet}}</td>
+				<td>{{d.tip}}</td>
+			</tr>
+		</table>
 		<div class = "dropdown">
 			<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
 			Svi resursi<span class="caret"></span></button>
@@ -298,6 +328,12 @@ Vue.component("izmena-org", {
 							<td> VM |{{r.kategorija.brojJezgara}} CPU 
 							{{r.kategorija.gpuJezgra}} GPU
 							{{r.kategorija.ram}} RAM</td>
+							
+						</tr>
+						<tr v-for = "r in diskovi">
+							<td>{{r.ime}}  <input :value='r' type='checkbox' v-model="org.listaDiskova"/></td>
+							<td>DISK | {{r.kapcitet}} Kapacitet
+							{{r.tip}} Tip</td>
 						</tr>
 					</table>
 				</li>
@@ -318,7 +354,8 @@ Vue.component("izmena-org", {
 		  		    	'logo' : ''+ this.filePath,
 				    	'opis' : ''+ $("#opis").val(),
 				    	'listaKorisnika' : this.org['listaKorisnika'],
-				    	'listaResursa' : this.org['listaResursa']
+				    	'listaResursa' : this.org['listaResursa'],
+				    	'listaDiskova' : this.org['listaDiskova']
 				    	})
 		          .then(response => {
 		        	  let uslov = response.data;
@@ -403,6 +440,18 @@ Vue.component("izmena-org", {
 			}
 		});
         
+        axios.get('/Disk/getall')
+		.then(response =>{
+			this.diskovi = response.data;
+			for(r in this.diskovi){
+				for(r2 in this.org.listaDiskova){
+					if(this.diskovi[r].ime === this.org.listaDiskova[r2].ime){
+						this.diskovi[r] = this.org.listaDiskova[r2];
+						break;
+					}
+				}
+			}
+		});
         axios.get('/korisnici/getAllUsers')
 		.then(response =>{
 			this.korisnici = response.data;

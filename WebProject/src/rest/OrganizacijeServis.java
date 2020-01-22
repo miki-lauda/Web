@@ -130,6 +130,14 @@ public class OrganizacijeServis {
 			org.setListaResursa(resursi);
 			
 			
+			ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
+			for(Disk disk : org.getListaDiskova()) {
+				Disk disk1 = cloud.getDiskovi().get(disk.getIme());
+				diskovi.add(disk1);
+			}
+			org.setListaDiskova(diskovi);
+			
+			
 			cloud.getOrganizacija().put(org.getIme(), org);
 			return true;
 			
@@ -199,6 +207,14 @@ public class OrganizacijeServis {
 				resursi.add(vm1);
 			}
 			orgO.setListaResursa(resursi);
+			
+			
+			ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
+			for(Disk disk : org.getListaDiskova()) {
+				Disk disk1 = cloud.getDiskovi().get(disk.getIme());
+				diskovi.add(disk1);
+			}
+			orgO.setListaDiskova(diskovi);
 			
 			
 			return true;

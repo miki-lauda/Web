@@ -39,13 +39,13 @@ public class VMServis {
 				vm.getListaIskljucenostiVM().add(new Date());
 				vm.setStatus(false);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
-				cloud.upisiUBazu();
+				
 				return false;
 			} else {
 				vm.getListaUkljucenostiVM().add(new Date());
 				vm.setStatus(true);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
-				cloud.upisiUBazu();
+				
 				return true;
 			}
 		});
@@ -104,7 +104,7 @@ public class VMServis {
 				}
 			}
 			cloud.getVirtualneMasine().put(virt.getIme(), virt);
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 		post("/VM/dodajNovuVM", (req, res) -> {
@@ -146,7 +146,7 @@ public class VMServis {
 					}
 				}
 			}
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 
@@ -190,7 +190,7 @@ public class VMServis {
 					}
 				}
 			}
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 

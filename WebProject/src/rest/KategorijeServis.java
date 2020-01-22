@@ -34,11 +34,11 @@ public class KategorijeServis {
 				}
 			}
 			if(postoji) {
-				cloud.upisiUBazu();
+				
 				return false;
 			}
 			cloud.getKategorije().remove(k.getIme());
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 		
@@ -62,7 +62,7 @@ public class KategorijeServis {
 				}
 			}
 			cloud.getKategorije().put(kategorije[0].getIme(), kategorije[0]);
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 		
@@ -73,7 +73,7 @@ public class KategorijeServis {
 				return g.toJson("GRESKA!");
 			}
 			cloud.getKategorije().put(k.getIme(), k);
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 	}

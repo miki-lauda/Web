@@ -36,11 +36,13 @@ $(document).ready(function(){
 	}
 });
 
+var router;
 
 function napraviRuter(){
 
-
-	const router = new VueRouter({
+	if(router == undefined){
+		
+	router = new VueRouter({
 		  mode: 'hash',
 		  routes: [
 		    { path: '/orgs', component: Orgs}
@@ -67,6 +69,7 @@ function napraviRuter(){
 		el: '#main'
 	});
 
+	}
 }
 
 

@@ -2,6 +2,7 @@ package beans;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -20,6 +21,8 @@ public class Korisnik {
 	@JsonBackReference
 	private Organizacija organizacija;
 	private KorisnickaUloga uloga;
+	@JsonIgnore
+	public String org;
 	
 	@JsonProperty("imeOrg")
 	private String idOrganizacije() {
@@ -27,7 +30,7 @@ public class Korisnik {
 	}
 	@JsonSetter("imeOrg")
 	private void setid(String rng) {
-		this.organizacija = SparkAppMain.cloud.getOrganizacija().get(rng);
+		this.org = rng;
 	}
 	
 	public Korisnik(String email, String ime, String prezime, String username, String password,Organizacija organizacija, KorisnickaUloga uloga) {

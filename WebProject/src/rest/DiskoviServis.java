@@ -127,7 +127,7 @@ public class DiskoviServis {
 					}
 				}
 			}
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 		
@@ -154,7 +154,7 @@ public class DiskoviServis {
 					}
 				}
 			}
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{
@@ -172,7 +172,7 @@ public class DiskoviServis {
 					}
 				}
 			}
-			cloud.upisiUBazu();
+			
 			return true;
 		});
 		
