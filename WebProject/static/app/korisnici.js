@@ -40,7 +40,11 @@ Vue.component("korisnici", {
 					if (response.data)
 						alert("Uspenso ste obrisali korisnika: " + korisnik);
 					location.reload();
-				});
+				})
+				.catch(error =>{
+					var poruka = JSON.parse(error.request.responseText)
+					alert(poruka.poruka);
+				});;
 			}
 		},
 	},
@@ -50,7 +54,10 @@ Vue.component("korisnici", {
           .then(response => {
         	  this.korisnici = response.data; 
         	  
-          });
+          }).catch(error =>{
+				var poruka = JSON.parse(error.request.responseText)
+				alert(poruka.poruka);
+			});
         
         
     }
@@ -142,6 +149,10 @@ Vue.component("dodaj-korisnika", {
 						alert("Korisnicko ime je zauzeto");
 					}
 				})
+				.catch(error =>{
+					var poruka = JSON.parse(error.request.responseText)
+					alert(poruka.poruka);
+				});
 			}
 		}
 	},
@@ -152,7 +163,12 @@ Vue.component("dodaj-korisnika", {
         	  this.orgs = response.data;
         	  if(this.orgs.length > 0)
         		  this.organizacija = this.orgs[0];
-          });
+          })
+          .catch(error =>{
+				var poruka = JSON.parse(error.request.responseText)
+				alert(poruka.poruka);
+			});
+          
     }
 });
 
@@ -245,6 +261,10 @@ Vue.component("izmena-korisnika", {
 						alert("Korisnicko ime je zauzeto");
 					}
 				})
+				.catch(error =>{
+					var poruka = JSON.parse(error.request.responseText)
+					alert(poruka.poruka);
+				});
 			}
 		}
 	},
@@ -253,7 +273,10 @@ Vue.component("izmena-korisnika", {
 		axios.post("/korisnici/getUser/"+this.stariUser)
 		.then(response => {
 			this.korisnik = response.data;
-		})
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
+		});
     }
 });
 
@@ -331,6 +354,10 @@ Vue.component("profil", {
 						alert("Korisničko ime je zauzeto");
 					}
 				})
+				.catch(error =>{
+					var poruka = JSON.parse(error.request.responseText)
+					alert(poruka.poruka);
+				});
 			}
 		}
 	},
@@ -341,7 +368,14 @@ Vue.component("profil", {
 			axios.post("/korisnici/getUser/"+this.stariUser)
 			.then(response => {
 				this.korisnik = response.data;
+			})
+			.catch(error =>{
+				var poruka = JSON.parse(error.request.responseText)
+				alert(poruka.poruka);
 			});
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
 		});
 		
     }

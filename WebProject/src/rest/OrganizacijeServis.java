@@ -86,10 +86,25 @@ public class OrganizacijeServis {
 		});
 		
 		get("orgs/getAllOrgs", (req,res) ->{
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Korisnik nema pregled organizacije
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
 			res.type("application/json");
+			
+			
 			// Mora sa jacksoonom zbog kruzne zavisnosti
 			ObjectMapper mapper = new ObjectMapper();
 	        try {
+	        	if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+	        		ArrayList<Organizacija> lista = new ArrayList<Organizacija>();
+	        		lista.add(trenutniKorsnik.getOrganizacija());
+		            return mapper.writeValueAsString(lista);
+	        	}
 	            return mapper.writeValueAsString(cloud.getOrganizacija().values());
 	        } catch (IOException e) {
 	            e.printStackTrace();
@@ -100,66 +115,85 @@ public class OrganizacijeServis {
 		
 		// dodavanje organizacije
 		post("orgs/addOrg", (req,res) ->{
-		res.type("text");
-		res.status(200);
-		
-		Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
-		//Samo superadmin moze da napravi organizaciju
-		if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
-			res.status(403);
-			return "FORBIDDEN";
-		}
-		
-		Organizacija org = g.fromJson(req.body(), Organizacija.class);
-		if(cloud.getOrganizacija().get(org.getIme()) != null ) {
-			res.status(400);
-			return "{\"poruka\": \"Organizacija vec postoji\"}";
-		}
-		
-		// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
-		ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>(); 
-		for(Korisnik k : org.getListaKorisnika()) {
-			//Izbaci korisnike iz drugih organizacija
-			Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
-			korisnici.add(k1);
-			Organizacija org1 = k1.getOrganizacija();
-			if(org1 != null) {
-				int index = org1.getListaKorisnika().indexOf(k1);
-				if(index != -1) 
-					org1.getListaKorisnika().remove(index);
+			res.type("text");
+			res.status(200);
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Samo superadmin moze da napravi organizaciju
+			if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
+				res.status(403);
+				return "FORBIDDEN";
 			}
-			//Ubaci ih u druge
-			k1.setOrganizacija(org);
-		}
-		org.setListaKorisnika(korisnici);
-		
-		ArrayList<VM> resursi = new ArrayList<VM>(); 
-		for(VM vm : org.getListaResursa()) {
-			VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
-			resursi.add(vm1);
-		}
-		org.setListaResursa(resursi);
-		
-		
-		ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
-		for(Disk disk : org.getListaDiskova()) {
-			Disk disk1 = cloud.getDiskovi().get(disk.getIme());
-			diskovi.add(disk1);
-		}
-		org.setListaDiskova(diskovi);
-		
-		
-		cloud.getOrganizacija().put(org.getIme(), org);
-		return true;
-		
-	});
+			
+			Organizacija org = g.fromJson(req.body(), Organizacija.class);
+			if(cloud.getOrganizacija().get(org.getIme()) != null ) {
+				res.status(400);
+				return "{\"poruka\": \"Organizacija vec postoji\"}";
+			}
+			
+			// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
+			ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>(); 
+			for(Korisnik k : org.getListaKorisnika()) {
+				//Izbaci korisnike iz drugih organizacija
+				Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
+				korisnici.add(k1);
+				Organizacija org1 = k1.getOrganizacija();
+				if(org1 != null) {
+					int index = org1.getListaKorisnika().indexOf(k1);
+					if(index != -1) 
+						org1.getListaKorisnika().remove(index);
+				}
+				//Ubaci ih u druge
+				k1.setOrganizacija(org);
+			}
+			org.setListaKorisnika(korisnici);
+			
+			ArrayList<VM> resursi = new ArrayList<VM>(); 
+			for(VM vm : org.getListaResursa()) {
+				VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
+				resursi.add(vm1);
+			}
+			org.setListaResursa(resursi);
+			
+			
+			ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
+			for(Disk disk : org.getListaDiskova()) {
+				Disk disk1 = cloud.getDiskovi().get(disk.getIme());
+				diskovi.add(disk1);
+			}
+			org.setListaDiskova(diskovi);
+			
+			
+			cloud.getOrganizacija().put(org.getIme(), org);
+			return true;
+			
+		});
 		
 		post("orgs/getOrg/:org", (req, res) ->{
+			res.status(200);
 			String orgID = req.params(":org");
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Korisnik nema pregled organizacije
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
+			//Admin moze samo svoju organizaciju da pregleda
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+				if(!trenutniKorsnik.getOrganizacija().getIme().equals(orgID)){					
+					res.status(403);
+					return "FORBIDDEN";
+				}
+			}
+			
 			Organizacija org = cloud.getOrganizacija().get(orgID);
 			// Ako organizacija ne postoji vrati false
-			if (org == null)
-				return false;
+			if (org == null){
+				res.status(400);
+				return "{\"poruka\": \"Organizacija ne postoji\"}";
+			}
 			ObjectMapper mapper = new ObjectMapper();
 	        try {
 	            return mapper.writeValueAsString(org);
@@ -170,9 +204,27 @@ public class OrganizacijeServis {
 		});
 		
 		post("orgs/izmeniOrg/:org", (req,res) ->{
-			res.type("text");
 			res.status(200);
+			
 			String staroIme = req.params(":org");
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Korisnik nema izmenu organizacije
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
+			//Admin moze samo svoju organizaciju da menja
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+				if(!trenutniKorsnik.getOrganizacija().getIme().equals(staroIme)){					
+					res.status(403);
+					return "FORBIDDEN";
+				}
+			}
+			
+			
+			
 			ObjectMapper mapper = new ObjectMapper();
 			Organizacija org = mapper.readValue(req.body(), Organizacija.class);
 			//Organizacija org = g.fromJson(req.body(), Organizacija.class);
@@ -180,7 +232,8 @@ public class OrganizacijeServis {
 			
 			if(cloud.getOrganizacija().get(org.getIme()) != null &&
 					!staroIme.equals(org.getIme())) {
-				return false;
+				res.status(400);
+				return "{\"poruka\": \"Organizacija ne postoji\"}";
 			}
 			// Originalana organizacija
 			Organizacija orgO = cloud.getOrganizacija().get(staroIme);
@@ -202,9 +255,11 @@ public class OrganizacijeServis {
 				//Ubaci ih u druge
 				k1.setOrganizacija(orgO);
 			}
+			//
 			for(Korisnik k : orgO.getListaKorisnika()) {
+				//Izbrisacemo korisnike koji nisu preziveli izmenu
 				if(!korisnici.contains(k)) {
-					k.setOrganizacija(null);
+					cloud.getKorisnici().remove(k.getUsername());
 				}
 			}
 			orgO.setListaKorisnika(korisnici);
@@ -276,6 +331,12 @@ public class OrganizacijeServis {
 		});
 		
 		post("/Organizacija/dodajVMuOrg", (req,res) -> {
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
 			String[] orgVM=g.fromJson(req.body(), String[].class);
 			Organizacija org=cloud.getOrganizacija().get(orgVM[1]);
 			VM vm=cloud.getVirtualneMasine().get(orgVM[0]);
@@ -316,6 +377,13 @@ public class OrganizacijeServis {
 		});
 		
 		post("/Organizacija/updateVMkodOrg",(req,res)->{
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
 			String [] params=g.fromJson(req.body(), String[].class);
 			String vmNovi=params[0];
 			String vmStari=params[1];
@@ -332,6 +400,13 @@ public class OrganizacijeServis {
 			return true;
 		});
 		post("/Organizacija/dodajDisk",(req,res)->{
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
 			String[] param=g.fromJson(req.body(), String[].class);
 			Organizacija org=cloud.getOrganizacija().get(param[1]);
 			org.getListaDiskova().add(cloud.getDiskovi().get(param[0]));

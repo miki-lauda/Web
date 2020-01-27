@@ -138,6 +138,9 @@ Vue.component("dodaj-org", {
 		dodajOrg : function () { 
 			
 		    if(!($("#imeOrg").val() === '')){
+		    	if(this.filePath == ''){
+					this.filePath = "slike/slika.jpg";
+				}
 		    	axios
 		          .post('/orgs/addOrg', 
 		        		  {'ime': ''+$("#imeOrg").val(),
@@ -227,7 +230,8 @@ Vue.component("izmena-org", {
 			org : {},
 			resursi: {},
 			korisnici: {},
-			diskovi : {}
+			diskovi : {},
+			trenutniKorisnik : {}
 		};
 	},
 	template: ` 
@@ -277,7 +281,7 @@ Vue.component("izmena-org", {
 			<ul class="dropdown-menu">
 				<li v-for = "k in korisnici">
 					<table>
-						<tr>
+						<tr v-if="trenutniKorisnik.username != k.username">
 							<td><input :value='k' type='checkbox' v-model="org.listaKorisnika"/></td>
 							<td>{{k.ime}}</td>
 						</tr>
@@ -363,8 +367,11 @@ Vue.component("izmena-org", {
 		        		  alter("Organizacija sa tim imenom već postoji");
 		        	  }
 		        	  else{
-		        		  promeniRutu("orgs");
 		        		  alert("Organizacije "+ this.staroIme +" je izmenjena");
+		        		  if(this.trenutniKorisnik.uloga == "SUPERADMIN")
+		        			  promeniRutu("orgs");
+		        		  else
+		        			  location.reload();
 		        	  }
 		          }).catch(response => function(response){
 			          alert("jes");
@@ -378,13 +385,6 @@ Vue.component("izmena-org", {
 		promeniPutanju: function () {
 			this.file = this.$refs.file.files[0]; // Metod za promenu putanje fajla
 			
-		},
-		checkFun: function(resurs){
-			for(r of this.resursi){
-				if(resurs.ime === r.ime)
-					return true;
-			}
-			return false;
 		},
 		submitFile: function(){ //Metod za slanje slike
 	        /*
@@ -465,6 +465,14 @@ Vue.component("izmena-org", {
 			}
 		});
         
+        
+        axios.get("Korisnik/getCurUser")
+		.then(response =>{
+			this.trenutniKorisnik = response.data;
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
+		});
     }
 });
 

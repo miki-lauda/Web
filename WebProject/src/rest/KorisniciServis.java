@@ -49,11 +49,33 @@ public class KorisniciServis {
 
 		get("/korisnici/getAllUsers", (req,res) ->{
 			res.type("application/json");
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Obican korisnik nema pregled svih korisnika
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
+			
+			
 			ObjectMapper mapper = new ObjectMapper();
 	        try {
 	        	ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>();
+
+	        	
+	        	//Ukoliko je admin, u njegovoj organizaciji se nalaze korisnici koje moze da vidi
+	        	if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+	        		
+	        		korisnici = trenutniKorsnik.getOrganizacija().getListaKorisnika();
+	        		
+	        		return mapper.writeValueAsString(korisnici);
+    			}
+	        	
 	        	for (Korisnik k : cloud.getKorisnici().values()) {
+	        		//Izvaci superadmine iz pregleda
 	        		if(k.getUloga() != KorisnickaUloga.SUPERADMIN) {
+	        			
 	        			korisnici.add(k);
 	        		}
 	        	}
@@ -67,11 +89,32 @@ public class KorisniciServis {
 		
 		post("korisnici/addUser", (req,res) ->{
 			res.type("text");
+			res.status(200);
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
 			ObjectMapper mapper = new ObjectMapper();
 			
 			Korisnik k = mapper.readValue(req.body(), Korisnik.class);
+			
+			
+			//Ukoliko vec postoji takav korisnik vrati
 			if(cloud.getKorisnici().get(k.getUsername()) != null ) {
-				return false;
+				res.status(400);
+				return "{\"poruka\": \"Korisnik vec postoji\"}";
+			}
+			
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+				// Proveri da li dodaje u svoju organizacjiu
+				if(!trenutniKorsnik.getOrganizacija().getIme().equals(k.getOrganizacija().getIme())) {
+					res.status(400);
+					return "{\"poruka\": \"Dodajete u organizaciju koja nije vasa\"}";
+				}
 			}
 			
 			// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
@@ -84,12 +127,42 @@ public class KorisniciServis {
 			
 		});
 		
+		
+		//Pomocna metoda za pristup podacima odredjenom korisniku
 		post("korisnici/getUser/:user", (req, res) ->{
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			
 			String username = req.params(":user");
+			
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				//Ukoliko trenutni korisnik pokusava da uzme podatke od nekog drugog osim njega
+				if(!trenutniKorsnik.getUsername().equals(username)) {					
+					res.status(403);
+					return "FORBIDDEN";
+				}
+			}
+			
 			Korisnik k = cloud.getKorisnici().get(username);
 			// Ako korisnik ne postoji vrati false
-			if (k == null)
-				return false;
+			if (k == null) {
+				res.status(400);
+				return "{\"poruka\": \"Korisnik ne postoji\"}";
+			}
+			
+
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+				// Proveri da li su iz iste organizacije
+				if(proveraOrganizacije(k,trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
+					res.status(403);
+					return "FORBIDDEN";
+				}
+				
+			}
+			
+			
+			
+			
 			ObjectMapper mapper = new ObjectMapper();
 	        try {
 	            return mapper.writeValueAsString(k);
@@ -102,7 +175,17 @@ public class KorisniciServis {
 		post("korisnici/izmeniKorisnika/:user", (req,res) ->{
 			res.type("text");
 			res.status(200);
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
 			String staroIme = req.params(":user");
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				//Ukoliko trenutni korisnik pokusava da izmeni nekog drugog osim njega
+				if(!trenutniKorsnik.getUsername().equals(staroIme)) {					
+					res.status(403);
+					return "FORBIDDEN";
+				}
+			}
+			
 			ObjectMapper mapper = new ObjectMapper();
 			Korisnik k = mapper.readValue(req.body(), Korisnik.class);
 			
@@ -110,9 +193,22 @@ public class KorisniciServis {
 			
 			if(cloud.getKorisnici().get(k.getUsername()) != null &&
 					!staroIme.equals(k.getUsername())) {
-				return false;
+				res.status(400);
+				return "{\"poruka\": \"Korisnik vec postoji\"}";
+			
 			}
 
+			
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+				// Proveri da li su iz iste organizacije
+				if(proveraOrganizacije(k,trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
+					res.status(403);
+					return "FORBIDDEN";
+				}
+				
+			}
+			
+			
 			// Originalani korisnik
 			// Promeni atribute staticke
 			Korisnik k1 = cloud.getKorisnici().get(staroIme);
@@ -126,11 +222,40 @@ public class KorisniciServis {
 		
 		// Brisanje korinsika. Ukoliko je uspenso vraca true
 		post("/korisnici/brisanje/:user", (req,res)->{
+			res.type("text");
+			res.status(200);
+			
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
+				res.status(403);
+				return "FORBIDDEN";
+			}
+			
 			String korisnik = req.params(":user");
 			
+			
+			
 			Korisnik k = cloud.getKorisnici().get(korisnik);
-			if(k == null)
-				return false;
+			
+			if(k == null) {
+				res.status(400);
+				return "{\"poruka\": \"Korisnik ne postoji\"}";
+			}
+			
+			if(k.getUsername().equals(trenutniKorsnik.getUsername())) {
+				res.status(400);
+				return "{\"poruka\": \"Ne mozete obrisati samog sebe\"}";	
+			}
+			
+			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
+				// Proveri da li su iz iste organizacije
+				if(proveraOrganizacije(k,trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
+					res.status(403);
+					return "FORBIDDEN";
+				}
+				
+			}
+			
 			cloud.getKorisnici().remove(korisnik);
 			// Pronadji korisnika u kojoj je organizaciji i obrisi ga
 			if(k.getOrganizacija() != null) {
@@ -157,6 +282,16 @@ public class KorisniciServis {
 		});
 	}
 	
+	// Vrati true ukoliko ne postoji korisnik u istoj organizaciji sa adminom
+	private static boolean proveraOrganizacije(Korisnik k, ArrayList<Korisnik> listaKorisnika) {
+		for(Korisnik k1 : listaKorisnika) {
+			if(k1.getUsername().equals(k.getUsername())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static String checkLogin(Request req, Response res, Gson g, CloudService cloud) {
 		HashMap<String, String> mapa = new HashMap<String, String>();
 		mapa = g.fromJson(req.body(), mapa.getClass());
@@ -183,7 +318,7 @@ public class KorisniciServis {
 		private static void logedIn(Request req, Response res, CloudService cloud) {
 			if (cloud.getKorisnici().get(req.cookie("userID")) == null) {
 				String[] params = req.splat();
-				String path;// = req.session(true).attribute("path");
+				String path;
 				if(params.length == 0)
 					path = "";
 				else
