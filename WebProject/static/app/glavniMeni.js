@@ -12,7 +12,8 @@ Vue.component("glavni-meni", {
 					<button type="button" class="btn btn-primary" @click="prebaci('')">
 					Virtualne mašine</button>
 					<button v-if= "korisnik.uloga != 'KORISNIK'" type="button" class="btn btn-primary" @click="prebaci('korisnici')">Korisnici</button>
-					<button v-if= "korisnik.uloga != 'KORISNIK'" type="button" class="btn btn-primary" @click="prebaci('orgs')">Organizacije</button>
+					<button v-if= "korisnik.uloga == 'SUPERADMIN'" type="button" class="btn btn-primary" @click="prebaci('orgs')">Organizacije</button>
+					<button v-else-if= "korisnik.uloga == 'ADMIN'" type="button" class="btn btn-primary" @click="prebaci('orgs/izmena/'+korisnik.imeOrg)">Izmeni organizaciju</button>
 					<button type="button" class="btn btn-primary" @click="prebaci('diskovi')">Diskovi</button>
 					<button v-if= "korisnik.uloga == 'SUPERADMIN'"type="button" class="btn btn-primary" @click="prebaci('kategorije')">Kategorije</button>
 					<button class="btn btn-primary dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown"
