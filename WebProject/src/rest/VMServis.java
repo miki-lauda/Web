@@ -11,6 +11,8 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.Disk;
+import beans.KorisnickaUloga;
+import beans.Korisnik;
 import beans.Organizacija;
 import beans.VM;
 
@@ -23,6 +25,7 @@ public class VMServis {
 		});
 
 		post("/VM/getVM", (req, res) -> {
+			String ime=req.body();
 			String imeVM = g.fromJson(req.body(), String.class);
 			for (VM vm : cloud.getVirtualneMasine().values()) {
 				if (vm.getIme().equals(imeVM)) {
@@ -51,7 +54,12 @@ public class VMServis {
 		});
 
 		post("/VM/updateVM", (req, res) -> {
-
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
+			
 			VM[] vm = g.fromJson(req.body(), VM[].class);
 			VM virt = vm[0];
 			if (virt.getIme().equals("") || virt.getKategorija() == null) {
@@ -108,6 +116,11 @@ public class VMServis {
 			return true;
 		});
 		post("/VM/dodajNovuVM", (req, res) -> {
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			VM novaVM = g.fromJson(req.body(), VM.class);
 			if (novaVM.getIme().equals("") || novaVM.getKategorija() == null) {
 				res.status(400);
@@ -163,6 +176,11 @@ public class VMServis {
 		});
 
 		post("/VM/deleteVM", (req, res) -> {
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			VM deleteVM = g.fromJson(req.body(), VM.class);
 
 			cloud.getVirtualneMasine().remove(deleteVM.getIme());

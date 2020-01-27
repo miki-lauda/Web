@@ -253,7 +253,10 @@ Vue.component("dodaj-disk", {
     `,
     mounted(){
         axios.get("Korisnik/getCurUser").then(response=>{
-            this.korisnik=response.data;
+			this.korisnik=response.data;
+			if(this.korisnik.uloga=="KORISNIK"){
+				promeniRutu("diskovi");
+			}
             axios
 			.get("Disk/getall")
 			.then(response =>(this.diskovi=response.data));

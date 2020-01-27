@@ -128,7 +128,7 @@ Vue.component("masine", {
                     $("#dugmeDodaj").css("display","none");
                 }
                 axios
-                .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
+                .post('Organizacija/getVMbyOrg',JSON.stringify(this.korisnik.imeOrg))
                 .then(response => (this.VM = response.data));
                 $(".org").css("display","none");
             }});
@@ -141,7 +141,7 @@ Vue.component("masine", {
         dobaviOrganizacijubyVM : function(vm,indeks){
 			
             axios
-            .post("Organizacija/getOrganizacijebyVM/",vm)
+            .post("Organizacija/getOrganizacijebyVM/",JSON.stringify(vm))
             .then(respond=>{
                 if(respond.data==""){
                     return;
@@ -159,7 +159,7 @@ Vue.component("masine", {
 			}
 			else{
 				axios
-                .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
+                .post('Organizacija/getVMbyOrg',JSON.stringify(this.korisnik.imeOrg))
 				.then(response =>{this.VM=response.data;this.uradiPretraguiFilter()});
 			}
         },
@@ -199,7 +199,7 @@ Vue.component("masine", {
             }
             if(document.getElementById("inputPretrage").value!=""){
                 axios
-			.post('VM/pretraga',document.getElementById("inputPretrage").value)
+			.post('VM/pretraga',JSON.stringify(document.getElementById("inputPretrage").value))
             .then(response => 
             {
                 dobreVM=[];
@@ -350,12 +350,13 @@ Vue.component("masine-dodavanje",{
     `,
     mounted(){
         axios.get("Korisnik/getCurUser").then(response=>{
-            this.korisnik=response.data;
+			this.korisnik=response.data;
+			if(this.korisnik.uloga=="KORISNIK"){
+				promeniRutu("");
+			}
             if(this.korisnik.uloga=="ADMIN"){
 				this.izabranaOrganizacija=this.korisnik.imeOrg;
-			}
-			else{
-
+				this.dobaviDiskove();
 			}
             axios
             .get('Kategorije/getalljsonKategorije')
@@ -638,13 +639,13 @@ Vue.component("izmjena-masine",{
 		axios.get("Korisnik/getCurUser").then(response=>{
 			this.korisnik=response.data;
             
-            axios.post("VM/getVM",router.currentRoute.params.vm)
+            axios.post("VM/getVM",JSON.stringify(router.currentRoute.params.vm))
 		    .then(response => {
                 this.selectedVM = response.data;
 				this.backup =JSON.parse(JSON.stringify(this.selectedVM));
 
 				axios
-            .post("Organizacija/getOrganizacijebyVM/",this.backup.ime)
+            .post("Organizacija/getOrganizacijebyVM/",JSON.stringify(this.backup.ime))
             .then(respond=>{
 			   this.organizacija=respond.data;
 			   $("#org").val(this.organizacija.ime);
@@ -760,7 +761,7 @@ Vue.component("izmjena-masine",{
 		izbrisiVM: function(){
 			if(confirm("Da li ste sigurni da zelite da obrisete VM?")){
 				axios
-				.post("VM/deleteVM", this.backup)
+				.post("VM/deleteVM", JSON.stringify(this.backup))
 				.then(response=>{
 					if (response.data)
 						alert("Uspesno ste obrisali VM");

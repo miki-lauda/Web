@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.KategorijaVM;
+import beans.KorisnickaUloga;
+import beans.Korisnik;
 import beans.Organizacija;
 import beans.VM;
 
@@ -24,6 +26,11 @@ public class KategorijeServis {
 		});
 		
 		post("/Kategorije/deleteKategorija",(req,res)->{
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			KategorijaVM k=g.fromJson(req.body(), KategorijaVM.class);
 			boolean postoji=false;
 			for(Organizacija org:cloud.getOrganizacija().values()) {
@@ -43,6 +50,11 @@ public class KategorijeServis {
 		});
 		
 		post("/Kategorija/updateKategorija",(req,res)->{
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			KategorijaVM[] kategorije=g.fromJson(req.body(), KategorijaVM[].class);
 			if(kategorije[0].getIme().equals("") || kategorije[0].getBrojJezgara()<0 || kategorije[0].getGpuJezgra()<0 || kategorije[0].getRam()<0) {
 				res.status(400);
@@ -67,6 +79,11 @@ public class KategorijeServis {
 		});
 		
 		post("/Kategorije/dodajKategoriju",(req,res)->{
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			KategorijaVM k=g.fromJson(req.body(), KategorijaVM.class);
 			if(k.getIme().equals("") || k.getBrojJezgara()<0 || k.getGpuJezgra()<0 || k.getRam()<0) {
 				res.status(400);

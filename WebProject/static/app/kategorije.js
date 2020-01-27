@@ -26,6 +26,12 @@ Vue.component("kategorije", {
     </div>
     `,
     mounted(){
+        axios.get("Korisnik/getCurUser").then(response=>{
+            let korisnik=response.data;
+            if(korisnik.uloga!="SUPERADMIN"){
+				promeniRutu("");
+			}
+        });
         axios
             .get('Kategorije/getalljsonKategorije')
             .then(response => (this.kategorije = response.data));
@@ -76,6 +82,12 @@ Vue.component("dodaj-kategoriju", {
         </table>
     </div> `,
     mounted(){
+        axios.get("Korisnik/getCurUser").then(response=>{
+            let korisnik=response.data;
+            if(korisnik.uloga!="SUPERADMIN"){
+				promeniRutu("");
+			}
+        });
         axios
         .get('Kategorije/getalljsonKategorije')
         .then(response => (this.kategorije = response.data));
@@ -187,6 +199,12 @@ Vue.component("izmjena-kategorije",{
 </div>    
     `,
     mounted(){
+        axios.get("Korisnik/getCurUser").then(response=>{
+            let korisnik=response.data;
+            if(korisnik.uloga!="SUPERADMIN"){
+				promeniRutu("");
+			}
+        });
         this.selectedKategorija = router.currentRoute.params.kategorija;
         axios.post("Kategorije/getKategoriju",JSON.stringify(this.selectedKategorija))
 		    .then(response => {

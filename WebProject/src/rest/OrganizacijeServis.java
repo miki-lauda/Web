@@ -228,6 +228,7 @@ public class OrganizacijeServis {
 				return "";
 			}
 			String vm = req.body();
+			vm=g.fromJson(req.body(), String.class);
 			for(Organizacija organizacija: cloud.getOrganizacija().values()) {
 				for(VM resurs:organizacija.getListaResursa()) {
 					if(resurs.getIme().equals(vm)) {

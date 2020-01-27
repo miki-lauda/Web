@@ -6,6 +6,8 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.Disk;
+import beans.KorisnickaUloga;
+import beans.Korisnik;
 import beans.Organizacija;
 import beans.VM;
 import static spark.Spark.post;
@@ -52,6 +54,11 @@ public class DiskoviServis {
 			return g.toJson(diskovi);
 		});
 		post("/Disk/updateDisk", (req, res) -> {
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			
 			Disk[] diskovi = g.fromJson(req.body(), Disk[].class);
 			if(diskovi[0].getIme().equals("") || diskovi[0].getTip()==null || diskovi[0].getKapacitet()<0) {
@@ -132,6 +139,11 @@ public class DiskoviServis {
 		});
 		
 		post("/Disk/deleteDisk",(req,res)->{
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			Disk disk=g.fromJson(req.body(), Disk.class);
 			cloud.getDiskovi().remove(disk.getIme());
 			if(disk.getVm()!=null) {
@@ -158,6 +170,11 @@ public class DiskoviServis {
 			return true;
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+				res.status(403);
+				return g.toJson("GRESKA!");
+			}
 			Disk novi=g.fromJson(req.body(), Disk.class);
 			if(novi.getIme().equals("") || novi.getTip()==null || novi.getKapacitet()<0) {
 				res.status(400);
@@ -179,7 +196,7 @@ public class DiskoviServis {
 		post("/Diskovi/getDiskovibyOrg",(req,res)->{
 			ArrayList<Disk> diskovi=new ArrayList<Disk>();
 			String org=g.fromJson(req.body(), String.class);
-			if(org.equals("Nema organizacije") || org==null) {
+			if(org==null || org.equals("Nema organizacije")) {
 				//treba da idemo kroz sve diskove te org
 				for(Disk disk:cloud.getDiskovi().values()) {
 					if(disk.getVm()==null) {
