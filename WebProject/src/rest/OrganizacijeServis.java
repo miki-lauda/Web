@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 
 import beans.CloudService;
 import beans.Disk;
+import beans.KorisnickaUloga;
 import beans.Korisnik;
 import beans.Organizacija;
 import beans.VM;
@@ -99,49 +100,59 @@ public class OrganizacijeServis {
 		
 		// dodavanje organizacije
 		post("orgs/addOrg", (req,res) ->{
-			res.type("text");
-			Organizacija org = g.fromJson(req.body(), Organizacija.class);
-			if(cloud.getOrganizacija().get(org.getIme()) != null ) {
-				return false;
+		res.type("text");
+		res.status(200);
+		
+		Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+		//Samo superadmin moze da napravi organizaciju
+		if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
+			res.status(403);
+			return "FORBIDDEN";
+		}
+		
+		Organizacija org = g.fromJson(req.body(), Organizacija.class);
+		if(cloud.getOrganizacija().get(org.getIme()) != null ) {
+			res.status(400);
+			return "{\"poruka\": \"Organizacija vec postoji\"}";
+		}
+		
+		// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
+		ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>(); 
+		for(Korisnik k : org.getListaKorisnika()) {
+			//Izbaci korisnike iz drugih organizacija
+			Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
+			korisnici.add(k1);
+			Organizacija org1 = k1.getOrganizacija();
+			if(org1 != null) {
+				int index = org1.getListaKorisnika().indexOf(k1);
+				if(index != -1) 
+					org1.getListaKorisnika().remove(index);
 			}
-			
-			// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
-			ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>(); 
-			for(Korisnik k : org.getListaKorisnika()) {
-				//Izbaci korisnike iz drugih organizacija
-				Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
-				korisnici.add(k1);
-				Organizacija org1 = k1.getOrganizacija();
-				if(org1 != null) {
-					int index = org1.getListaKorisnika().indexOf(k1);
-					if(index != -1) 
-						org1.getListaKorisnika().remove(index);
-				}
-				//Ubaci ih u druge
-				k1.setOrganizacija(org);
-			}
-			org.setListaKorisnika(korisnici);
-			
-			ArrayList<VM> resursi = new ArrayList<VM>(); 
-			for(VM vm : org.getListaResursa()) {
-				VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
-				resursi.add(vm1);
-			}
-			org.setListaResursa(resursi);
-			
-			
-			ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
-			for(Disk disk : org.getListaDiskova()) {
-				Disk disk1 = cloud.getDiskovi().get(disk.getIme());
-				diskovi.add(disk1);
-			}
-			org.setListaDiskova(diskovi);
-			
-			
-			cloud.getOrganizacija().put(org.getIme(), org);
-			return true;
-			
-		});
+			//Ubaci ih u druge
+			k1.setOrganizacija(org);
+		}
+		org.setListaKorisnika(korisnici);
+		
+		ArrayList<VM> resursi = new ArrayList<VM>(); 
+		for(VM vm : org.getListaResursa()) {
+			VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
+			resursi.add(vm1);
+		}
+		org.setListaResursa(resursi);
+		
+		
+		ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
+		for(Disk disk : org.getListaDiskova()) {
+			Disk disk1 = cloud.getDiskovi().get(disk.getIme());
+			diskovi.add(disk1);
+		}
+		org.setListaDiskova(diskovi);
+		
+		
+		cloud.getOrganizacija().put(org.getIme(), org);
+		return true;
+		
+	});
 		
 		post("orgs/getOrg/:org", (req, res) ->{
 			String orgID = req.params(":org");
