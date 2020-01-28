@@ -32,7 +32,7 @@ public class VMServis {
 					return g.toJson(vm);
 				}
 			}
-			return "";
+			return g.toJson("");
 		});
 
 		post("/VM/promijeniStatusVM", (req, res) -> {
@@ -43,13 +43,13 @@ public class VMServis {
 				vm.setStatus(false);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
 				
-				return false;
+				return g.toJson(false);
 			} else {
 				vm.getListaUkljucenostiVM().add(new Date());
 				vm.setStatus(true);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
 				
-				return true;
+				return g.toJson(true);
 			}
 		});
 
@@ -69,7 +69,7 @@ public class VMServis {
 			if (!provjeraminUkljucenosti(virt) || !provjeraminIskljucenosti(virt) || !provjeramaxUkljucenosti(virt)
 					|| !provjeramaxIskljucenosti(virt)) {
 				res.status(400);
-				return "GRESKA!";
+				return g.toJson("GRESKA!");
 			}
 			cloud.getVirtualneMasine().remove(vm[1].getIme());
 
@@ -113,7 +113,7 @@ public class VMServis {
 			}
 			cloud.getVirtualneMasine().put(virt.getIme(), virt);
 			
-			return true;
+			return g.toJson(true);
 		});
 		post("/VM/dodajNovuVM", (req, res) -> {
 			Korisnik korisnik=req.session().attribute("user");
@@ -160,7 +160,7 @@ public class VMServis {
 				}
 			}
 			
-			return true;
+			return g.toJson(true);
 		});
 
 		post("/VM/pretraga", (req, res) -> {
@@ -209,7 +209,7 @@ public class VMServis {
 				}
 			}
 			
-			return true;
+			return g.toJson(true);
 		});
 
 		post("/VM/getalljsonVM", (req, res) -> {
@@ -220,7 +220,7 @@ public class VMServis {
 				return mapper.writeValueAsString(cloud.getVirtualneMasine().values());
 			} catch (IOException e) {
 				e.printStackTrace();
-				return "WHOOPS";
+				return g.toJson("WHOOPS");
 			}
 		});
 	}

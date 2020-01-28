@@ -42,11 +42,11 @@ public class KategorijeServis {
 			}
 			if(postoji) {
 				
-				return false;
+				return g.toJson(false);
 			}
 			cloud.getKategorije().remove(k.getIme());
 			
-			return true;
+			return g.toJson(true);
 		});
 		
 		post("/Kategorija/updateKategorija",(req,res)->{
@@ -75,7 +75,7 @@ public class KategorijeServis {
 			}
 			cloud.getKategorije().put(kategorije[0].getIme(), kategorije[0]);
 			
-			return true;
+			return g.toJson(true);
 		});
 		
 		post("/Kategorije/dodajKategoriju",(req,res)->{
@@ -91,7 +91,7 @@ public class KategorijeServis {
 			}
 			cloud.getKategorije().put(k.getIme(), k);
 			
-			return true;
+			return g.toJson(true);
 		});
 	}
 	

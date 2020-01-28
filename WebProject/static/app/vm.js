@@ -427,6 +427,9 @@ Vue.component("masine-dodavanje",{
                 else{
                     alert("Neuspjesno dodavanje nove VM");
                 }
+			})
+			.catch(error =>{
+                alert("Neuspjesno dodavanje nove VM");
             });
         },
 
@@ -519,7 +522,7 @@ Vue.component("izmjena-masine",{
 	<div>
 			<table border="1"> 
 				<tr><td >Ime:</td>
-				<td><input type="text" v-model="selectedVM.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" /></td></tr>
+				<td><input type="text" id="novoIme" v-model="selectedVM.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" /></td></tr>
 				<tr>
 					<td >Organizacija:</td>
 					<td><input id="org" class="orgValue" type="text" v-bind:disabled="true"></td>
@@ -727,11 +730,11 @@ Vue.component("izmjena-masine",{
 			}
 
 			if(this.selectedVM.kategorija.ime==""){
-				$("#kategorijeNoveVM").addClass("error");
+				$("#katSelect").addClass("error");
 				provjera= false;
 			}
 			else{
-				$("#kategorijeNoveVM").removeClass("error");
+				$("#katSelect").removeClass("error");
 			}
 
 			if(!provjera){
@@ -756,6 +759,9 @@ Vue.component("izmjena-masine",{
 						alert("Neuspjesna izmjena VM");
 					}
 				});
+			})
+			.catch(error =>{
+				alert("Neuspjesna izmjena VM");
 			});
 			},
 		izbrisiVM: function(){
@@ -766,6 +772,9 @@ Vue.component("izmjena-masine",{
 					if (response.data)
 						alert("Uspesno ste obrisali VM");
 					promeniRutu("");
+				})
+				.catch(error =>{
+					alert("Neuspjesno brisanje VM");
 				});
 			}
 		},

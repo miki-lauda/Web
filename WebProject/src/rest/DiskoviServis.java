@@ -39,7 +39,7 @@ public class DiskoviServis {
 					return g.toJson(disk);
 				}
 			}
-			return "";
+			return g.toJson("");
 		});
 		
 		post("/Disk/pretraga", (req, res) -> {
@@ -135,7 +135,7 @@ public class DiskoviServis {
 				}
 			}
 			
-			return true;
+			return g.toJson(true);
 		});
 		
 		post("/Disk/deleteDisk",(req,res)->{
@@ -167,7 +167,7 @@ public class DiskoviServis {
 				}
 			}
 			
-			return true;
+			return g.toJson(true);
 		});
 		post("/Disk/dodajNoviDisk",(req,res)->{
 			Korisnik korisnik=req.session().attribute("user");
@@ -189,8 +189,15 @@ public class DiskoviServis {
 					}
 				}
 			}
-			
-			return true;
+			for(Organizacija org:cloud.getOrganizacija().values()) {
+				for(VM masina:org.getListaResursa()) {
+					if(masina.getIme().equals(novi.getVm())) {
+						org.getListaDiskova().add(novi);
+						break;
+					}
+				}
+			}
+			return g.toJson(true);
 		});
 		
 		post("/Diskovi/getDiskovibyOrg",(req,res)->{

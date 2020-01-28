@@ -137,6 +137,9 @@ Vue.component("dodaj-kategoriju", {
                 else{
                     alert("Neuspjesno dodavanje nove kategorije");
 				}
+            })
+            .catch(error =>{
+                alert("Neuspjesno dodavanje kategorije");
             });
         },
         provjeraZauzetostiImena: function(data){
@@ -272,6 +275,9 @@ Vue.component("izmjena-kategorije",{
                 else{
                     alert("Neuspjesna izmjena kategorije");
                 }
+            })
+            .catch(error =>{
+                alert("Neuspjesna izmjena kategorije");
             });
         },
         otkaziIzmjenuKategorije: function(){
@@ -287,6 +293,10 @@ Vue.component("izmjena-kategorije",{
                         alert("Nije moguce obrisati zeljenu kategoriju.");
                     }
 					promeniRutu("kategorije");
+                })
+                .catch(error =>{
+					
+					alert( alert("Nije moguce obrisati zeljenu kategoriju."));
 				});
 			}
         },
