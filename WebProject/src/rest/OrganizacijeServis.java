@@ -2,6 +2,7 @@ package rest;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.Spark.halt;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,12 +56,12 @@ public class OrganizacijeServis {
 				
 			}catch (Exception e) {
 				response.status(400);
-				return "Pogresna vrsta fajla";
+				return "{\"poruka\": \"Pogresna vrsta fajla\"}";
 			}
 			String extension = fName.substring(tacka,fName.length());
 			if(!(extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg"))) {
 				response.status(400);
-				return "Pogresna vrsta fajla";
+				return "{\"poruka\": \"Pogresna vrsta fajla\"}";
 			}
 			Part uploadedFile = request.raw().getPart("file");
 			Path out = Paths.get("./static/slike/" + fName);

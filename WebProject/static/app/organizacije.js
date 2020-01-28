@@ -37,7 +37,10 @@ Vue.component("organizacije", {
           .get('/orgs/getAllOrgs')
           .then(response => {
         	  this.orgs = response.data;
-          });
+          }).catch(error =>{
+				var poruka = JSON.parse(error.request.responseText)
+				alert(poruka.poruka);
+			});
     }
 });
 
@@ -159,9 +162,10 @@ Vue.component("dodaj-org", {
 		        		  alert("Uspesno ste dodali organizaciju: " + $("#imeOrg").val());
 		        		  promeniRutu("orgs");
 		        	  }
-		          }).catch(response => {
-			          alert(response.data);
-		          });
+		          }).catch(error =>{
+						var poruka = JSON.parse(error.request.responseText)
+						alert(poruka.poruka);
+					});
 		    }
 
 		},
@@ -194,21 +198,27 @@ Vue.component("dodaj-org", {
 	          	this.filePath = response.data;
 	          	//Uzmi okaci sad sliku
 	          	this.putanja = this.filePath;
-	        })
-	        .catch(response => function(response){
-	          alert("Fajl nije odgovarajuć");
-	        });
+	        }).catch(error =>{
+				var poruka = JSON.parse(error.request.responseText)
+				alert(poruka.poruka);
+			});
 	      }
 	},
 	mounted(){
 		axios.get('/korisnici/getAllUsers')
 		.then(response =>{
 			this.korisnici = response.data;
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
 		});
 		
 		axios.post('/VM/getalljsonVM')
 		.then(response =>{
 			this.resursi = response.data;
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
 		});
 		
 		axios.get('/Disk/getall')
@@ -216,6 +226,9 @@ Vue.component("dodaj-org", {
 			for(r of response.data){
 				this.sviDiskovi = response.data;
 			}
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
 		});
 		
 	}
@@ -373,9 +386,10 @@ Vue.component("izmena-org", {
 		        		  else
 		        			  location.reload();
 		        	  }
-		          }).catch(response => function(response){
-			          alert("jes");
-			        });;
+		          }).catch(error =>{
+						var poruka = JSON.parse(error.request.responseText)
+						alert(poruka.poruka);
+					});
 		    }
 
 		},
@@ -413,9 +427,10 @@ Vue.component("izmena-org", {
 	          	var img = $("#slika");
 	          	img.attr('src', this.filePath);
 	        })
-	        .catch(response => function(response){
-	          alert("Fajl nije dobar");
-	        });
+	        .catch(error =>{
+				var poruka = JSON.parse(error.request.responseText)
+				alert(poruka.poruka);
+			});
 	            
 	      }
 	},
@@ -426,7 +441,11 @@ Vue.component("izmena-org", {
           .then(response => {
         	  this.org = response.data;
         	  this.filePath = this.org.logo;
-          });
+          }).catch(error =>{
+				var poruka = JSON.parse(error.request.responseText)
+				alert(poruka.poruka);
+			});
+        
         axios.post('/VM/getalljsonVM')
 		.then(response =>{
 			this.resursi = response.data;
@@ -438,6 +457,9 @@ Vue.component("izmena-org", {
 					}
 				}
 			}
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
 		});
         
         axios.get('/Disk/getall')
@@ -451,6 +473,9 @@ Vue.component("izmena-org", {
 					}
 				}
 			}
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
 		});
         axios.get('/korisnici/getAllUsers')
 		.then(response =>{
@@ -463,6 +488,9 @@ Vue.component("izmena-org", {
 					}
 				}
 			}
+		}).catch(error =>{
+			var poruka = JSON.parse(error.request.responseText)
+			alert(poruka.poruka);
 		});
         
         

@@ -44,7 +44,7 @@ Vue.component("korisnici", {
 				.catch(error =>{
 					var poruka = JSON.parse(error.request.responseText)
 					alert(poruka.poruka);
-				});;
+				});
 			}
 		},
 	},
