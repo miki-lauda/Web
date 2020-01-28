@@ -216,7 +216,7 @@ Vue.component("dodaj-disk", {
             </tr>
             <tr>
                 <td >Kapacitet:</td>
-                <td><input id="noviKapacitetDisk" class="kapacitetValue" type="number" v-model="noviDisk.kapacitet" ></td>
+                <td><input id="noviKapacitetDisk" class="kapacitetValue" onclick="this.value=''" type="number" v-model="noviDisk.kapacitet" ></td>
             </tr>
             <tr>
                 <td >
@@ -288,7 +288,7 @@ Vue.component("dodaj-disk", {
 				$("#novoImeDiska").removeClass("error");
 			}
 
-			if(this.noviDisk.kapacitet<0){
+			if(this.noviDisk.kapacitet=="" || this.noviDisk.kapacitet<0){
 				$("#noviKapacitetDisk").addClass("error");
 				provjera= false;
 			}
@@ -320,7 +320,10 @@ Vue.component("dodaj-disk", {
 					let podaci=[this.noviDisk.ime,this.korisnik.imeOrg];
 					axios.post("Organizacija/dodajDisk",JSON.stringify(podaci));
 				}
-            });
+			})
+			.catch(error =>{
+				alert("Neuspjesno dodavanje novog diska");
+			});
         },
         provjeraZauzetostiImena: function(data){
 			for(let disk of this.diskovi){
@@ -358,12 +361,12 @@ Vue.component("izmjena-diska", {
     <table border="1">
         <tr><td >Ime:</td>
             <td>
-                <input type="text" v-model="selectedDisk.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" />
+                <input type="text" id="novoImeDiska" v-model="selectedDisk.ime" v-bind:disabled="provjeraTipaKorisnikaIzmjena()" />
             </td>
         </tr>
         <tr>
             <td >Kapacitet:</td>
-            <td><input class="kapacitetValue" type="number" v-model="selectedDisk.kapacitet" v-bind:disabled="provjeraTipaKorisnikaIzmjena()"></td>
+            <td><input id="noviKapacitetDisk" class="kapacitetValue" type="number" v-model="selectedDisk.kapacitet" v-bind:disabled="provjeraTipaKorisnikaIzmjena()"></td>
         </tr>
         <tr>
             <td >
@@ -478,8 +481,11 @@ Vue.component("izmjena-diska", {
 			if(confirm("Da li ste sigurni da zelite da obrisete disk?")){
 				axios.post("Disk/deleteDisk", this.backup).then(response =>{
 					if (response.data)
-						alert("Uspesno ste obrisali disk");
+						alert("Uspjesno ste obrisali disk");
 					promeniRutu("diskovi");
+				})
+				.catch(error =>{
+					alert("Neuspjesno brisanje diska");
 				});
 			}
         },
@@ -493,7 +499,7 @@ Vue.component("izmjena-diska", {
 				$("#novoImeDiska").removeClass("error");
 			}
 
-			if(this.selectedDisk.kapacitet<0){
+			if(this.selectedDisk.kapacitet=="" || this.selectedDisk.kapacitet<0){
 				$("#noviKapacitetDisk").addClass("error");
 				provjera= false;
 			}
@@ -525,7 +531,10 @@ Vue.component("izmjena-diska", {
                 else{
                     alert("Neuspjesna izmjena diska");
                 }
-            });
+			})
+			.catch(error =>{
+				alert("Neuspjesna izmjena diska");
+			});
         },
         iskljuciVM: function(){
 			axios.post("VM/promijeniStatusVM",this.selectedDisk.vm)
