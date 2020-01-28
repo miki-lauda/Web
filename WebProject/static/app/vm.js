@@ -121,7 +121,8 @@ Vue.component("masine", {
             if(this.korisnik.uloga=="SUPERADMIN"){
                 axios
                 .get('VM/getalljsonVM')
-                .then(response => (this.VM = response.data));
+				.then(response => {this.VM = response.data;});
+				
             }
             else{
                 if(this.korisnik.uloga=="KORISNIK"){
@@ -129,8 +130,8 @@ Vue.component("masine", {
                 }
                 axios
                 .post('Organizacija/getVMbyOrg',JSON.stringify(this.korisnik.imeOrg))
-                .then(response => (this.VM = response.data));
-                $(".org").css("display","none");
+                .then(response => {this.VM = response.data;$(".org").css("display","none");});
+                
             }});
 
     },
@@ -146,8 +147,10 @@ Vue.component("masine", {
                 if(respond.data==""){
                     return;
                 }
-                $("#"+indeks).html(respond.data.ime);
-                $(".org").css("display","none");
+				$("#"+indeks).html(respond.data.ime);
+				if(this.korisnik.uloga!="SUPERADMIN"){
+					$(".org").css("display","none");
+                }
             });
             
         },
