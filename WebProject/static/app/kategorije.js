@@ -111,14 +111,14 @@ Vue.component("dodaj-kategoriju", {
 				$("#noviRam").removeClass("error");
 			}
 
-			if(this.novaKategorija.gpuJezgra=="" || this.novaKategorija.ram<0){
+			if(this.novaKategorija.gpuJezgra=="" || this.novaKategorija.gpuJezgra<0){
 				$("#noviBrojGPU").addClass("error");
 				provjera= false;
 			}
 			else{
 				$("#noviBrojGPU").removeClass("error");
             }
-            if(this.novaKategorija.brojJezgara=="" || this.novaKategorija.ram<0){
+            if(this.novaKategorija.brojJezgara=="" || this.novaKategorija.brojJezgara<0){
 				$("#noviBrojJezgara").addClass("error");
 				provjera= false;
 			}
@@ -127,7 +127,11 @@ Vue.component("dodaj-kategoriju", {
             }
             if(!provjera){
 				return false;
-			}
+            }
+            this.novaKategorija.brojJezgara=Number(this.novaKategorija.brojJezgara);
+            this.novaKategorija.gpuJezgra=Number(this.novaKategorija.gpuJezgra);
+            this.novaKategorija.ram=Number(this.novaKategorija.ram);
+
 			axios
 			.post('Kategorije/dodajKategoriju',JSON.stringify(this.novaKategorija)).then(response=>{
                 if(response.data){
@@ -262,6 +266,10 @@ Vue.component("izmjena-kategorije",{
             if(!provjera){
 				return false;
             }
+            this.selectedKategorija.brojJezgara=Number(this.selectedKategorija.brojJezgara);
+            this.selectedKategorija.gpuJezgra=Number(this.selectedKategorija.gpuJezgra);
+            this.selectedKategorija.ram=Number(this.selectedKategorija.ram);
+            
             var slanje=[this.selectedKategorija];
 			slanje.push(this.backup);
 			var jsonPodatak=JSON.stringify(slanje);

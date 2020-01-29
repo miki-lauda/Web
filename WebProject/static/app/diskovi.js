@@ -201,7 +201,6 @@ Vue.component("dodaj-disk", {
 		    return {
                 noviDisk:{ime:"",kapacitet:0,tip:"",VM:null},
                 VM:null,
-                diskovi:[],
 		    }
 	},
 	template: `
@@ -257,9 +256,7 @@ Vue.component("dodaj-disk", {
 			if(this.korisnik.uloga=="KORISNIK"){
 				promeniRutu("diskovi");
 			}
-            axios
-			.get("Disk/getall")
-			.then(response =>(this.diskovi=response.data));
+            
 			if(this.korisnik.uloga=="ADMIN"){
 				axios
 			    .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
@@ -280,7 +277,7 @@ Vue.component("dodaj-disk", {
     methods:{
         dodajNoviDisk: function(){
 			let provjera=true;
-			if(this.noviDisk.ime=="" || this.provjeraZauzetostiImena(this.noviDisk.ime)){
+			if(this.noviDisk.ime==""){
 				$("#novoImeDiska").addClass("error");
 				provjera= false;
 			}
@@ -307,6 +304,7 @@ Vue.component("dodaj-disk", {
 			if(!provjera){
 				return false;
 			}
+			this.noviDisk.kapacitet=Number(this.noviDisk.kapacitet)
 			axios
 			.post('Disk/dodajNoviDisk',JSON.stringify(this.noviDisk)).then(response=>{
                 if(response.data){
@@ -325,14 +323,7 @@ Vue.component("dodaj-disk", {
 				alert("Neuspjesno dodavanje novog diska");
 			});
         },
-        provjeraZauzetostiImena: function(data){
-			for(let disk of this.diskovi){
-				if(disk.ime==data){
-					return true;
-				}
-			}
-			return false;
-		},
+        
         izaberiVM: function(){
 			let izbori=document.getElementsByName("izborVMzaDisk");
 			for(let izbor of izbori){
@@ -350,7 +341,6 @@ Vue.component("izmjena-diska", {
 		    return {
                 selectedDisk:{ime:"",kapacitet:0,tip:"",VM:null},
                 VM:null,
-                diskovi:[],
                 korisnik:{},
                 backup:{},
 		    }
@@ -396,7 +386,7 @@ Vue.component("izmjena-diska", {
         </tr>
         <tr>
             <td>
-                <button class="dugme" v-on:click="sacuvajPromjenuDiska" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Sacuvaj</button>
+                <button class="dugme" id="cuvajPromjene" v-on:click="sacuvajPromjenuDiska" v-bind:disabled="provjeraTipaKorisnikaIzmjena()">Sacuvaj</button>
                 <button id="paljenje"  class="dugme" v-on:click="iskljuciVM" v-bind:disabled="provjeraTipaKorisnikaIskljucivanjeVM()">Paljenje/Gasenje VM</button>
             </td>
             <td>
@@ -420,17 +410,6 @@ Vue.component("izmjena-diska", {
                 this.backup =Object.assign({}, this.selectedDisk);	
 		    });
             this.korisnik=response.data;
-            axios
-			.get("Disk/getall")
-            .then(response =>{
-                this.diskovi=response.data;
-                for(var a of this.diskovi){
-                    if(a.ime==this.selectedDisk.ime){
-                        this.diskovi.splice(this.diskovi.indexOf(a),1);
-                        break;
-                    }
-                }
-            });
 			if(this.korisnik.uloga=="ADMIN"){
                 $("#paljenje").css("display","none");
                 $("#brisanje").css("display","none");
@@ -445,7 +424,8 @@ Vue.component("izmjena-diska", {
 			}
 			else{
                 $("#brisanje").css("display","none");
-                $("#paljenje").css("display","none");
+				$("#paljenje").css("display","none");
+				$("#cuvajPromjene").css("display","none");
 				axios
 			    .post('Organizacija/getVMbyOrg',this.korisnik.imeOrg)
 			    .then(response => (this.VM = response.data));
@@ -491,7 +471,7 @@ Vue.component("izmjena-diska", {
         },
         sacuvajPromjenuDiska: function(){
             let provjera=true;
-			if(this.selectedDisk.ime=="" || this.provjeraZauzetostiImena(this.selectedDisk.ime)){
+			if(this.selectedDisk.ime==""){
 				$("#novoImeDiska").addClass("error");
 				provjera= false;
 			}
@@ -518,6 +498,8 @@ Vue.component("izmjena-diska", {
 			if(!provjera){
 				return false;
 			}
+			this.selectedDisk.kapacitet=Number(this.selectedDisk.kapacitet);
+			this.backup.kapacitet=Number(this.backup.kapacitet);
 			var slanje=[this.selectedDisk];
 			slanje.push(this.backup);
 			var jsonPodatak=JSON.stringify(slanje);
@@ -561,13 +543,5 @@ Vue.component("izmjena-diska", {
         otkaziIzmjenuDiska:function(){
             promeniRutu("diskovi");
         },
-        provjeraZauzetostiImena: function(data){
-			for(let disk of this.diskovi){
-				if(disk.ime==data){
-					return true;
-				}
-			}
-			return false;
-		},
     }
 });

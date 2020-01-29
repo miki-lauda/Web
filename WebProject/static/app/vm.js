@@ -364,30 +364,20 @@ Vue.component("masine-dodavanje",{
             axios
             .get('Kategorije/getalljsonKategorije')
             .then(response => (this.kategorije = response.data));
+			
+				axios
+				.get('Organizacija/getAll')
+				.then(response => (this.organizacije = response.data));
+			
             
-            axios
-            .get('Organizacija/getAll')
-            .then(response => (this.organizacije = response.data));
-            
-            axios
-            .get('VM/getalljsonVM')
-            .then(response => (this.VM = response.data));
-
             
         });
     },
     methods:{
-        provjeraZauzetostiImena: function(ime){
-			for(var virt of this.VM){
-				if(virt.ime==ime){
-					return true;
-				}
-			}
-			return false;
-		},
+        
         dodajNovuVM: function(){
 			var provjera=true;
-			if(this.novaVM.ime=="" || this.provjeraZauzetostiImena(this.novaVM.ime)){
+			if(this.novaVM.ime==""){
 				$("#novoIme").addClass("error");
 				provjera= false;
 			}
@@ -644,7 +634,10 @@ Vue.component("izmjena-masine",{
 	mounted(){
 		axios.get("Korisnik/getCurUser").then(response=>{
 			this.korisnik=response.data;
-            
+            if(this.korisnik.uloga=="KORISNIK"){
+				$("#cuvajPromjene").css("display","none");
+				$("#izbrisiVM").css("display","none");
+			}
             axios.post("VM/getVM",JSON.stringify(router.currentRoute.params.vm))
 		    .then(response => {
                 this.selectedVM = response.data;
@@ -670,17 +663,7 @@ Vue.component("izmjena-masine",{
 			.get('Kategorije/getalljsonKategorije')
 			.then(response => (this.kategorije = response.data));
 			
-			axios
-			.get('VM/getalljsonVM')
-			.then(response => {
-				this.VM = response.data;
-				for(var a of this.VM){
-                    if(a.ime==this.selectedVM.ime){
-                        this.VM.splice(this.VM.indexOf(a),1);
-                        break;
-                    }
-                }
-			}); 
+
 		});
 	},
 	methods:{
@@ -714,17 +697,10 @@ Vue.component("izmjena-masine",{
 				return false;
 			}
 		},
-		provjeraZauzetostiImena: function(ime){
-			for(var virt of this.VM){
-				if(virt.ime==ime){
-					return true;
-				}
-			}
-			return false;
-		},
+		
 		cuvajPromjene: function(){
 			var provjera=true;
-			if(this.selectedVM.ime=="" || this.provjeraZauzetostiImena(this.selectedVM.ime)){
+			if(this.selectedVM.ime==""){
 				$("#novoIme").addClass("error");
 				provjera= false;
 			}
