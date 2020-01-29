@@ -25,7 +25,7 @@ public class VMServis {
 		});
 
 		post("/VM/getVM", (req, res) -> {
-			String ime=req.body();
+			String ime = req.body();
 			String imeVM = g.fromJson(req.body(), String.class);
 			for (VM vm : cloud.getVirtualneMasine().values()) {
 				if (vm.getIme().equals(imeVM)) {
@@ -42,27 +42,27 @@ public class VMServis {
 				vm.getListaIskljucenostiVM().add(new Date());
 				vm.setStatus(false);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
-				
+
 				return g.toJson(false);
 			} else {
 				vm.getListaUkljucenostiVM().add(new Date());
 				vm.setStatus(true);
 				cloud.getVirtualneMasine().put(vm.getIme(), vm);
-				
+
 				return g.toJson(true);
 			}
 		});
 
 		post("/VM/updateVM", (req, res) -> {
-			Korisnik korisnik=req.session().attribute("user");
-			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+			Korisnik korisnik = req.session().attribute("user");
+			if (korisnik.getUloga() != KorisnickaUloga.SUPERADMIN && korisnik.getUloga() != KorisnickaUloga.ADMIN) {
 				res.status(403);
 				return g.toJson("GRESKA!");
 			}
-			
+
 			VM[] vm = g.fromJson(req.body(), VM[].class);
 			VM virt = vm[0];
-			if (virt.getIme().equals("") || virt.getKategorija() == null) {
+			if (virt.getIme().equals("") || provjeraImena(vm[0].getIme(),vm[1].getIme(),cloud) || virt.getKategorija() == null) {
 				res.status(400);
 				return g.toJson("GRESKA!");
 			}
@@ -112,17 +112,17 @@ public class VMServis {
 				}
 			}
 			cloud.getVirtualneMasine().put(virt.getIme(), virt);
-			
+
 			return g.toJson(true);
 		});
 		post("/VM/dodajNovuVM", (req, res) -> {
-			Korisnik korisnik=req.session().attribute("user");
-			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+			Korisnik korisnik = req.session().attribute("user");
+			if (korisnik.getUloga() != KorisnickaUloga.SUPERADMIN && korisnik.getUloga() != KorisnickaUloga.ADMIN) {
 				res.status(403);
 				return g.toJson("GRESKA!");
 			}
 			VM novaVM = g.fromJson(req.body(), VM.class);
-			if (novaVM.getIme().equals("") || novaVM.getKategorija() == null) {
+			if (novaVM.getIme().equals("") || provjeraImena(novaVM.getIme(),"",cloud) || novaVM.getKategorija() == null) {
 				res.status(400);
 				return g.toJson("GRESKA!");
 			}
@@ -159,25 +159,37 @@ public class VMServis {
 					}
 				}
 			}
-			
+
 			return g.toJson(true);
 		});
 
 		post("/VM/pretraga", (req, res) -> {
 			String ime = g.fromJson(req.body(), String.class);
+			Korisnik korisnik = req.session().attribute("user");
 			ArrayList<VM> vms = new ArrayList<VM>();
 
-			for (VM vm : cloud.getVirtualneMasine().values()) {
-				if (vm.getIme().equals(ime)) {
-					vms.add(vm);
+			if (korisnik.getUloga() == KorisnickaUloga.SUPERADMIN) {
+				for (VM vm : cloud.getVirtualneMasine().values()) {
+					if (vm.getIme().equals(ime)) {
+						vms.add(vm);
+					}
 				}
+				return g.toJson(vms);
 			}
-			return g.toJson(vms);
+			else {
+				Organizacija org=cloud.getOrganizacija().get(korisnik.getOrganizacija().getIme());
+				for (VM vm : org.getListaResursa()) {
+					if (vm.getIme().equals(ime)) {
+						vms.add(vm);
+					}
+				}
+				return g.toJson(vms);
+			}
 		});
 
 		post("/VM/deleteVM", (req, res) -> {
-			Korisnik korisnik=req.session().attribute("user");
-			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
+			Korisnik korisnik = req.session().attribute("user");
+			if (korisnik.getUloga() != KorisnickaUloga.SUPERADMIN && korisnik.getUloga() != KorisnickaUloga.ADMIN) {
 				res.status(403);
 				return g.toJson("GRESKA!");
 			}
@@ -208,7 +220,7 @@ public class VMServis {
 					}
 				}
 			}
-			
+
 			return g.toJson(true);
 		});
 
@@ -225,10 +237,21 @@ public class VMServis {
 		});
 	}
 
+	private static boolean provjeraImena(String novo, String staro, CloudService cloud) {
+		// TODO Auto-generated method stub
+		if(novo.equals(staro)) {
+			return false;
+		}
+		if(cloud.getVirtualneMasine().containsKey(novo)) {
+			return true;
+		}
+		return false;
+	}
+
 	private static boolean provjeramaxIskljucenosti(VM virt) {
 		for (int i = 0; i < virt.getListaIskljucenostiVM().size(); i++) {
 			if (i != virt.getListaIskljucenostiVM().size() - 1) {
-				if (virt.getListaIskljucenostiVM().get(i).after(virt.getListaUkljucenostiVM().get(i+1))) {
+				if (virt.getListaIskljucenostiVM().get(i).after(virt.getListaUkljucenostiVM().get(i + 1))) {
 					return false;
 				}
 			}

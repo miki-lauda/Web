@@ -45,10 +45,20 @@ public class DiskoviServis {
 		post("/Disk/pretraga", (req, res) -> {
 			String ime = g.fromJson(req.body(), String.class);
 			ArrayList<Disk> diskovi = new ArrayList<Disk>();
-
+			Korisnik korisnik=req.session().attribute("user");
+			if(korisnik.getUloga()==KorisnickaUloga.SUPERADMIN) {
 			for (Disk disk : cloud.getDiskovi().values()) {
 				if (disk.getIme().equals(ime)) {
 					diskovi.add(disk);
+				}
+			}
+			}
+			else {
+				Organizacija org=cloud.getOrganizacija().get(korisnik.getOrganizacija().getIme());
+				for (Disk disk : org.getListaDiskova()) {
+					if (disk.getIme().equals(ime)) {
+						diskovi.add(disk);
+					}
 				}
 			}
 			return g.toJson(diskovi);
@@ -61,13 +71,14 @@ public class DiskoviServis {
 			}
 			
 			Disk[] diskovi = g.fromJson(req.body(), Disk[].class);
-			if(diskovi[0].getIme().equals("") || diskovi[0].getTip()==null || diskovi[0].getKapacitet()<0) {
+			if(diskovi[0].getIme().equals("") || provjeraImena(diskovi[0].getIme(),diskovi[1].getIme(),cloud) || diskovi[0].getTip()==null || diskovi[0].getKapacitet()<0) {
 				res.status(400);
 				return g.toJson("GRESKA");
 			}
 			cloud.getDiskovi().remove(diskovi[1].getIme());
 			cloud.getDiskovi().put(diskovi[0].getIme(), diskovi[0]);
 			
+			//brise staru masinu i dodaje novu u vm ako je ista masina
 			if (diskovi[0].getVm() != null) {
 				for (VM masina : cloud.getVirtualneMasine().values()) {
 					if (masina.getIme().equals(diskovi[1].getVm())) {
@@ -82,7 +93,7 @@ public class DiskoviServis {
 						}
 					}
 				}
-				
+				//provejrava da l je disk u vm, ako nije doda ga
 				for(VM masina:cloud.getVirtualneMasine().values()) {
 					if(masina.getIme().equals(diskovi[0].getVm())) {
 						boolean postoji=false;
@@ -95,6 +106,7 @@ public class DiskoviServis {
 							break;
 						}
 					}
+					//brise disk iz stare vm ako je vm nova
 					for(Disk disk:masina.getListaResursa()) {
 						if(disk.getIme().equals(diskovi[0].getIme())) {
 							if(diskovi[0].getVm().equals(masina.getIme())) {
@@ -107,7 +119,16 @@ public class DiskoviServis {
 						}
 					}
 				}
-				
+				//brise disk sa starim nazivom iz org
+				for(Organizacija org:cloud.getOrganizacija().values()) {
+					for(Disk disk:org.getListaDiskova()) {
+						if(disk.getIme().equals(diskovi[1].getIme())) {
+							org.getListaDiskova().remove(disk);
+							break;
+						}
+					}
+				}
+				//dodaje disk u org, ako vec nije u njoj
 				VM masina=cloud.getVirtualneMasine().get(diskovi[0].getVm());
 				for(Organizacija org:cloud.getOrganizacija().values()) {
 					for(VM vm:org.getListaResursa()) {
@@ -122,15 +143,6 @@ public class DiskoviServis {
 								org.getListaDiskova().add(diskovi[0]);
 							}
 						}
-					}
-				}
-			}
-			for(Organizacija org:cloud.getOrganizacija().values()) {
-				for(Disk disk:org.getListaDiskova()) {
-					if(disk.getIme().equals(diskovi[1].getIme())) {
-						org.getListaDiskova().remove(disk);
-						org.getListaDiskova().add(diskovi[0]);
-						break;
 					}
 				}
 			}
@@ -169,6 +181,17 @@ public class DiskoviServis {
 			
 			return g.toJson(true);
 		});
+		
+		post("/Disk/provjeraImena",(req,res)->{
+			String ime=g.fromJson(req.body(), String.class);
+			if(cloud.getDiskovi().containsKey(ime)) {
+				return g.toJson(true);
+			}
+			else {
+				return g.toJson(false);
+			}
+		});
+		
 		post("/Disk/dodajNoviDisk",(req,res)->{
 			Korisnik korisnik=req.session().attribute("user");
 			if(korisnik.getUloga()!=KorisnickaUloga.SUPERADMIN && korisnik.getUloga()!=KorisnickaUloga.ADMIN) {
@@ -176,7 +199,7 @@ public class DiskoviServis {
 				return g.toJson("GRESKA!");
 			}
 			Disk novi=g.fromJson(req.body(), Disk.class);
-			if(novi.getIme().equals("") || novi.getTip()==null || novi.getKapacitet()<0) {
+			if(novi.getIme().equals("") || provjeraImena(novi.getIme(), "", cloud) || novi.getTip()==null || novi.getKapacitet()<0) {
 				res.status(400);
 				return g.toJson("GRESKA");
 			}
@@ -221,5 +244,15 @@ public class DiskoviServis {
 			}
 			return g.toJson(diskovi);
 		});
+	}
+
+	private static boolean provjeraImena(String novi, String stari,CloudService cloud) {
+		if(novi.equals(stari)) {
+			return false;
+		}
+		if(cloud.getDiskovi().containsKey(novi)) {
+			return true;
+		}
+		return false;
 	}
 }

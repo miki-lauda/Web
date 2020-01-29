@@ -34,7 +34,6 @@ public class SparkAppMain {
 	
 	public static void main(String[] args) throws Exception {
 		port(8080);
-		praviBazu();
 		cloud = CloudService.ucitajIzBaze();
 		cloud.preveziReference();
 		staticFiles.externalLocation(new File("./static").getCanonicalPath());
