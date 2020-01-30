@@ -17,9 +17,19 @@ public class DiskoviServis {
 
 	public static void loadService(CloudService cloud, Gson g) {
 		get("/Diskovi/getalljsonDiskovi", (req, res) -> {
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Ako nije superadmin moze da dobije samo iz svoje organizacije
+			if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
+				return g.toJson(trenutniKorsnik.getOrganizacija().getListaDiskova());
+			}
 			return g.toJson(cloud.getDiskovi().values());
 		});
 		get("/Disk/getall", (req, res) -> {
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Ako nije superadmin moze da dobije samo iz svoje organizacije
+			if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
+				return g.toJson(trenutniKorsnik.getOrganizacija().getListaDiskova());
+			}
 			return g.toJson(cloud.getDiskovi().values());
 		});
 		post("/Disk/getallbyOrg", (req, res) -> {

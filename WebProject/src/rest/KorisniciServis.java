@@ -117,6 +117,18 @@ public class KorisniciServis {
 				}
 			}
 			
+			
+			if(k.getUloga() == KorisnickaUloga.SUPERADMIN) {
+				res.status(400);
+				return "{\"poruka\": \"Ne mozete dodati SUPERADMINA\"}";
+			}
+			
+			String regex = "\\w+@\\w+[.]com";
+			if(!k.getEmail().matches(regex)) {
+				res.status(400);
+				return "{\"poruka\": \"Nevalidan email\"}";
+			}
+			
 			// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
 			Organizacija org = cloud.getOrganizacija().get(k.getOrganizacija().getIme());
 			org.getListaKorisnika().add(k);
@@ -208,6 +220,16 @@ public class KorisniciServis {
 				
 			}
 			
+			if(k.getUloga() == KorisnickaUloga.SUPERADMIN) {
+				res.status(400);
+				return "{\"poruka\": \"Ne mozete dodati SUPERADMINA\"}";
+			}
+			
+			String regex = "\\w+@\\w+[.]com";
+			if(!k.getEmail().matches(regex)) {
+				res.status(400);
+				return "{\"poruka\": \"Nevalidan email\"}";
+			}
 			
 			// Originalani korisnik
 			// Promeni atribute staticke
@@ -245,6 +267,11 @@ public class KorisniciServis {
 			if(k.getUsername().equals(trenutniKorsnik.getUsername())) {
 				res.status(400);
 				return "{\"poruka\": \"Ne mozete obrisati samog sebe\"}";	
+			}
+			
+			if(k.getUloga() == KorisnickaUloga.SUPERADMIN) {
+				res.status(400);
+				return "{\"poruka\": \"Ne mozete obrisati SUPERADMINA\"}";
 			}
 			
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {

@@ -21,6 +21,12 @@ public class VMServis {
 	public static void loadService(CloudService cloud, Gson g) {
 
 		get("/VM/getalljsonVM", (req, res) -> {
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Ako nije superadmin moze da dobije samo iz svoje organizacije
+			if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
+				return g.toJson(trenutniKorsnik.getOrganizacija().getListaResursa());
+			}
+			
 			return g.toJson(cloud.getVirtualneMasine().values());
 		});
 
@@ -227,8 +233,14 @@ public class VMServis {
 		post("/VM/getalljsonVM", (req, res) -> {
 			res.type("application/json");
 			// Mora sa jacksoonom zbog kruzne zavisnosti
+			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
+			//Ako nije superadmin moze da dobije samo iz svoje organizacije
+			
 			ObjectMapper mapper = new ObjectMapper();
 			try {
+				if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
+					return mapper.writeValueAsString(trenutniKorsnik.getOrganizacija().getListaResursa());
+				}
 				return mapper.writeValueAsString(cloud.getVirtualneMasine().values());
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -132,38 +132,126 @@ public class OrganizacijeServis {
 				return "{\"poruka\": \"Organizacija vec postoji\"}";
 			}
 			
-			// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
+			
 			ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>(); 
 			for(Korisnik k : org.getListaKorisnika()) {
-				//Izbaci korisnike iz drugih organizacija
+				//Provera da li postoje ti korisnici
 				Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
-				korisnici.add(k1);
-				Organizacija org1 = k1.getOrganizacija();
-				if(org1 != null) {
-					int index = org1.getListaKorisnika().indexOf(k1);
-					if(index != -1) 
-						org1.getListaKorisnika().remove(index);
+				if(k1 == null) {
+					res.status(400);
+					return "{\"poruka\": \"Korisnik " + k.getUsername() +  "  ne postoji\"}";
 				}
-				//Ubaci ih u druge
-				k1.setOrganizacija(org);
+				korisnici.add(k1);
 			}
-			org.setListaKorisnika(korisnici);
+			
+			
+			
 			
 			ArrayList<VM> resursi = new ArrayList<VM>(); 
 			for(VM vm : org.getListaResursa()) {
 				VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
+				if(vm1 == null) {
+					res.status(400);
+					return "{\"poruka\": \"Virtualna masina " + vm.getIme() +  "  ne postoji\"}";
+				}
 				resursi.add(vm1);
+				
 			}
-			org.setListaResursa(resursi);
 			
 			
 			ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
 			for(Disk disk : org.getListaDiskova()) {
 				Disk disk1 = cloud.getDiskovi().get(disk.getIme());
+				if(disk1 == null) {
+					res.status(400);
+					return "{\"poruka\": \"Disk "+ disk.getIme() +" ne postoji\"}";
+				}
+				//Ako se prebacuje disk koji je vec zakacen za virtualnu masinu koja se ne prebacuje izbacice gresku
+				boolean uslov = disk.getVm() == null;
+
+				for(VM vm : resursi) {
+					if(vm.getListaResursa().contains(disk1)) {
+						uslov = true;
+						break;
+					}
+				}
+				if(!uslov) {
+					res.status(400);
+					return "{\"poruka\": \"Disk "+ disk.getIme() +" je zakacen za masinu koja se ne prebacuje\"}";
+				}
+				
 				diskovi.add(disk1);
 			}
-			org.setListaDiskova(diskovi);
+
+			// Da ne bismo imali duple objekte preferenciracemo ih na one u aplikaciji
+
+			org.setListaKorisnika(korisnici);
+			for(Korisnik k : korisnici) {
+				Organizacija org1 = k.getOrganizacija();
+				//Izbaci korisnike iz drugih organizacija
+				if(org1 != null) {
+					int index = org1.getListaKorisnika().indexOf(k);
+					if(index != -1) 
+						org1.getListaKorisnika().remove(index);
+				}
+				//Ubaci ih u druge
+				k.setOrganizacija(org);
+			}
+			org.setListaResursa(resursi);
 			
+			for(VM vm : resursi) {
+				Organizacija org1 = null;
+				// nadji org
+				spolja : for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+					for(VM resurs:organizacija.getListaResursa()) {
+						if(resurs.getIme().equals(vm.getIme())) {
+							org1 = organizacija;
+							break spolja;
+						}
+					}
+				}
+				//Izbaci vm iz organizacije u kojoj je bila
+				if(org1 != null) {
+					int index = org1.getListaResursa().indexOf(vm);
+					if(index != -1) 
+						org1.getListaResursa().remove(index);
+				}
+				
+				//Diskovi idu sa vm
+				for(Disk disk : vm.getListaResursa()) {
+					//Nadji diskove i izbrisi iz organizacije u kojoj su
+					int index = org1.getListaDiskova().indexOf(disk);
+					if(index != -1) 
+						org1.getListaDiskova().remove(index);
+
+					index = diskovi.indexOf(disk);
+					//Ukoliko njih nismo stavili u novim diskovima dodaj ih
+					if(index == -1)
+						diskovi.add(disk);
+					
+				}
+				
+			}
+			
+			org.setListaDiskova(diskovi);
+			for(Disk disk : diskovi) {
+				Organizacija org1 = null;
+				
+				spolja : for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+					for(Disk resurs:organizacija.getListaDiskova()) {
+						if(resurs.getIme().equals(disk.getIme())) {
+							org1 = organizacija;
+							break spolja;
+						}
+					}
+				}
+				
+				if(org1 != null) {
+					int index = org1.getListaDiskova().indexOf(disk);
+					if(index != -1) 
+						org1.getListaDiskova().remove(index);
+				}
+			}
 			
 			cloud.getOrganizacija().put(org.getIme(), org);
 			return true;
@@ -228,7 +316,7 @@ public class OrganizacijeServis {
 			
 			ObjectMapper mapper = new ObjectMapper();
 			Organizacija org = mapper.readValue(req.body(), Organizacija.class);
-			//Organizacija org = g.fromJson(req.body(), Organizacija.class);
+			
 			// Ukoliko vec postoji takvo ime organizacije i razlicito je od starog
 			
 			if(cloud.getOrganizacija().get(org.getIme()) != null &&
@@ -238,32 +326,32 @@ public class OrganizacijeServis {
 			}
 			// Originalana organizacija
 			Organizacija orgO = cloud.getOrganizacija().get(staroIme);
-			orgO.setIme(org.getIme());
-			orgO.setOpis(org.getOpis());
-			orgO.setLogo(org.getLogo());
 			
+			//Nova lista korisnika
 			ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>(); 
+			
 			for(Korisnik k : org.getListaKorisnika()) {
-				//Izbaci korisnike iz drugih organizacija
+				//Proveri da li postoje ti korisnici
 				Korisnik k1 = cloud.getKorisnici().get(k.getUsername());
+				if(k1 == null) {
+					res.status(400);
+					return "{\"poruka\": \"Korisnik " + k.getUsername() +  "  ne postoji\"}";
+				}
 				korisnici.add(k1);
 				Organizacija org1 = k1.getOrganizacija();
+				
 				if(org1 != null) {
-					int index = org1.getListaKorisnika().indexOf(k1);
-					if(index != -1) 
-						org1.getListaKorisnika().remove(index);
-				}
-				//Ubaci ih u druge
-				k1.setOrganizacija(orgO);
-			}
-			//
-			for(Korisnik k : orgO.getListaKorisnika()) {
-				//Izbrisacemo korisnike koji nisu preziveli izmenu
-				if(!korisnici.contains(k)) {
-					cloud.getKorisnici().remove(k.getUsername());
+					
+					//Admin ne sme da izbacuje korisnike iz drugih organizacija osim svoje
+					if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN && 
+							!trenutniKorsnik.getOrganizacija().getIme().equals(org1.getIme())) {
+						res.status(400);
+						return "{\"poruka\": \"Nemate nadleznost nad organizacijom: " +org1.getIme() + "\"}";
+					}
 				}
 			}
-			orgO.setListaKorisnika(korisnici);
+			
+			
 			
 			
 			
@@ -271,16 +359,194 @@ public class OrganizacijeServis {
 			ArrayList<VM> resursi = new ArrayList<VM>(); 
 			for(VM vm : org.getListaResursa()) {
 				VM vm1 = cloud.getVirtualneMasine().get(vm.getIme());
+				if(vm1 == null) {
+					res.status(400);
+					return "{\"poruka\": \"Virtualna masina " + vm.getIme() +  "  ne postoji\"}";
+				}
 				resursi.add(vm1);
+				
+				Organizacija org1 = null;
+				
+				spolja : for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+					for(VM resurs:organizacija.getListaResursa()) {
+						if(resurs.getIme().equals(vm1.getIme())) {
+							org1 = organizacija;
+							break spolja;
+						}
+					}
+				}
+				
+				if(org1 != null) {
+					//Admin ne sme da izbacuje vm iz drugih organizacija osim svoje
+					if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN && 
+							!trenutniKorsnik.getOrganizacija().getIme().equals(org1.getIme())) {
+						res.status(400);
+						return "{\"poruka\": \"Nemate nadleznost nad vm organizacije: " +org1.getIme() + "\"}";
+					}
+				}
 			}
-			orgO.setListaResursa(resursi);
 			
 			
 			ArrayList<Disk> diskovi = new ArrayList<Disk>(); 
 			for(Disk disk : org.getListaDiskova()) {
 				Disk disk1 = cloud.getDiskovi().get(disk.getIme());
+				if(disk1 == null) {
+					res.status(400);
+					return "{\"poruka\": \"Disk " + disk.getIme() +  "  ne postoji\"}";
+				}
 				diskovi.add(disk1);
+				Organizacija org1 = null;
+				
+				spolja : for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+					for(Disk resurs:organizacija.getListaDiskova()) {
+						if(resurs.getIme().equals(disk1.getIme())) {
+							org1 = organizacija;
+							break spolja;
+						}
+					}
+				}
+				
+				if(org1 != null) {
+					//Admin ne sme da izbacuje vm iz drugih organizacija osim svoje
+					if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN && 
+							!trenutniKorsnik.getOrganizacija().getIme().equals(org1.getIme())) {
+						res.status(400);
+						return "{\"poruka\": \"Nemate nadleznost nad diskovima organizacije: " +org1.getIme() + "\"}";
+					}
+				}
+				
+				//Ako se prebacuje disk koji je vec zakacen za virtualnu masinu koja se ne prebacuje izbacice gresku
+				boolean uslov = disk.getVm() == null;
+				
+				for(VM vm : resursi) {
+					if(vm.getListaResursa().contains(disk1)) {
+						uslov = true;
+						break;
+					}
+				}
+				if(!uslov) {
+					res.status(400);
+					return "{\"poruka\": \"Disk "+ disk.getIme() +" je zakacen za masinu koja se ne prebacuje\"}";
+				}
+				
 			}
+
+			
+			for(Korisnik k1 : korisnici) {
+				Organizacija org1 = k1.getOrganizacija();
+				
+				if(org1 != null) {
+					int index = org1.getListaKorisnika().indexOf(k1);
+					if(index != -1) {
+						org1.getListaKorisnika().remove(index);
+					}
+				}
+				//Ubaci ih u druge
+				k1.setOrganizacija(orgO);
+			}
+			
+			//Izbrisacemo korisnike koji nisu preziveli izmenu
+			for(Korisnik k : orgO.getListaKorisnika()) {
+				if(!korisnici.contains(k)) {
+					cloud.getKorisnici().remove(k.getUsername());
+				}
+			}
+			
+			//Prereferenciranje VM
+			for(VM vm1 : resursi) {
+				Organizacija org1 = null;
+				//nadji org
+				spolja : for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+					for(VM resurs:organizacija.getListaResursa()) {
+						if(resurs.getIme().equals(vm1.getIme())) {
+							org1 = organizacija;
+							break spolja;
+						}
+					}
+				}
+				
+				if(org1 != null) {
+					int index = org1.getListaResursa().indexOf(vm1);
+					if(index != -1) 
+						org1.getListaResursa().remove(index);
+				}
+				
+				//Diskovi idu sa vm
+				for(Disk disk : vm1.getListaResursa()) {
+					//Nadji diskove i izbrisi iz organizacije u kojoj su
+					int index = org1.getListaDiskova().indexOf(disk);
+					if(index != -1) 
+						org1.getListaDiskova().remove(index);
+
+					index = diskovi.indexOf(disk);
+					//Ukoliko njih nismo stavili u novim diskovima dodaj ih
+					if(index == -1)
+						diskovi.add(disk);
+					
+				}
+			}
+			
+			//Izbrisacemo VM koji nisu preziveli izmenu
+			for(VM vm : orgO.getListaResursa()) {
+				if(!resursi.contains(vm)) {
+					//Izbrisi i njegove diskove za koje su zakaceni
+					if(vm.getListaResursa() != null) {
+						for(Disk disk : vm.getListaResursa()) {
+							int index = orgO.getListaDiskova().indexOf(disk);
+							orgO.getListaDiskova().remove(index);
+							index = diskovi.indexOf(disk);
+							diskovi.remove(index);
+							cloud.getDiskovi().remove(disk.getIme());
+						}
+					}
+					cloud.getVirtualneMasine().remove(vm.getIme());
+				}
+			}
+			
+			//Prereferenciranje diskova
+			for(Disk disk : diskovi) {
+				Organizacija org1 = null;
+				//nadji org
+				spolja : for(Organizacija organizacija: cloud.getOrganizacija().values()) {
+					for(Disk resurs:organizacija.getListaDiskova()) {
+						if(resurs.getIme().equals(disk.getIme())) {
+							org1 = organizacija;
+							break spolja;
+						}
+					}
+				}
+				
+				if(org1 != null) {
+					int index = org1.getListaDiskova().indexOf(disk);
+					if(index != -1) 
+						org1.getListaDiskova().remove(index);
+				}
+			}
+			
+			//Izbrisacemo diskove koji nisu preziveli izmenu
+			for(Disk disk : orgO.getListaDiskova()) {
+				if(!diskovi.contains(disk)) {
+					if(disk.getVm() != null) {						
+						//Ukoliko ima vm izbrisi iz njene liste disk
+						VM vm = cloud.getVirtualneMasine()
+								.get(disk.getVm());
+						int index = vm.getListaResursa().indexOf(disk);
+						if(index != -1)
+							vm.getListaResursa().remove(index);
+					}
+					
+					cloud.getDiskovi().remove(disk.getIme());
+				}
+			}
+			
+			
+			
+			
+			orgO.setIme(org.getIme());
+			orgO.setOpis(org.getOpis());
+			orgO.setLogo(org.getLogo());
+			orgO.setListaKorisnika(korisnici);
+			orgO.setListaResursa(resursi);
 			orgO.setListaDiskova(diskovi);
 			
 			

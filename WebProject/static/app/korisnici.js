@@ -96,6 +96,7 @@ Vue.component("dodaj-korisnika", {
 			<tr>
 				<td>Email:</td>
 			    <td><input id='email' type ="text"/></td>
+			    <td id="porukaEmail"></td>
 			</tr>
 			<tr>
 				<td>Tip korisnika:</td>
@@ -126,10 +127,15 @@ Vue.component("dodaj-korisnika", {
 			this.orgs = {};
 		}, 
 		dodajKorisnika : function(){
+			
+			var regex = new RegExp("\\w+@\\w+[.]com");
 			$("#poruka").text($("#username").val() === "" ? "Obavezno polje" : "");
 			$("#porukaPass").text($("#password").val() === "" ? "Obavezno polje" : "");
 			$("#porukaIme").text($("#ime").val() === "" ? "Obavezno polje" : "");
-			if( $("#username").val() !== "" && $("#password").val() !== "" && $("#ime").val() !== ""){
+			$("#porukaEmail").text( regex.test($("#email").val()) ? "" : "Niste uneli email u pravilnom oblku" );
+			
+			if( $("#username").val() !== "" && $("#password").val() !== "" && $("#ime").val() !== "" &&
+					regex.test($("#email").val())){
 				axios
 				.post("/korisnici/addUser", {
 					"username" : $("#username").val(),
@@ -206,6 +212,7 @@ Vue.component("izmena-korisnika", {
 			<tr>
 				<td>Email:</td>
 			    <td>{{this.korisnik.email}}</td>
+			    <td id="porukaEmail"></td>
 			</tr>
 			<tr>
 				<td>Tip korisnika:</td>
@@ -238,10 +245,15 @@ Vue.component("izmena-korisnika", {
 			this.korisnik = {};
 		}, 
 		izmeniKorisnika : function(){
+			
+			var regex = new RegExp("\\w+@\\w+[.]com");
 			$("#poruka").text($("#username").val() === "" ? "Obavezno polje" : "");
 			$("#porukaPass").text($("#password").val() === "" ? "Obavezno polje" : "");
 			$("#porukaIme").text($("#ime").val() === "" ? "Obavezno polje" : "");
-			if( $("#username").val() !== "" && $("#password").val() !== "" && $("#ime").val() !== ""){
+			$("#porukaEmail").text( regex.test($("#email").val()) ? "" : "Niste uneli email u pravilnom oblku" );
+			
+			if( $("#username").val() !== "" && $("#password").val() !== "" && $("#ime").val() !== "" &&
+				regex.test($("#email").val())){
 				axios
 				.post("/korisnici/izmeniKorisnika/"+this.stariUser, {
 					"username" : $("#username").val(),
@@ -318,6 +330,7 @@ Vue.component("profil", {
 			<tr>
 				<td>Email</td>
 			    <td><input id='email' type ="text" :value = "korisnik.email" /></td>
+			    <td id="porukaEmail"></td>
 			</tr>
 		</table>
 		<br /> 
@@ -331,10 +344,18 @@ Vue.component("profil", {
 			this.korisnik = {};
 		}, 
 		izmeniKorisnika : function(){
+			
+			var regex = new RegExp("\\w+@\\w+[.]com");
 			$("#poruka").text($("#username").val() === "" ? "Obavezno polje" : "");
 			$("#porukaIme").text($("#ime").val() === "" ? "Obavezno polje" : "");
 			$("#porukaPassConf").text($("#password").val() !== $("#passwordConf").val() ? "Šifre se ne poklapaju" : "");
-			if( $("#username").val() !== "" && $("#ime").val() !== "" && $("#password").val() === $("#passwordConf").val()){
+			$("#porukaEmail").text( regex.test($("#email").val()) ? "" : "Niste uneli email u pravilnom oblku" );
+			
+			if( $("#username").val() !== "" && $("#ime").val() !== "" && $("#password").val() === $("#passwordConf").val() &&
+					regex.test($("#email").val())){
+				if($("#password").val() === ""){
+					($("#password")).val(this.korisnik.password);
+				}
 				axios
 				.post("/korisnici/izmeniKorisnika/"+this.stariUser, {
 					"username" : $("#username").val(),

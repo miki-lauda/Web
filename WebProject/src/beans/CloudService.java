@@ -86,5 +86,34 @@ public class CloudService {
 			k.setOrganizacija(this.organizacija.get(k.org));
 		}
 		
+		
+		for(VM vm : this.virtualneMasine.values()) {
+			spolja : for(Organizacija organizacija: getOrganizacija().values()) {
+				int i = 0;
+				for(VM resurs:organizacija.getListaResursa()) {
+					if(resurs.getIme().equals(vm.getIme())) {
+						organizacija.getListaResursa().remove(i);
+						organizacija.getListaResursa().add(vm);
+						break spolja;
+					}
+					i++;
+				}
+			}
+		}
+		
+		
+		for(Disk disk : this.diskovi.values()) {
+			spolja : for(Organizacija organizacija: getOrganizacija().values()) {
+				int i = 0;
+				for(Disk disk1 :organizacija.getListaDiskova()) {
+					if(disk.getIme().equals(disk1.getIme())) {
+						organizacija.getListaDiskova().remove(i);
+						organizacija.getListaDiskova().add(disk);
+						break spolja;
+					}
+					i++;
+				}
+			}
+		}
 	}	
 }

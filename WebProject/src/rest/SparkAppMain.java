@@ -47,9 +47,8 @@ public class SparkAppMain {
 		KategorijeServis.loadService(cloud, g);
 		DiskoviServis.loadService(cloud, g);
 		get("/*", (req, res) -> {
-			res.status(400);
-			
-			return "BAD REQUEST 400";
+			res.status(404);
+			return "404 PAGE NOT FOUND";
 		});
 		
 		
