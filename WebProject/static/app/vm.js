@@ -776,149 +776,18 @@ Vue.component("izmjena-masine",{
 				return this.rijesiDatum(this.selectedVM.listaUkljucenostiVM[indeks+1]);
 		},
 		rijesiDatum: function(data){
-			var datum=data;
-			var podjelaDatuma=datum.split(",");
-			mjesecDan=podjelaDatuma[0].split(" ");
-			datum=podjelaDatuma[1].trim()+"-"
-			dan=mjesecDan[1];
 			
-			switch(mjesecDan[0]){
-				case "Jan":
-					datum=datum+"01-"
-					break;
-				case "Feb":
-					datum=datum+"02-"
-					break;
-				case "Mar":
-					datum=datum+"03-"
-					break;
-				case "Apr":
-					datum=datum+"04-"
-					break;
-				case "May":
-					datum=datum+"05-"
-					break;
-				case "Jun":
-					datum=datum+"06-"
-					break;
-				case "Jul":
-					datum=datum+"07-"
-					break;
-				case "Aug":
-					datum=datum+"08-"
-					break;
-				case "Sep":
-					datum=datum+"09-"
-					break;
-				case "Oct":
-					datum=datum+"10-"
-					break;
-				case "Nov":
-					datum=datum+"11-"
-					break;
-				case "Dec":
-					datum=datum+"12-"
-					break;
-			}
-			if(parseInt(dan,10)<10){
-				datum=datum+"0"+mjesecDan[1]+"T";
-			}
-			else{
-				datum=datum+mjesecDan[1]+"T";
-			}
-			podjelaDatuma=podjelaDatuma[2].split(" ");
-			var sati=podjelaDatuma[1].split(":")[0];
-			if(podjelaDatuma[2]=="PM"){
-				switch(sati){
-					case "1":
-						datum=datum+"13:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-						break;
-					case "2":
-						datum=datum+"14:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-					break;
-					case "3":
-						datum=datum+"15:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-						break;
-					case "4":
-						datum=datum+"16:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-					break;
-					case "5":
-						datum=datum+"17:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-						break;
-					case "6":
-						datum=datum+"18:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-					break;
-					case "7":
-						datum=datum+"19:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-						break;
-					case "8":
-						datum=datum+"20:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-					break;
-					case "9":
-						datum=datum+"21:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-						break;
-					case "10":
-						datum=datum+"22:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-					break;
-					case "11":
-						datum=datum+"23:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-						break;
-					default:
-						datum=datum+"12:"+podjelaDatuma[1].split(":")[1]+":"+podjelaDatuma[1].split(":")[2];
-					break;
-				}
-			}
-			else{
-				if(parseInt(sati,10)<10){
-					datum=datum+"0"+podjelaDatuma[1];
-				}
-				else{
-					datum=datum+podjelaDatuma[1];
-				}
-			}
-			return datum;
+			return data;
 		},
 		izmjenaDatuma: function(flag,indeks,datum){
 
 			if(flag=="I"){
-				var noviDatum=(new Date($("#iskljucen"+indeks).val())).toString();
+				var noviDatum=$("#iskljucen"+indeks).val()+".000";
+				this.selectedVM.listaIskljucenostiVM[indeks]=noviDatum;
 			}
 			else{
-				var noviDatum=(new Date($("#ukljucen"+indeks).val())).toString();
-				
-			}
-			noviDatum=noviDatum.split(" ");
-			if(noviDatum.length<3){
-				return;
-			}
-			var novi=noviDatum[1]+" "+noviDatum[2]+", "+noviDatum[3]+", ";
-			if(parseInt(noviDatum[4].split(":")[0],10)>=12){
-				if(parseInt(noviDatum[4].split(":")[0],10)==12){
-					var satiOstalo=noviDatum[4].split(":");
-					novi=novi+(parseInt(satiOstalo[0],10))+":"+satiOstalo[1]+":"+satiOstalo[2]+" PM";	
-				}
-				else{
-				var satiOstalo=noviDatum[4].split(":");
-				novi=novi+(parseInt(satiOstalo[0],10)-12)+":"+satiOstalo[1]+":"+satiOstalo[2]+" PM";
-				}
-			}
-			else{
-				if(parseInt(noviDatum[4].split(":")[0],10)==0){
-					var satiOstalo=noviDatum[4].split(":");
-					novi=novi+(parseInt(satiOstalo[0],10)+12)+":"+satiOstalo[1]+":"+satiOstalo[2]+" AM";
-				}
-				else{
-				var satiOstalo=noviDatum[4].split(":");
-				novi=novi+parseInt(satiOstalo[0],10)+":"+satiOstalo[1]+":"+satiOstalo[2]+" AM";
-				}
-			}
-
-
-			if(flag=="I"){
-				this.selectedVM.listaIskljucenostiVM[indeks]=novi;
-			}
-			else{
-				this.selectedVM.listaUkljucenostiVM[indeks]=novi;
+				var noviDatum=$("#ukljucen"+indeks).val()+".000";
+				this.selectedVM.listaUkljucenostiVM[indeks]=noviDatum;
 			}
 		},
 		otkaziIzmjenuVM:function(){

@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import beans.CloudService;
 import beans.Disk;
@@ -27,7 +28,7 @@ import beans.VM;
 
 public class SparkAppMain {
 
-	private static Gson g = new Gson();
+	private static Gson g = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").create();
 	public static CloudService cloud = null;
 	
 	
