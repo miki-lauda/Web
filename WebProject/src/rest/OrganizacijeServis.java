@@ -349,6 +349,11 @@ public class OrganizacijeServis {
 						return "{\"poruka\": \"Nemate nadleznost nad organizacijom: " +org1.getIme() + "\"}";
 					}
 				}
+				//Korisnik ne postoji nigde to je greska
+				else {
+					res.status(400);
+					return "{\"poruka\": \"Korisnik : " +k1.getUsername() + " se ne nalzi ni u jednoj organizaciji!\"}";
+				}
 			}
 			
 			
@@ -384,6 +389,11 @@ public class OrganizacijeServis {
 						return "{\"poruka\": \"Nemate nadleznost nad vm organizacije: " +org1.getIme() + "\"}";
 					}
 				}
+				//Masina ne postoji nigde greska
+				else {
+					res.status(400);
+					return "{\"poruka\": \"VM: " + vm.getIme() + " se ne nalazi ni u jednoj organizaciji: \"}";
+				}
 			}
 			
 			
@@ -414,6 +424,10 @@ public class OrganizacijeServis {
 						return "{\"poruka\": \"Nemate nadleznost nad diskovima organizacije: " +org1.getIme() + "\"}";
 					}
 				}
+				else {
+					res.status(400);
+					return "{\"poruka\": \"Disk: " + disk.getIme() + " se ne nalazi ni u jednoj organizaciji: \"}";
+				}
 				
 				//Ako se prebacuje disk koji je vec zakacen za virtualnu masinu koja se ne prebacuje izbacice gresku
 				boolean uslov = disk.getVm() == null;
@@ -425,6 +439,7 @@ public class OrganizacijeServis {
 					}
 				}
 				if(!uslov) {
+					// Proveri da li se brise taj disk zajedno s vm
 					res.status(400);
 					return "{\"poruka\": \"Disk "+ disk.getIme() +" je zakacen za masinu koja se ne prebacuje\"}";
 				}
@@ -495,7 +510,8 @@ public class OrganizacijeServis {
 							int index = orgO.getListaDiskova().indexOf(disk);
 							orgO.getListaDiskova().remove(index);
 							index = diskovi.indexOf(disk);
-							diskovi.remove(index);
+							if(index != -1)
+								diskovi.remove(index);
 							cloud.getDiskovi().remove(disk.getIme());
 						}
 					}
