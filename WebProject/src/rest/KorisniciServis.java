@@ -54,7 +54,7 @@ public class KorisniciServis {
 			//Obican korisnik nema pregled svih korisnika
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			
@@ -95,7 +95,7 @@ public class KorisniciServis {
 			
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			ObjectMapper mapper = new ObjectMapper();
@@ -151,7 +151,7 @@ public class KorisniciServis {
 				//Ukoliko trenutni korisnik pokusava da uzme podatke od nekog drugog osim njega
 				if(!trenutniKorsnik.getUsername().equals(username)) {					
 					res.status(403);
-					return "FORBIDDEN";
+					return "{\"poruka\": \"FORBIDDEN\"}";
 				}
 			}
 			
@@ -165,9 +165,9 @@ public class KorisniciServis {
 
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
 				// Proveri da li su iz iste organizacije
-				if(proveraOrganizacije(k,trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
+				if(proveraOrganizacije(k.getUsername(),trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
 					res.status(403);
-					return "FORBIDDEN";
+					return "{\"poruka\": \"FORBIDDEN\"}";
 				}
 				
 			}
@@ -194,7 +194,7 @@ public class KorisniciServis {
 				//Ukoliko trenutni korisnik pokusava da izmeni nekog drugog osim njega
 				if(!trenutniKorsnik.getUsername().equals(staroIme)) {					
 					res.status(403);
-					return "FORBIDDEN";
+					return "{\"poruka\": \"FORBIDDEN\"}";
 				}
 			}
 			
@@ -213,9 +213,9 @@ public class KorisniciServis {
 			
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
 				// Proveri da li su iz iste organizacije
-				if(proveraOrganizacije(k,trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
+				if(proveraOrganizacije(staroIme,trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
 					res.status(403);
-					return "FORBIDDEN";
+					return "{\"poruka\": \"FORBIDDEN\"}";
 				}
 				
 			}
@@ -239,6 +239,13 @@ public class KorisniciServis {
 			k1.setPassword(k.getPassword());
 			k1.setUsername(k.getUsername());
 			k1.setUloga(k.getUloga());
+			cloud.getKorisnici().remove(staroIme);
+			cloud.getKorisnici().put(k.getUsername(), k1);
+			//Ukoliko se menja trenutni user izmeni kolacic
+			if(!staroIme.equals(k.getUsername()) && req.cookie("userID").equals(staroIme)) {
+				res.removeCookie("userID");
+				res.cookie("/", "userID", k.getUsername(), 10000000, false);
+			}
 			return true;
 		});
 		
@@ -250,7 +257,7 @@ public class KorisniciServis {
 			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			String korisnik = req.params(":user");
@@ -276,9 +283,9 @@ public class KorisniciServis {
 			
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
 				// Proveri da li su iz iste organizacije
-				if(proveraOrganizacije(k,trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
+				if(proveraOrganizacije(k.getUsername(),trenutniKorsnik.getOrganizacija().getListaKorisnika())) {
 					res.status(403);
-					return "FORBIDDEN";
+					return "{\"poruka\": \"FORBIDDEN\"}";
 				}
 				
 			}
@@ -309,10 +316,11 @@ public class KorisniciServis {
 		});
 	}
 	
+
 	// Vrati true ukoliko ne postoji korisnik u istoj organizaciji sa adminom
-	private static boolean proveraOrganizacije(Korisnik k, ArrayList<Korisnik> listaKorisnika) {
+	private static boolean proveraOrganizacije(String korisnik, ArrayList<Korisnik> listaKorisnika) {
 		for(Korisnik k1 : listaKorisnika) {
-			if(k1.getUsername().equals(k.getUsername())) {
+			if(k1.getUsername().equals(korisnik)) {
 				return false;
 			}
 		}

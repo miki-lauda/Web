@@ -2,6 +2,7 @@ package beans;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -86,6 +87,16 @@ public class CloudService {
 			k.setOrganizacija(this.organizacija.get(k.org));
 		}
 		
+		
+		for(Organizacija org : this.organizacija.values()) {
+			ArrayList<Korisnik> korisnici = new ArrayList<Korisnik>();
+			for(Korisnik k : org.getListaKorisnika()) {
+				Korisnik k1 = this.korisnici.get(k.getUsername());
+				if(k1 != null)
+					korisnici.add(k1);
+			}
+			org.setListaKorisnika(korisnici);
+		}
 		
 		for(VM vm : this.virtualneMasine.values()) {
 			spolja : for(Organizacija organizacija: getOrganizacija().values()) {

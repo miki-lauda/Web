@@ -106,7 +106,7 @@ Vue.component("dodaj-org", {
 							Svi resursi<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li>
-									<table>
+									<table border = "1">
 										<tr>
 											<th>Ime</th>
 											<th>Tip</th>
@@ -120,8 +120,10 @@ Vue.component("dodaj-org", {
 										</tr>
 										<tr v-for = "r in sviDiskovi">
 											<td>{{r.ime}}  <input :value='r' type='checkbox' v-model="diskovi"/></td>
-											<td>DISK | {{r.kapcitet}} Kapacitet
+											<td>DISK | {{r.kapacitet}} Kapacitet
 											{{r.tip}} Tip</td>
+											
+											<td v-if = "r.vm != undefined">VM : {{r.vm}}</td>
 										</tr>
 									</table>
 								</li>
@@ -349,8 +351,9 @@ Vue.component("izmena-org", {
 						</tr>
 						<tr v-for = "r in diskovi">
 							<td>{{r.ime}}  <input :value='r' type='checkbox' v-model="org.listaDiskova"/></td>
-							<td>DISK | {{r.kapcitet}} Kapacitet
+							<td>DISK | {{r.kapacitet}} Kapacitet
 							{{r.tip}} Tip</td>
+							<td v-if = "r.vm != undefined">VM : {{r.vm}}</td>
 						</tr>
 					</table>
 				</li>
@@ -384,7 +387,7 @@ Vue.component("izmena-org", {
 		        		  if(this.trenutniKorisnik.uloga == "SUPERADMIN")
 		        			  promeniRutu("orgs");
 		        		  else
-		        			  location.reload();
+		        			  promeniRutu("korisnici");
 		        	  }
 		          }).catch(error =>{
 						var poruka = JSON.parse(error.request.responseText)

@@ -212,7 +212,6 @@ Vue.component("izmena-korisnika", {
 			<tr>
 				<td>Email:</td>
 			    <td>{{this.korisnik.email}}</td>
-			    <td id="porukaEmail"></td>
 			</tr>
 			<tr>
 				<td>Tip korisnika:</td>
@@ -250,10 +249,8 @@ Vue.component("izmena-korisnika", {
 			$("#poruka").text($("#username").val() === "" ? "Obavezno polje" : "");
 			$("#porukaPass").text($("#password").val() === "" ? "Obavezno polje" : "");
 			$("#porukaIme").text($("#ime").val() === "" ? "Obavezno polje" : "");
-			$("#porukaEmail").text( regex.test($("#email").val()) ? "" : "Niste uneli email u pravilnom oblku" );
 			
-			if( $("#username").val() !== "" && $("#password").val() !== "" && $("#ime").val() !== "" &&
-				regex.test($("#email").val())){
+			if( $("#username").val() !== "" && $("#password").val() !== "" && $("#ime").val() !== ""){
 				axios
 				.post("/korisnici/izmeniKorisnika/"+this.stariUser, {
 					"username" : $("#username").val(),

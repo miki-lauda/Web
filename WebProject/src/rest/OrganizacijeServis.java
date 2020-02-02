@@ -92,7 +92,7 @@ public class OrganizacijeServis {
 			//Korisnik nema pregled organizacije
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			res.type("application/json");
@@ -123,7 +123,7 @@ public class OrganizacijeServis {
 			//Samo superadmin moze da napravi organizaciju
 			if(trenutniKorsnik.getUloga() != KorisnickaUloga.SUPERADMIN) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			Organizacija org = g.fromJson(req.body(), Organizacija.class);
@@ -266,14 +266,14 @@ public class OrganizacijeServis {
 			//Korisnik nema pregled organizacije
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			//Admin moze samo svoju organizaciju da pregleda
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
 				if(!trenutniKorsnik.getOrganizacija().getIme().equals(orgID)){					
 					res.status(403);
-					return "FORBIDDEN";
+					return "{\"poruka\": \"FORBIDDEN\"}";
 				}
 			}
 			
@@ -301,14 +301,14 @@ public class OrganizacijeServis {
 			//Korisnik nema izmenu organizacije
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			//Admin moze samo svoju organizaciju da menja
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.ADMIN) {
 				if(!trenutniKorsnik.getOrganizacija().getIme().equals(staroIme)){					
 					res.status(403);
-					return "FORBIDDEN";
+					return "{\"poruka\": \"FORBIDDEN\"}";
 				}
 			}
 			
@@ -322,7 +322,7 @@ public class OrganizacijeServis {
 			if(cloud.getOrganizacija().get(org.getIme()) != null &&
 					!staroIme.equals(org.getIme())) {
 				res.status(400);
-				return "{\"poruka\": \"Organizacija ne postoji\"}";
+				return "{\"poruka\": \"Organizacija vec postoji\"}";
 			}
 			// Originalana organizacija
 			Organizacija orgO = cloud.getOrganizacija().get(staroIme);
@@ -429,23 +429,11 @@ public class OrganizacijeServis {
 					return "{\"poruka\": \"Disk: " + disk.getIme() + " se ne nalazi ni u jednoj organizaciji: \"}";
 				}
 				
-				//Ako se prebacuje disk koji je vec zakacen za virtualnu masinu koja se ne prebacuje izbacice gresku
-				boolean uslov = disk.getVm() == null;
-				
-				for(VM vm : resursi) {
-					if(vm.getListaResursa().contains(disk1)) {
-						uslov = true;
-						break;
-					}
-				}
-				if(!uslov) {
-					// Proveri da li se brise taj disk zajedno s vm
-					res.status(400);
-					return "{\"poruka\": \"Disk "+ disk.getIme() +" je zakacen za masinu koja se ne prebacuje\"}";
-				}
 				
 			}
 
+			
+			
 			
 			for(Korisnik k1 : korisnici) {
 				Organizacija org1 = k1.getOrganizacija();
@@ -564,7 +552,10 @@ public class OrganizacijeServis {
 			orgO.setListaKorisnika(korisnici);
 			orgO.setListaResursa(resursi);
 			orgO.setListaDiskova(diskovi);
-			
+			if(!staroIme.equals(orgO.getIme())) {				
+				cloud.getOrganizacija().remove(staroIme);
+				cloud.getOrganizacija().put(orgO.getIme(), orgO);
+			}
 			
 			return true;
 		});
@@ -618,7 +609,7 @@ public class OrganizacijeServis {
 			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			String[] orgVM=g.fromJson(req.body(), String[].class);
 			Organizacija org=cloud.getOrganizacija().get(orgVM[1]);
@@ -665,7 +656,7 @@ public class OrganizacijeServis {
 			
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			String [] params=g.fromJson(req.body(), String[].class);
@@ -688,7 +679,7 @@ public class OrganizacijeServis {
 			Korisnik trenutniKorsnik =(Korisnik) req.session().attribute("user");
 			if(trenutniKorsnik.getUloga() == KorisnickaUloga.KORISNIK) {
 				res.status(403);
-				return "FORBIDDEN";
+				return "{\"poruka\": \"FORBIDDEN\"}";
 			}
 			
 			String[] param=g.fromJson(req.body(), String[].class);

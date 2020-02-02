@@ -37,6 +37,18 @@ Vue.component("glavni-meni", {
 			promeniRutu(ruta)
 		}
 	},
+	watch:{
+	    $route (to, from){
+	    	axios.post("/getCurUser")
+			.then(response =>{
+				this.korisnik = response.data;
+				axios.post("/korisnici/getUser/"+this.korisnik)
+				.then(response => {
+					this.korisnik = response.data;
+				});
+			});
+	    }
+	},
 	mounted () {
 		axios.post("/getCurUser")
 		.then(response =>{

@@ -63,6 +63,7 @@ function napraviRuter(){
 			,{ path: '/kategorije/izmjena/:kategorija', component: IzmjenaKategorije}
 			,{ path: '*', beforeEnter: nepostojecaRuta}
 		  ]
+		  
 	});
 
 	var app = new Vue({
@@ -88,7 +89,7 @@ function proveraRuteOrg(to,from,next){
 		else if(korisnik.uloga == "KORISNIK"){
 			makeForbidden(next);
 		}
-		else if (to.path == "orgs/dodaj"){
+		else if (to.path == "/orgs/dodaj"){
 			if(korisnik.uloga == "ADMIN"){
 				makeForbidden(next);
 			}
